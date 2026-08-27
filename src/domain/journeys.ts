@@ -6,7 +6,7 @@ import type { GovernmentSignal } from "./types";
  */
 
 export interface JourneyStep {
-  label: string;
+  label: { en: string; hi: string };
   signal: GovernmentSignal;
   /** Suggested delay before this signal fires (demo pacing). */
   waitSeconds?: number;
@@ -14,37 +14,37 @@ export interface JourneyStep {
 
 export interface Journey {
   id: string;
-  name: string;
+  name: { en: string; hi: string };
   description: string;
   steps: JourneyStep[];
 }
 
-const KYS = "PM-KISAN KYS (simulated)";
+const KYS = "PM-KISAN KYS (simulated)"; // source citation — proper noun; boundary marker translated in UI render
 
 export const JOURNEYS: Journey[] = [
   {
     id: "J1_FARMER_EKYC",
-    name: "Farmer action — e-KYC",
+    name: { en: "Farmer action — e-KYC", hi: "किसान कार्रवाई — ई-केवाईसी" },
     description: "Payment missing → e-KYC required → citizen completes it → official confirmation → processing → credited.",
     steps: [
       {
-        label: "Official signal: e-KYC incomplete",
+        label: { en: "Official signal: e-KYC incomplete", hi: "आधिकारिक संकेत: ई-केवाईसी अधूरा" },
         waitSeconds: 2,
         signal: { type: "EKYC_STATUS", status: "INCOMPLETE", verifiedAt: new Date(), source: KYS },
       },
       // ← citizen action COMPLETE_EKYC happens here (driven by UI/test, not a signal)
       {
-        label: "Official signal: e-KYC complete",
+        label: { en: "Official signal: e-KYC complete", hi: "आधिकारिक संकेत: ई-केवाईसी पूर्ण" },
         waitSeconds: 4,
         signal: { type: "EKYC_STATUS", status: "COMPLETE", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment processing",
+        label: { en: "Official signal: payment processing", hi: "आधिकारिक संकेत: भुगतान प्रोसेसिंग" },
         waitSeconds: 3,
         signal: { type: "PAYMENT_STATUS", status: "PROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment credited",
+        label: { en: "Official signal: payment credited", hi: "आधिकारिक संकेत: भुगतान जमा" },
         waitSeconds: 3,
         signal: {
           type: "PAYMENT_STATUS",
@@ -62,32 +62,32 @@ export const JOURNEYS: Journey[] = [
   },
   {
     id: "J2_GOVT_VERIFICATION",
-    name: "Government action — physical verification",
+    name: { en: "Government action — physical verification", hi: "सरकारी कार्रवाई — भौतिक सत्यापन" },
     description: "Payment missing → verification pending → state has the next action → verification complete → processing → credited. The zero-action journey.",
     steps: [
       {
-        label: "Official signal: payment processing",
+        label: { en: "Official signal: payment processing", hi: "आधिकारिक संकेत: भुगतान प्रोसेसिंग" },
         waitSeconds: 2,
         signal: { type: "PAYMENT_STATUS", status: "PROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: verification pending",
+        label: { en: "Official signal: verification pending", hi: "आधिकारिक संकेत: सत्यापन लंबित" },
         waitSeconds: 4,
         signal: { type: "VERIFICATION_STATUS", status: "PENDING", verifiedAt: new Date(), source: KYS },
       },
       // ← state acts here; farmer does nothing
       {
-        label: "Official signal: verification complete",
+        label: { en: "Official signal: verification complete", hi: "आधिकारिक संकेत: सत्यापन पूर्ण" },
         waitSeconds: 6,
         signal: { type: "VERIFICATION_STATUS", status: "COMPLETE", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment processing",
+        label: { en: "Official signal: payment processing", hi: "आधिकारिक संकेत: भुगतान प्रोसेसिंग" },
         waitSeconds: 3,
         signal: { type: "PAYMENT_STATUS", status: "PROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment credited",
+        label: { en: "Official signal: payment credited", hi: "आधिकारिक संकेत: भुगतान जमा" },
         waitSeconds: 3,
         signal: {
           type: "PAYMENT_STATUS",
@@ -105,11 +105,11 @@ export const JOURNEYS: Journey[] = [
   },
   {
     id: "J3_PAYMENT_FAILURE",
-    name: "Payment failure — reprocessing",
+    name: { en: "Payment failure — reprocessing", hi: "भुगतान विफलता — दोबारा प्रोसेस" },
     description: "Transaction failed → state/system has the next action → reprocessing → processing → credited. Failed ≠ visit the bank.",
     steps: [
       {
-        label: "Official signal: payment failed",
+        label: { en: "Official signal: payment failed", hi: "आधिकारिक संकेत: भुगतान विफल" },
         waitSeconds: 2,
         signal: {
           type: "PAYMENT_STATUS",
@@ -120,17 +120,17 @@ export const JOURNEYS: Journey[] = [
         },
       },
       {
-        label: "Official signal: reprocessing",
+        label: { en: "Official signal: reprocessing", hi: "आधिकारिक संकेत: दोबारा प्रोसेस" },
         waitSeconds: 4,
         signal: { type: "PAYMENT_STATUS", status: "REPROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment processing",
+        label: { en: "Official signal: payment processing", hi: "आधिकारिक संकेत: भुगतान प्रोसेसिंग" },
         waitSeconds: 3,
         signal: { type: "PAYMENT_STATUS", status: "PROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment credited",
+        label: { en: "Official signal: payment credited", hi: "आधिकारिक संकेत: भुगतान जमा" },
         waitSeconds: 3,
         signal: {
           type: "PAYMENT_STATUS",
@@ -148,16 +148,16 @@ export const JOURNEYS: Journey[] = [
   },
   {
     id: "J4_NO_ACTION",
-    name: "No action — payment processing to credited",
+    name: { en: "No action — payment processing to credited", hi: "कोई कार्रवाई नहीं — भुगतान प्रोसेस से जमा तक" },
     description: "Not every problem requires a task. Processing → credited, nothing asked of the citizen.",
     steps: [
       {
-        label: "Official signal: payment processing",
+        label: { en: "Official signal: payment processing", hi: "आधिकारिक संकेत: भुगतान प्रोसेसिंग" },
         waitSeconds: 2,
         signal: { type: "PAYMENT_STATUS", status: "PROCESSING", verifiedAt: new Date(), source: KYS },
       },
       {
-        label: "Official signal: payment credited",
+        label: { en: "Official signal: payment credited", hi: "आधिकारिक संकेत: भुगतान जमा" },
         waitSeconds: 5,
         signal: {
           type: "PAYMENT_STATUS",

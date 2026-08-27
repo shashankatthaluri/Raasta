@@ -29,6 +29,7 @@ added later behind the same interface **without changing the Case Engine or UX**
 - **Product:** If technology cannot reduce human work, don't add it.
 - **North star:** Complex system → one clear next step.
 - **Trust:** Confidence without false certainty — clarity about who acts next, never unsupported promises about outcomes.
+- **Language:** Language is access, not settings — the first screen is a language gate; the product never requires a citizen to understand a language they do not speak in order to choose the one they do. Choice persists; the switcher stays one click away, always in native names.
 
 ## The core interaction
 

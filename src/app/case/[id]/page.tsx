@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { LanguageToggle, type Lang } from "@/components/LanguageToggle";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { setStoredLanguage, type Lang } from "@/lib/i18n";
 import type { CaseDTO } from "@/server/dto";
 
 /**
@@ -19,11 +20,11 @@ const COLOR_DOT: Record<string, string> = {
   neutral: "bg-stone-400",
 };
 
-const SOURCE_BADGE: Record<string, { label: string; cls: string }> = {
-  OFFICIAL: { label: "Official", cls: "border-green-200 bg-green-50 text-green-800" },
-  CITIZEN_REPORTED: { label: "You told us", cls: "border-stone-200 bg-stone-100 text-stone-700" },
-  SYSTEM_DERIVED: { label: "System", cls: "border-blue-200 bg-blue-50 text-blue-800" },
-  AI_INTERPRETED: { label: "AI explanation", cls: "border-violet-200 bg-violet-50 text-violet-800" },
+const SOURCE_BADGE: Record<string, { label: { en: string; hi: string }; cls: string }> = {
+  OFFICIAL: { label: { en: "Official", hi: "आधिकारिक" }, cls: "border-green-200 bg-green-50 text-green-800" },
+  CITIZEN_REPORTED: { label: { en: "You told us", hi: "आपने बताया" }, cls: "border-stone-200 bg-stone-100 text-stone-700" },
+  SYSTEM_DERIVED: { label: { en: "System", hi: "सिस्टम" }, cls: "border-blue-200 bg-blue-50 text-blue-800" },
+  AI_INTERPRETED: { label: { en: "AI explanation", hi: "एआई व्याख्या" }, cls: "border-violet-200 bg-violet-50 text-violet-800" },
 };
 
 const REASSURANCE: Record<Lang, string[]> = {
@@ -36,12 +37,13 @@ const CONFIRMATION_NOTE: Record<Lang, string> = {
   hi: "आधिकारिक पुष्टि में कुछ समय लग सकता है।",
 };
 
-function timeLabel(iso: string): string {
+function timeLabel(iso: string, lang: Lang): string {
   const d = new Date(iso);
   const now = new Date();
-  const time = d.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" });
-  if (d.toDateString() === now.toDateString()) return `Today, ${time}`;
-  const date = d.toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  const locale = lang === "hi" ? "hi-IN" : "en-IN";
+  const time = d.toLocaleTimeString(locale, { hour: "numeric", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return lang === "hi" ? `आज, ${time}` : `Today, ${time}`;
+  const date = d.toLocaleDateString(locale, { day: "numeric", month: "short" });
   return `${date}, ${time}`;
 }
 
@@ -135,7 +137,7 @@ export default function CasePage() {
 
   function setLanguage(l: Lang) {
     setLang(l);
-    localStorage.setItem("raasta_lang", l);
+    setStoredLanguage(l); // localStorage + cookie — the gate/server stay consistent
   }
 
   const t = (o: { en: string; hi: string }) => o[lang];
@@ -172,16 +174,19 @@ export default function CasePage() {
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-medium text-stone-500">Raasta for PM-KISAN</p>
+          <p className="text-sm font-medium text-stone-500">
+            {lang === "hi" ? "PM-KISAN के लिए रास्ता" : "Raasta for PM-KISAN"}
+          </p>
           {data.isDemo && (
             <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-              Demo case
+              {lang === "hi" ? "डेमो केस" : "Demo case"}
             </span>
           )}
         </div>
-        <LanguageToggle lang={lang} onChange={setLanguage} />
+        <LanguageSwitcher lang={lang} onChange={setLanguage} />
       </div>
-      <p className="mt-1.5 font-mono text-xs text-stone-400">Case {data.id}</p>
+      <p className="mt-1.5 font-mono text-xs text-stone-400">
+        {lang === "hi" ? "केस" : "Case"} {data.id}</p>
 
       {/* What happened? */}
       <section className="mt-8">
@@ -260,8 +265,8 @@ export default function CasePage() {
       )}
 
       {data.lastVerifiedAt && (
-        <p className="mt-6 text-sm text-stone-500">
-          {lang === "hi" ? "अंतिम जाँच:" : "Last verified:"} {timeLabel(data.lastVerifiedAt)}
+        <p className="mt-3 text-sm text-stone-500">
+          {lang === "hi" ? "अंतिम जाँच:" : "Last verified:"} {timeLabel(data.lastVerifiedAt, lang)}
         </p>
       )}
 
@@ -296,11 +301,11 @@ export default function CasePage() {
                 {lang === "hi" ? "डेमो नियंत्रण — अनुकरणित सरकारी संकेत" : "Demo controls — simulated government signals"}
               </p>
               <p className="mt-0.5 text-stone-600">
-                {data.demo.journeyName} · {lang === "hi" ? "चरण" : "step"} {data.demo.step}/{data.demo.totalSteps}
+                {data.demo.journeyName[lang]} · {lang === "hi" ? "चरण" : "step"} {data.demo.step}/{data.demo.totalSteps}
               </p>
               {data.demo.nextSignalLabel && (
                 <p className="text-stone-500">
-                  {lang === "hi" ? "अगला:" : "Next:"} {data.demo.nextSignalLabel}
+                  {lang === "hi" ? "अगला:" : "Next:"} {data.demo.nextSignalLabel[lang]}
                 </p>
               )}
             </div>
@@ -333,8 +338,8 @@ export default function CasePage() {
               <li key={e.id} className="flex gap-3 py-1.5 text-sm">
                 <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-stone-300" />
                 <div>
-                  <p className="text-stone-800">{e.humanLabel}</p>
-                  <p className="text-xs text-stone-400">{timeLabel(e.createdAt)}</p>
+                  <p className="text-stone-800">{e.humanLabel[lang]}</p>
+                  <p className="text-xs text-stone-400">{timeLabel(e.createdAt, lang)}</p>
                 </div>
               </li>
             ))}
@@ -351,7 +356,9 @@ export default function CasePage() {
           </summary>
           <div className="space-y-2 border-t border-stone-100 px-5 py-4">
             {data.evidence.length === 0 && (
-              <p className="text-sm text-stone-500">No verified details yet.</p>
+              <p className="text-sm text-stone-500">
+                {lang === "hi" ? "अभी कोई सत्यापित विवरण नहीं है।" : "No verified details yet."}
+              </p>
             )}
             {data.evidence.map((e) => {
               const badge = SOURCE_BADGE[e.sourceType] ?? SOURCE_BADGE.SYSTEM_DERIVED;
@@ -359,12 +366,14 @@ export default function CasePage() {
                 <div key={e.id} className="rounded-lg border border-stone-100 bg-stone-50/60 p-3">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${badge.cls}`}>
-                      {badge.label}
+                      {badge.label[lang]}
                     </span>
-                    <span className="text-xs text-stone-400">{timeLabel(e.verifiedAt)}</span>
+                    <span className="text-xs text-stone-400">{timeLabel(e.verifiedAt, lang)}</span>
                   </div>
-                  <p className="mt-1.5 text-sm text-stone-800">{e.value}</p>
-                  <p className="mt-0.5 text-xs text-stone-400">{e.source}</p>
+                  <p className="mt-1.5 text-sm text-stone-800">{e.value[lang]}</p>
+                  <p className="mt-0.5 text-xs text-stone-400">
+                    {e.source.replace("(simulated)", lang === "hi" ? "(अनुकरणित)" : "(simulated)")}
+                  </p>
                 </div>
               );
             })}

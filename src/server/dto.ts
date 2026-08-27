@@ -94,8 +94,8 @@ export interface CaseDTO {
     paymentMode: string | null;
     creditedAt: string | null;
   };
-  timeline: { id: string; humanLabel: string; eventType: string; createdAt: string }[];
-  evidence: { id: string; value: string; source: string; sourceType: string; verifiedAt: string }[];
+  timeline: { id: string; humanLabel: { en: string; hi: string }; eventType: string; createdAt: string }[];
+  evidence: { id: string; value: { en: string; hi: string }; source: string; sourceType: string; verifiedAt: string }[];
   demo: DemoInfo | null;
 }
 

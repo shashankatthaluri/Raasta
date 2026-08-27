@@ -35,7 +35,7 @@ export class MockGovernmentAdapter implements GovernmentAdapter {
     return { ...step.signal, verifiedAt: new Date() };
   }
 
-  peek(): { label: string; waitSeconds?: number } | null {
+  peek(): { label: { en: string; hi: string }; waitSeconds?: number } | null {
     const step = this.journey.steps[this.cursor];
     return step ? { label: step.label, waitSeconds: step.waitSeconds } : null;
   }

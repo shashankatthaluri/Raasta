@@ -64,7 +64,8 @@ export interface Evidence {
   source: string;
   sourceType: SourceType;
   verifiedAt: Date;
-  value: string;
+  /** Human-readable evidence value, bilingual — visible case information. */
+  value: { en: string; hi: string };
   confidence: number;
 }
 
@@ -124,7 +125,8 @@ export interface CaseEvent {
   newState: CaseStateId;
   actor: Actor;
   eventType: EventType;
-  humanLabel: string;
+  /** Bilingual human label shown on the citizen timeline. */
+  humanLabel: { en: string; hi: string };
   metadata: Record<string, unknown>;
   createdAt: Date;
 }

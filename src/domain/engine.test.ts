@@ -153,11 +153,11 @@ describe("Evidence & provenance", () => {
     applySignal(c, JOURNEY_BY_ID.J1_FARMER_EKYC.steps[0].signal);
     completeCitizenAction(c, "COMPLETE_EKYC");
     applySignal(c, JOURNEY_BY_ID.J3_PAYMENT_FAILURE.steps[3].signal); // CREDITED with UTR
-    const credited = c.evidence.find((e) => e.value.includes("UTR"));
+    const credited = c.evidence.find((e) => e.value.en.includes("UTR"));
     expect(credited?.sourceType).toBe("OFFICIAL");
-    expect(credited?.value).toContain("amount ₹2000");
+    expect(credited?.value.en).toContain("amount ₹2000");
     const citizen = c.evidence.find((e) => e.sourceType === "CITIZEN_REPORTED");
-    expect(citizen?.value).toContain("Citizen completed");
+    expect(citizen?.value.en).toContain("Citizen completed");
   });
 
   it("builds the full timeline automatically from events", () => {

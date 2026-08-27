@@ -94,7 +94,7 @@ export function demoInfoFor(stored: StoredCase): DemoInfo {
 
 export async function simulateNextSignal(id: string): Promise<{
   applied: boolean;
-  signalLabel: string | null;
+  signalLabel: { en: string; hi: string } | null;
 }> {
   const stored = await getStoredCase(id);
   if (!stored) throw new Error(`Case not found: ${id}`);
@@ -135,9 +135,9 @@ async function persist(stored: StoredCase): Promise<void> {
 
 export interface DemoInfo {
   journeyId: string;
-  journeyName: string;
+  journeyName: { en: string; hi: string };
   step: number;
   totalSteps: number;
-  nextSignalLabel: string | null;
+  nextSignalLabel: { en: string; hi: string } | null;
   complete: boolean;
 }

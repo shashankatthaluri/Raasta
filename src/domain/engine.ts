@@ -30,7 +30,7 @@ function makeEvent(
   previousState: CaseStateId | null,
   newState: CaseStateId,
   actor: Actor,
-  humanLabel: string,
+  humanLabel: { en: string; hi: string },
   metadata: Record<string, unknown> = {},
 ): CaseEvent {
   return {
@@ -48,20 +48,45 @@ function makeEvent(
 
 function evidenceFromSignal(signal: GovernmentSignal): Evidence {
   // Evidence values are L4 "official status" copy — KYS-style, never raw enum names.
-  let value: string;
+  // Bilingual: visible case information must follow the selected language.
+  let value: { en: string; hi: string };
+  const statusHi = { FAILED: "विफल", PROCESSING: "प्रोसेसिंग", REPROCESSING: "दोबारा प्रोसेस", CREDITED: "जमा", PENDING: "लंबित", COMPLETE: "पूर्ण" } as const;
   if (signal.type === "PAYMENT_STATUS") {
-    const parts: string[] = [`Payment status: ${signal.status.toLowerCase()}`];
-    if (signal.amount !== undefined) parts.push(`amount ₹${signal.amount}`);
-    if (signal.utr) parts.push(`UTR ${signal.utr}`);
-    if (signal.bankName) parts.push(`bank ${signal.bankName}`);
-    if (signal.paymentMode) parts.push(`mode ${signal.paymentMode}`);
-    if (signal.reprocessingAvailable === false) parts.push("reprocessing unavailable");
-    value = parts.join(" · ");
+    const partsEn: string[] = [`Payment status: ${signal.status.toLowerCase()}`];
+    const partsHi: string[] = [`भुगतान स्थिति: ${statusHi[signal.status] ?? signal.status.toLowerCase()}`];
+    if (signal.amount !== undefined) {
+      partsEn.push(`amount ₹${signal.amount}`);
+      partsHi.push(`राशि ₹${signal.amount}`);
+    }
+    if (signal.utr) {
+      partsEn.push(`UTR ${signal.utr}`);
+      partsHi.push(`UTR ${signal.utr}`);
+    }
+    if (signal.bankName) {
+      partsEn.push(`bank ${signal.bankName}`);
+      partsHi.push(`बैंक ${signal.bankName}`);
+    }
+    if (signal.paymentMode) {
+      partsEn.push(`mode ${signal.paymentMode}`);
+      partsHi.push(`मोड ${signal.paymentMode}`);
+    }
+    if (signal.reprocessingAvailable === false) {
+      partsEn.push("reprocessing unavailable");
+      partsHi.push("दोबारा प्रोसेस उपलब्ध नहीं");
+    }
+    value = { en: partsEn.join(" · "), hi: partsHi.join(" · ") };
   } else if (signal.type === "EKYC_STATUS") {
-    value = `e-KYC status: ${signal.status === "COMPLETE" ? "complete" : "incomplete"}`;
+    value =
+      signal.status === "COMPLETE"
+        ? { en: "e-KYC status: complete", hi: "ई-केवाईसी स्थिति: पूर्ण" }
+        : { en: "e-KYC status: incomplete", hi: "ई-केवाईसी स्थिति: अधूरा" };
   } else {
     const map = { PENDING: "pending", COMPLETE: "complete", FAILED: "failed" } as const;
-    value = `Eligibility verification: ${map[signal.status]}`;
+    const mapHi = { PENDING: "लंबित", COMPLETE: "पूर्ण", FAILED: "विफल" } as const;
+    value = {
+      en: `Eligibility verification: ${map[signal.status]}`,
+      hi: `पात्रता सत्यापन: ${mapHi[signal.status]}`,
+    };
   }
   return {
     id: uuid(),
@@ -120,7 +145,7 @@ export function createCase(input: {
     resolution: null,
   };
   c.events.push(
-    makeEvent(c, "CASE_CREATED", null, "PAYMENT_EXPECTED", "CENTRAL_SYSTEM", "Case created"),
+    makeEvent(c, "CASE_CREATED", null, "PAYMENT_EXPECTED", "CENTRAL_SYSTEM", { en: "Case created", hi: "केस बनाया गया" }),
   );
   // The citizen's own words are evidence — CITIZEN_REPORTED, never mistaken for OFFICIAL.
   if (input.intake) {
@@ -129,7 +154,7 @@ export function createCase(input: {
       source: "Citizen report",
       sourceType: "CITIZEN_REPORTED",
       verifiedAt: now,
-      value: `You told us: ${input.intake.message}`,
+      value: { en: `You told us: ${input.intake.message}`, hi: `आपने बताया: ${input.intake.message}` },
       confidence: 1,
     });
   }
@@ -160,7 +185,10 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
   c.lastVerifiedAt = signal.verifiedAt;
   c.updatedAt = new Date();
   c.events.push(
-    makeEvent(c, "SIGNAL_RECEIVED", c.currentState, c.currentState, "CENTRAL_SYSTEM", `Signal received: ${signal.type} ${signal.status}`, { signal: `${signal.type}:${signal.status}` }),
+    makeEvent(c, "SIGNAL_RECEIVED", c.currentState, c.currentState, "CENTRAL_SYSTEM", {
+      en: `Signal received: ${signal.type} ${signal.status}`,
+      hi: `संकेत प्राप्त: ${signal.type} ${signal.status}`,
+    }, { signal: `${signal.type}:${signal.status}` }),
   );
 
   if (!next || next === c.currentState) return c;
@@ -176,14 +204,20 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
   // Action assignment is itself an event — "Next action assigned to state."
   if (c.citizenAction) {
     c.events.push(
-      makeEvent(c, "ACTION_ASSIGNED", previousState, next, "CITIZEN", `Next action: ${c.citizenAction.title}`, {
+      makeEvent(c, "ACTION_ASSIGNED", previousState, next, "CITIZEN", {
+        en: `Next action: ${c.citizenAction.title}`,
+        hi: `अगली कार्रवाई: ${c.citizenAction.titleHi}`,
+      }, {
         actionId: c.citizenAction.id,
       }),
     );
   }
 
   c.events.push(
-    makeEvent(c, "STATE_CHANGED", previousState, next, def.nextActor, def.humanTitle, {
+    makeEvent(c, "STATE_CHANGED", previousState, next, def.nextActor, {
+      en: def.humanTitle,
+      hi: def.humanTitleHi,
+    }, {
       from: previousState,
       to: next,
     }),
@@ -195,7 +229,10 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
     const confirmed = c.pendingConfirmation;
     c.pendingConfirmation = null;
     c.events.push(
-      makeEvent(c, "ACTION_CONFIRMED", previousState, next, "CENTRAL_SYSTEM", `Official confirmation: ${ACTION_CATALOG[confirmed].title}`, {
+      makeEvent(c, "ACTION_CONFIRMED", previousState, next, "CENTRAL_SYSTEM", {
+        en: `Official confirmation: ${ACTION_CATALOG[confirmed].title}`,
+        hi: `आधिकारिक पुष्टि: ${ACTION_CATALOG[confirmed].titleHi}`,
+      }, {
         actionId: confirmed,
       }),
     );
@@ -210,7 +247,7 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
     c.nextActor = "NONE";
     c.citizenAction = null;
     c.events.push(
-      makeEvent(c, "RESOLVED", previousState, next, "NONE", "Case resolved — payment credited"),
+      makeEvent(c, "RESOLVED", previousState, next, "NONE", { en: "Case resolved — payment credited", hi: "केस हल — भुगतान जमा" }),
     );
   }
 
@@ -240,11 +277,14 @@ export function completeCitizenAction(c: CitizenCase, actionId: CitizenActionId)
     source: "Citizen report",
     sourceType: "CITIZEN_REPORTED",
     verifiedAt: new Date(),
-    value: `Citizen completed: ${action.title}`,
+    value: { en: `Citizen completed: ${action.title}`, hi: `आपने पूरा किया: ${action.titleHi}` },
     confidence: 1,
   });
   c.events.push(
-    makeEvent(c, "ACTION_COMPLETED", c.currentState, c.currentState, "CITIZEN", `${action.title} — waiting for official confirmation`, {
+    makeEvent(c, "ACTION_COMPLETED", c.currentState, c.currentState, "CITIZEN", {
+      en: `${action.title} — waiting for official confirmation`,
+      hi: `${action.titleHi} — आधिकारिक पुष्टि की प्रतीक्षा`,
+    }, {
       actionId,
     }),
   );
@@ -260,7 +300,10 @@ export function confirmCitizenAction(c: CitizenCase, actionId: CitizenActionId):
   }
   c.pendingConfirmation = null;
   c.events.push(
-    makeEvent(c, "ACTION_CONFIRMED", c.currentState, c.currentState, "CENTRAL_SYSTEM", `Official confirmation: ${ACTION_CATALOG[actionId].title}`, {
+    makeEvent(c, "ACTION_CONFIRMED", c.currentState, c.currentState, "CENTRAL_SYSTEM", {
+      en: `Official confirmation: ${ACTION_CATALOG[actionId].title}`,
+      hi: `आधिकारिक पुष्टि: ${ACTION_CATALOG[actionId].titleHi}`,
+    }, {
       actionId,
     }),
   );
@@ -278,7 +321,7 @@ export function resolveCase(c: CitizenCase, reason: ResolutionReason, note: stri
   c.pendingConfirmation = null;
   c.resolvedAt = new Date();
   c.resolution = { reason, note };
-  c.events.push(makeEvent(c, "RESOLVED", c.currentState, "RESOLVED", "NONE", "Case resolved"));
+  c.events.push(makeEvent(c, "RESOLVED", c.currentState, "RESOLVED", "NONE", { en: "Case resolved", hi: "केस हल हो गया" }));
   c.updatedAt = new Date();
   return c;
 }

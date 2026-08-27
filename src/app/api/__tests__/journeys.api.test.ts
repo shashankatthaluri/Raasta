@@ -79,8 +79,8 @@ describe("J1 — Farmer action (e-KYC), end-to-end via API", () => {
     expect(s3.case.nextActorLabel).toMatchObject({ en: "No one" });
 
     // Provenance preserved: official UTR evidence, citizen-reported action evidence.
-    const ev = s3.case.evidence as { value: string; sourceType: string }[];
-    expect(ev.some((e) => e.value.includes("UTR") && e.sourceType === "OFFICIAL")).toBe(true);
+    const ev = s3.case.evidence as { value: { en: string; hi: string }; sourceType: string }[];
+    expect(ev.some((e) => e.value.en.includes("UTR") && e.sourceType === "OFFICIAL")).toBe(true);
     expect(ev.some((e) => e.sourceType === "CITIZEN_REPORTED")).toBe(true);
 
     // Terminal: further simulation is a no-op.
@@ -102,9 +102,9 @@ describe("J2 — Government action (verification), end-to-end via API", () => {
     expect(s1.case.yourAction).toMatchObject({ required: false });
     expect((s1.case.yourAction as { text: { en: string } }).text.en).toBe("Nothing right now");
     // Evidence is human copy, never raw signal enum names.
-    const ev = s1.case.evidence as { value: string }[];
-    expect(ev.some((e) => e.value === "Eligibility verification: pending")).toBe(true);
-    expect(ev.some((e) => e.value.includes("VERIFICATION_STATUS"))).toBe(false);
+    const ev = s1.case.evidence as { value: { en: string; hi: string } }[];
+    expect(ev.some((e) => e.value.en === "Eligibility verification: pending")).toBe(true);
+    expect(ev.some((e) => e.value.en.includes("VERIFICATION_STATUS"))).toBe(false);
 
     const s2 = await simulate(idOf(created));
     expect(s2.case.currentState).toBe("PAYMENT_PROCESSING");
@@ -182,8 +182,8 @@ describe("Free-text intake (Phase 7 — the one AI capability)", () => {
     expect(c.problemType).toBe("PAYMENT_MISSING");
     expect(c.demo?.journeyId).toBe("J3_PAYMENT_FAILURE");
     // The citizen's own words are provenance — CITIZEN_REPORTED, never OFFICIAL.
-    const ev = c.evidence as { value: string; sourceType: string }[];
-    expect(ev.some((e) => e.sourceType === "CITIZEN_REPORTED" && e.value.includes("You told us"))).toBe(true);
+    const ev = c.evidence as { value: { en: string; hi: string }; sourceType: string }[];
+    expect(ev.some((e) => e.sourceType === "CITIZEN_REPORTED" && e.value.en.includes("You told us"))).toBe(true);
   });
 
   it("detects Hindi intake and sets the UI default language", async () => {

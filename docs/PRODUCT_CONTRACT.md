@@ -43,7 +43,8 @@ Not a generic government chatbot. Not an AI assistant. Not a PM-KISAN clone. Not
 4. **Product:** If technology cannot reduce human work, don't add it.
 5. **Architecture:** Truth → Logic → Interpretation → Experience. (Government signal = truth; rules engine = deterministic logic; AI = interpretation; frontend = experience; CitizenCase = persistence.)
 6. **Trust:** Never present simulated data as a real citizen's record. Demo mode is always labeled. No fake government integration.
-7. **Trust — confidence without false certainty:** clarity about who acts next, never unsupported promises about outcomes. "Don't worry, your payment will definitely arrive" is forbidden; "The state has the next action" is the ceiling of certainty.
+7. **Trust — confidence without false certainty:** clarity about who acts next — never unsupported promises about outcomes ("don't worry, your payment will definitely arrive" is forbidden; "the state has the next action" is the standard).
+8. **Language — access, not settings:** Language must never be a prerequisite for discovering language. The product must never require a citizen to understand a language they do not speak in order to choose the language they do speak. Language selection is part of access, not settings. Only languages the build fully translates are ever offered, always under their native names.
 
 ### Differentiation (judge answers)
 - **vs Kisan e-Mitra:** It answers the farmer's *questions*. Raasta manages the farmer's *case* — persistent, verified, with responsibility and resolution. Conversation is only the interface into the case workflow.

@@ -93,7 +93,7 @@ interface EventRowLike {
   newState: string;
   actor: string;
   eventType: string;
-  humanLabel: string;
+  humanLabel: { en: string; hi: string };
   metadata: Record<string, unknown> | null;
   createdAt: Date;
 }
@@ -104,7 +104,7 @@ interface EvidenceRowLike {
   source: string;
   sourceType: string;
   verifiedAt: Date;
-  value: string;
+  value: { en: string; hi: string };
   confidence: number;
 }
 
