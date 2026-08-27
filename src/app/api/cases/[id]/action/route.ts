@@ -10,7 +10,7 @@ import type { CitizenActionId } from "@/domain/types";
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const stored = getStoredCase(id);
+  const stored = await getStoredCase(id);
   if (!stored) {
     return NextResponse.json({ error: "Case not found" }, { status: 404 });
   }
@@ -26,7 +26,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
 
   try {
-    const c = completeActionOnCase(id, body.actionId);
+    const c = await completeActionOnCase(id, body.actionId);
     return NextResponse.json({ case: toCaseDTO(c, demoInfoFor(stored)) });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Action failed";

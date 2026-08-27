@@ -5,7 +5,7 @@ import { toCaseDTO } from "@/server/dto";
 /** GET /api/cases/:id — the four-question block, chain, timeline, evidence, demo info. */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const stored = getStoredCase(id);
+  const stored = await getStoredCase(id);
   if (!stored) {
     return NextResponse.json({ error: "Case not found" }, { status: 404 });
   }

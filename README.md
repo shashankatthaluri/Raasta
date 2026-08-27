@@ -107,6 +107,9 @@ src/app/                       entry + the one case screen (EN/हिंदी)
 
 ## Status
 
-Day 2/4: contract frozen · state engine contract-tested · API + case experience
-built and browser-verified · persistence and AI intentionally deferred until the
-experience is right.
+Day 3/4: contract frozen · state engine contract-tested · API + case experience
+built and browser-verified · UX audit round fixed (timeline leaks, frozen
+timestamps, invisible case ID, placeholder cards, abrupt transitions) ·
+Supabase persistence implemented (activate with `DATABASE_URL` + `npm run db:push`,
+no auth) · free-text AI intake live (EN + HI, deterministic extractor, LLM
+drop-in behind the same interface) · **28/28 tests** · user testing next.

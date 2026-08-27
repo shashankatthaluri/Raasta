@@ -1,4 +1,5 @@
 import { CreateCase } from "@/components/CreateCase";
+import { IntakeForm } from "@/components/IntakeForm";
 
 const JOURNEY_CARDS = [
   {
@@ -57,8 +58,13 @@ export default function Home() {
           emoji="❓"
         />
       </div>
+
+      <div className="mt-6">
+        <IntakeForm />
+      </div>
+
       <div className="mt-3 rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-500">
-        🎙️ Tell us instead — voice intake lands in the next build.
+        🎙️ Voice intake lands in the next build — for now, tell us in writing above.
       </div>
 
       <hr className="my-10 border-stone-200" />

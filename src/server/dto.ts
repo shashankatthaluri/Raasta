@@ -62,6 +62,7 @@ export interface CaseDTO {
   isDemo: boolean;
   service: string;
   problemType: string;
+  intakeLanguage: string | null;
   currentState: CaseStateId;
   stateCategory: StateCategory;
   color: string;
@@ -129,6 +130,7 @@ export function toCaseDTO(c: CitizenCase, demo: DemoInfo | null): CaseDTO {
     isDemo: c.isDemo,
     service: c.service,
     problemType: c.problemType,
+    intakeLanguage: c.intakeLanguage,
     currentState: c.currentState,
     stateCategory: CATEGORY[c.currentState],
     color: s.color,

@@ -13,10 +13,12 @@ export class MockGovernmentAdapter implements GovernmentAdapter {
   constructor(
     private readonly journeyId: string,
     private readonly identifier: string,
+    startCursor = 0,
   ) {
     if (!JOURNEY_BY_ID[journeyId]) {
       throw new Error(`Unknown journey: ${journeyId}`);
     }
+    this.cursor = Math.min(startCursor, JOURNEY_BY_ID[journeyId].steps.length);
   }
 
   get journey(): (typeof JOURNEY_BY_ID)[string] {

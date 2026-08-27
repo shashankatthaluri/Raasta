@@ -144,6 +144,8 @@ export interface CitizenCase {
   retryCount: number;
   lastVerifiedAt: Date | null;
   isDemo: boolean;
+  /** Language detected from free-text intake (Phase 7) — sets the UI default. */
+  intakeLanguage: string | null;
   /** Set when the citizen completes an action; cleared when an OFFICIAL signal confirms it. */
   pendingConfirmation: CitizenActionId | null;
   /** Structured projection of the latest official payment signal (for display). */

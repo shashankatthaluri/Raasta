@@ -94,6 +94,7 @@ export function createCase(input: {
   id: string;
   problemType: string;
   isDemo?: boolean;
+  intake?: { message: string; language: string };
 }): CitizenCase {
   const now = new Date();
   const c: CitizenCase = {
@@ -108,6 +109,7 @@ export function createCase(input: {
     retryCount: 0,
     lastVerifiedAt: null,
     isDemo: input.isDemo ?? true,
+    intakeLanguage: input.intake?.language ?? null,
     pendingConfirmation: null,
     lastPaymentDetails: null,
     evidence: [],
@@ -120,6 +122,17 @@ export function createCase(input: {
   c.events.push(
     makeEvent(c, "CASE_CREATED", null, "PAYMENT_EXPECTED", "CENTRAL_SYSTEM", "Case created"),
   );
+  // The citizen's own words are evidence — CITIZEN_REPORTED, never mistaken for OFFICIAL.
+  if (input.intake) {
+    c.evidence.push({
+      id: uuid(),
+      source: "Citizen report",
+      sourceType: "CITIZEN_REPORTED",
+      verifiedAt: now,
+      value: `You told us: ${input.intake.message}`,
+      confidence: 1,
+    });
+  }
   return c;
 }
 

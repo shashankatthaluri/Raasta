@@ -9,7 +9,7 @@ import { toCaseDTO } from "@/server/dto";
  */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const stored = getStoredCase(id);
+  const stored = await getStoredCase(id);
   if (!stored) {
     return NextResponse.json({ error: "Case not found" }, { status: 404 });
   }
@@ -17,7 +17,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "simulate-signal is demo-only" }, { status: 403 });
   }
 
-  const result = simulateNextSignal(id);
+  const result = await simulateNextSignal(id);
   return NextResponse.json({
     case: toCaseDTO(stored.case, demoInfoFor(stored)),
     applied: result.applied,

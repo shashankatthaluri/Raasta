@@ -26,7 +26,7 @@ If the citizen has no required action, the primary experience explicitly says: *
 | EKYC_REQUIRED | **action-required** | Your e-KYC needs to be completed | You | COMPLETE_EKYC | red |
 | EKYC_VERIFIED | informational | Your e-KYC is verified | The payment system | none | neutral |
 | PAYMENT_PROCESSING | informational | Your payment is being processed | The payment system | none | neutral |
-| PHYSICAL_VERIFICATION_PENDING | waiting | Your benefit is temporarily on hold while your eligibility is being verified | State verification team | none (unless officially requested) | amber |
+| PHYSICAL_VERIFICATION_PENDING | waiting | Your benefit is temporarily on hold | State verification team | none (unless officially requested) | amber |
 | TRANSACTION_FAILED | waiting | The payment attempt was unsuccessful | State verification team | none (initially) | amber |
 | PAYMENT_REPROCESSING | informational | Your payment is being processed again | The payment system | none | neutral |
 | CITIZEN_ACTION_REQUIRED | **action-required** | We need one thing from you | You | exactly one action | red |
@@ -80,8 +80,8 @@ If the citizen has no required action, the primary experience explicitly says: *
 - **Design note:** neutral; the calmest possible screen.
 
 ### S6 `PHYSICAL_VERIFICATION_PENDING` — waiting
-- **Headline:** Your benefit is temporarily on hold while your eligibility is being verified / आपकी पात्रता की जाँच चल रही है, इसलिए आपका लाभ अस्थायी रूप से रोका गया है
-- **Explanation:** State officials verify eligibility before payments resume. **Pending verification is not a rejection.**
+- **Headline:** Your benefit is temporarily on hold / आपका लाभ अस्थायी रूप से रोका गया है *(headline states the state; the nuance lives in Why)*
+- **Explanation:** Your eligibility is being verified. **This is not a rejection.** / आपकी पात्रता की जाँच चल रही है। यह अस्वीकृति नहीं है।
 - **Next actor:** State verification team · **CTA:** none
 - **Your action:** **Nothing right now.** We're waiting for the next update. We'll tell you when something changes.
 - **Chain:** Eligibility verification → Payment processing → ₹2,000 credited
@@ -91,20 +91,20 @@ If the citizen has no required action, the primary experience explicitly says: *
 
 ### S7 `TRANSACTION_FAILED` — waiting (the killer demo state)
 - **Headline:** The payment attempt was unsuccessful / भुगतान का प्रयास सफल नहीं हो सका
-- **Explanation:** The payment attempt needs further verification. This is part of the official process — failed payments are returned for verification and reprocessing.
+- **Explanation:** The payment attempt needs further verification. **Payment reprocessing — the payment is being processed again after verification.**
 - **Next actor:** State verification team · **CTA:** none
 - **Your action:** **Nothing right now.** We're waiting for the next update. We'll tell you when something changes.
-- **Chain:** State verification → Reprocessing → Payment processing → ₹2,000 credited
+- **Chain:** State verification → Payment reprocessing → Payment processing → ₹2,000 credited
 - **L4:** payment status (failed), reprocessing availability, last verified. **L5:** "Failed transactions are reported back and made available to States/UTs for verification and reprocessing (operational guidelines)."
 - **Notification:** state-change only.
 - **Design note:** **NEVER say "visit your bank" here.** The official reprocessing path exists. This screen is where the judge asks "what does the farmer do?" — and the answer is nothing. Amber.
 
 ### S8 `PAYMENT_REPROCESSING` — informational
 - **Headline:** Your payment is being processed again / आपका भुगतान दोबारा प्रोसेस किया जा रहा है
-- **Explanation:** The system is retrying your payment.
+- **Explanation:** The payment is being processed again after verification. / सत्यापन के बाद भुगतान फिर से प्रोसेस किया जा रहा है।
 - **Next actor:** The payment system · **CTA:** none
 - **Your action:** **Nothing right now.**
-- **Chain:** Reprocessing → Payment processing → ₹2,000 credited
+- **Chain:** Payment reprocessing → Payment processing → ₹2,000 credited
 - **L4:** payment status (reprocessing). **L5:** retry context.
 - **Notification:** state-change only.
 - **Design note:** quiet; follows TRANSACTION_FAILED seamlessly.
@@ -150,6 +150,20 @@ If the citizen has no required action, the primary experience explicitly says: *
 6. **"Last verified" is always a concrete timestamp** — never "live", never "Updated just now" without a real authorised integration.
 7. **Notifications:** no change → silence · meaningful change → notify · citizen action required → notify prominently.
 8. **No** onboarding, dashboards, chatbot bubbles, AI animations, gamification, or decorative complexity. The UI must feel dramatically simpler than the underlying system.
+
+## Free-text intake (Phase 7 — the one AI capability)
+
+"Tell us what happened" — a sentence in English or हिंदी becomes structured intent:
+
+```text
+message → { service: PM_KISAN, intent: PAYMENT_MISSING | PAYMENT_STOPPED | OTHER,
+            context: [PREVIOUSLY_RECEIVED], language: en | hi } → deterministic engine
+```
+
+- The citizen's words are **CITIZEN_REPORTED evidence** ("You told us: …"), never OFFICIAL.
+- The detected language becomes the **UI default** — a Hindi message opens a Hindi case.
+- Intent maps to a demo journey; if extraction fails or is absent, the deterministic journeys are untouched.
+- AI extracts intent only. **It never decides government state.** (LLM extractor is a drop-in behind the same interface when a key is configured; the deterministic rule extractor is active today — no key, tested.)
 
 ## UI structure (consolidated)
 

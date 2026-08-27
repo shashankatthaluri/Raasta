@@ -167,6 +167,52 @@ describe("Guards", () => {
   });
 });
 
+describe("Free-text intake (Phase 7 — the one AI capability)", () => {
+  it("turns a message into structured intent and opens the right journey", async () => {
+    const res = await createCaseRoute(
+      new Request("http://localhost/api/cases", {
+        method: "POST",
+        body: JSON.stringify({
+          message: "I used to receive the money every time, but this month I didn't get anything.",
+        }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const c = ((await res.json()) as { case: CaseDTO }).case;
+    expect(c.problemType).toBe("PAYMENT_MISSING");
+    expect(c.demo?.journeyId).toBe("J3_PAYMENT_FAILURE");
+    // The citizen's own words are provenance — CITIZEN_REPORTED, never OFFICIAL.
+    const ev = c.evidence as { value: string; sourceType: string }[];
+    expect(ev.some((e) => e.sourceType === "CITIZEN_REPORTED" && e.value.includes("You told us"))).toBe(true);
+  });
+
+  it("detects Hindi intake and sets the UI default language", async () => {
+    const res = await createCaseRoute(
+      new Request("http://localhost/api/cases", {
+        method: "POST",
+        body: JSON.stringify({ message: "मुझे पैसे नहीं मिले इस महीने" }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const c = ((await res.json()) as { case: CaseDTO }).case;
+    expect(c.problemType).toBe("PAYMENT_MISSING");
+    expect(c.intakeLanguage).toBe("hi");
+  });
+
+  it("keeps deterministic journey creation working when no message is given", async () => {
+    const res = await createCaseRoute(
+      new Request("http://localhost/api/cases", {
+        method: "POST",
+        body: JSON.stringify({ journeyId: "J4_NO_ACTION" }),
+      }),
+    );
+    expect(res.status).toBe(201);
+    const c = ((await res.json()) as { case: CaseDTO }).case;
+    expect(c.demo?.journeyId).toBe("J4_NO_ACTION");
+    expect(c.currentState).toBe("PAYMENT_PROCESSING");
+  });
+});
+
 function idOf(c: Record<string, unknown>): string {
   return c.id as string;
 }

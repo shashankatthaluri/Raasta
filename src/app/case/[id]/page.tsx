@@ -67,6 +67,10 @@ export default function CasePage() {
       const json = (await res.json()) as { case: CaseDTO };
       if (!mounted.current) return;
       setData(json.case);
+      // Free-text intake sets the UI default language (only when no explicit pref).
+      if (firstLoad.current && json.case.intakeLanguage && !localStorage.getItem("raasta_lang")) {
+        setLang(json.case.intakeLanguage as Lang);
+      }
       // "Something changed" — the contract's demo moment, surfaced as a banner.
       if (!firstLoad.current && prevState.current && prevState.current !== json.case.currentState) {
         setChanged(json.case.title);
