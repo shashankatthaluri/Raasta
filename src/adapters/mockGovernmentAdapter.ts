@@ -3,8 +3,9 @@ import { JOURNEY_BY_ID } from "../domain/journeys";
 import type { GovernmentAdapter, GovernmentState } from "./governmentAdapter";
 
 /**
- * MockGovernmentAdapter — plays a scripted journey of simulated official signals.
- * Demo mode only. Never presents simulated data as a real citizen's record.
+ * MockGovernmentAdapter — plays a scripted journey of simulated government signals
+ * based on publicly documented PM-KISAN workflows. Demo mode only.
+ * Never presents simulated data as a real citizen's record; no live integration implied.
  */
 export class MockGovernmentAdapter implements GovernmentAdapter {
   private cursor = 0;
@@ -22,12 +23,14 @@ export class MockGovernmentAdapter implements GovernmentAdapter {
     return JOURNEY_BY_ID[this.journeyId];
   }
 
-  /** The next scripted signal, or null when the script is exhausted. */
+  /** The next scripted signal, or null when the script is exhausted.
+   *  verifiedAt is stamped NOW, not at module load — simulated signals must
+   *  carry believable timestamps ("Last verified" moves when a state changes). */
   nextSignal(): GovernmentSignal | null {
     const step = this.journey.steps[this.cursor];
     if (!step) return null;
     this.cursor += 1;
-    return step.signal;
+    return { ...step.signal, verifiedAt: new Date() };
   }
 
   peek(): { label: string; waitSeconds?: number } | null {

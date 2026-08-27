@@ -43,6 +43,20 @@ const NOTHING_NOW: { en: string; hi: string } = {
   hi: "अभी कुछ नहीं करना है",
 };
 
+/**
+ * Citizen-facing timeline. SIGNAL_RECEIVED is audit-only (kept in full on the
+ * engine/DB side) — "Signal received: PAYMENT_STATUS FAILED" is internal
+ * terminology and must never appear in the citizen experience.
+ */
+const CITIZEN_TIMELINE_EVENTS = new Set([
+  "CASE_CREATED",
+  "STATE_CHANGED",
+  "ACTION_ASSIGNED",
+  "ACTION_COMPLETED",
+  "ACTION_CONFIRMED",
+  "RESOLVED",
+]);
+
 export interface CaseDTO {
   id: string;
   isDemo: boolean;
@@ -95,7 +109,18 @@ export function toCaseDTO(c: CitizenCase, demo: DemoInfo | null): CaseDTO {
         why: { en: decision.action.why, hi: decision.action.whyHi },
         after: { en: decision.action.after, hi: decision.action.afterHi },
         href: decision.action.href,
-        card: decision.action.card,
+        card: decision.action.card
+          ? {
+              ...decision.action.card,
+              // The handoff card must carry real values, not section labels.
+              lines: [
+                `Case: ${c.id}`,
+                `Issue: ${s.title}`,
+                `Action: ${decision.action.title}`,
+                `Next: ${s.chain.join(" → ")}`,
+              ],
+            }
+          : undefined,
       }
     : null;
 
@@ -132,12 +157,14 @@ export function toCaseDTO(c: CitizenCase, demo: DemoInfo | null): CaseDTO {
       paymentMode: c.lastPaymentDetails?.paymentMode ?? null,
       creditedAt: c.lastPaymentDetails?.creditedAt?.toISOString() ?? null,
     },
-    timeline: c.events.map((e) => ({
-      id: e.id,
-      humanLabel: e.humanLabel,
-      eventType: e.eventType,
-      createdAt: e.createdAt.toISOString(),
-    })),
+    timeline: c.events
+      .filter((e) => CITIZEN_TIMELINE_EVENTS.has(e.eventType))
+      .map((e) => ({
+        id: e.id,
+        humanLabel: e.humanLabel,
+        eventType: e.eventType,
+        createdAt: e.createdAt.toISOString(),
+      })),
     evidence: c.evidence.map((e) => ({
       id: e.id,
       value: e.value,

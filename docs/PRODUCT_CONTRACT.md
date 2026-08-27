@@ -278,6 +278,9 @@ type Evidence = {
 
 ## 11. Government adapter
 
+> **Raasta currently uses simulated government-service signals based on publicly documented PM-KISAN workflows. It does not access live individual government beneficiary data.**
+> We are proving the product experience and decision model, not claiming government data access. Never say "we connected to PM-KISAN", "live farmer data", "real-time PM-KISAN status", "live beneficiary verification" or "live government API" unless an authorised integration is implemented and verified.
+
 ```text
                     CASE ENGINE
                         ▲
@@ -287,7 +290,7 @@ type Evidence = {
         MockGovernmentAdapter   PMKisanOfficialAdapter (future)
 ```
 
-The rest of the system doesn't care where the signal comes from.
+The Case Engine and UX never know which adapter produced the signal — an authorised official integration could be added later without changing either.
 
 ```typescript
 interface GovernmentAdapter {
@@ -506,6 +509,7 @@ Fail any → kill or simplify.
 
 - **2026-08-27 (Day 2):** Contract v1.1 frozen. Phase 2 state engine implemented and contract-tested (journeys J1–J4 + escalation + rules priority + evidence provenance). Phase 3 schema written (not migrated). Scaffold: Next.js 15, TS, Tailwind, Drizzle, vitest.
 - **2026-08-27 (Day 2, continued):** docs/STATE_TO_EXPERIENCE.md — the 11-state → UX mapping (the frontend contract). Phase 5 API routes (create/get/action/simulate-signal/next-action; in-memory demo store; thin routes, no duplicated business logic). Phase 6 UI — entry ("What happened?") + the one case screen (four-question block, zero-action reassurance, one-action CTA with bank/CSC cards, progressive disclosure with provenance badges, timeline, demo controls, EN/हिंदी). **18/18 tests passing** (13 engine + 5 API journey e2e). Production build clean. J1, J3 and the Hindi toggle verified live in a real browser against the dev server. Engine fix: `pendingConfirmation` now clears on the official confirmation signal (ACTION_CONFIRMED event) — the trust boundary was wired but never cleared.
-- **Next (Day 3):** Phase 7 AI (intent extraction + explanation, behind the case service) · timeline/notification polish · Supabase persistence when the experience is right.
+- **2026-08-27 (Day 3, UX audit round):** Browser-audited J1–J4 against the experience checklist. Fixed: (1) citizen timeline no longer leaks `SIGNAL_RECEIVED`/internal signal events (audit-only in the engine); (2) simulated signals now stamp `verifiedAt` at application time — "Last verified" and evidence timestamps move believably (were frozen at module load); (3) case ID now visible on the case screen; (4) handoff cards carry real values (case ID, issue, action, next step) instead of section labels; (5) "Something changed — {new state}" banner on transitions (contract §15 demo moment); (6) evidence values humanized (KYS-style copy, never `VERIFICATION_STATUS` enum names). **Data/integration boundary made explicit everywhere** (README, contract §11, adapter/source comments, demo UI, entry footer): simulated government-service signals based on publicly documented PM-KISAN workflows — no live individual beneficiary data, no live integration implied.
+- **Next (Day 3):** Supabase persistence (adapter abstraction intact) → Phase 7 AI, one capability only (free-text intake → structured intent → deterministic engine) → user testing.
 
 *Anything not in this document is not in the MVP.*

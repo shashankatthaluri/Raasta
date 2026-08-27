@@ -79,7 +79,8 @@ export default function Home() {
       </div>
 
       <p className="mt-10 text-xs leading-relaxed text-stone-400">
-        Demo — all official signals are simulated. No real government data.
+        Demo — all government signals are simulated, based on publicly documented
+        PM-KISAN workflows. No live individual government data is accessed.
         Rules determine reality. AI explains reality.
       </p>
     </main>

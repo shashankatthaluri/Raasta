@@ -52,6 +52,9 @@ export default function CasePage() {
   const [lang, setLang] = useState<Lang>("en");
   const [auto, setAuto] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [changed, setChanged] = useState<{ en: string; hi: string } | null>(null);
+  const prevState = useRef<string | null>(null);
+  const firstLoad = useRef(true);
   const mounted = useRef(true);
 
   const load = useCallback(async () => {
@@ -62,7 +65,14 @@ export default function CasePage() {
         return;
       }
       const json = (await res.json()) as { case: CaseDTO };
-      if (mounted.current) setData(json.case);
+      if (!mounted.current) return;
+      setData(json.case);
+      // "Something changed" — the contract's demo moment, surfaced as a banner.
+      if (!firstLoad.current && prevState.current && prevState.current !== json.case.currentState) {
+        setChanged(json.case.title);
+      }
+      prevState.current = json.case.currentState;
+      firstLoad.current = false;
     } catch {
       if (mounted.current) setError("Something went wrong while loading this case.");
     }
@@ -113,6 +123,12 @@ export default function CasePage() {
     return () => clearInterval(t);
   }, [auto, data?.demo?.nextSignalLabel, simulate]);
 
+  useEffect(() => {
+    if (!changed) return;
+    const t = setTimeout(() => setChanged(null), 4500);
+    return () => clearTimeout(t);
+  }, [changed]);
+
   function setLanguage(l: Lang) {
     setLang(l);
     localStorage.setItem("raasta_lang", l);
@@ -143,18 +159,25 @@ export default function CasePage() {
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-10">
+      {changed && (
+        <div className="mb-6 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-900">
+          {lang === "hi" ? "कुछ बदला —" : "Something changed —"} {changed[lang]}
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <p className="text-sm font-medium text-stone-500">Raasta for PM-KISAN</p>
           {data.isDemo && (
             <span className="rounded-full border border-amber-300 bg-amber-50 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-              Demo case · simulated signals
+              Demo case
             </span>
           )}
         </div>
         <LanguageToggle lang={lang} onChange={setLanguage} />
       </div>
+      <p className="mt-1.5 font-mono text-xs text-stone-400">Case {data.id}</p>
 
       {/* What happened? */}
       <section className="mt-8">
@@ -266,7 +289,7 @@ export default function CasePage() {
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="font-medium text-amber-900">
-                {lang === "hi" ? "डेमो नियंत्रण — अनुकरणित आधिकारिक संकेत" : "Demo controls — simulated official signals"}
+                {lang === "hi" ? "डेमो नियंत्रण — अनुकरणित सरकारी संकेत" : "Demo controls — simulated government signals"}
               </p>
               <p className="mt-0.5 text-stone-600">
                 {data.demo.journeyName} · {lang === "hi" ? "चरण" : "step"} {data.demo.step}/{data.demo.totalSteps}

@@ -47,15 +47,21 @@ function makeEvent(
 }
 
 function evidenceFromSignal(signal: GovernmentSignal): Evidence {
-  let value = `${signal.type}: ${signal.status}`;
+  // Evidence values are L4 "official status" copy — KYS-style, never raw enum names.
+  let value: string;
   if (signal.type === "PAYMENT_STATUS") {
-    const parts: string[] = [`Payment status: ${signal.status}`];
+    const parts: string[] = [`Payment status: ${signal.status.toLowerCase()}`];
     if (signal.amount !== undefined) parts.push(`amount ₹${signal.amount}`);
     if (signal.utr) parts.push(`UTR ${signal.utr}`);
     if (signal.bankName) parts.push(`bank ${signal.bankName}`);
     if (signal.paymentMode) parts.push(`mode ${signal.paymentMode}`);
     if (signal.reprocessingAvailable === false) parts.push("reprocessing unavailable");
     value = parts.join(" · ");
+  } else if (signal.type === "EKYC_STATUS") {
+    value = `e-KYC status: ${signal.status === "COMPLETE" ? "complete" : "incomplete"}`;
+  } else {
+    const map = { PENDING: "pending", COMPLETE: "complete", FAILED: "failed" } as const;
+    value = `Eligibility verification: ${map[signal.status]}`;
   }
   return {
     id: uuid(),

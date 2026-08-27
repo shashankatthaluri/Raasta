@@ -4,6 +4,7 @@ import { GET as getCaseRoute } from "@/app/api/cases/[id]/route";
 import { POST as actionRoute } from "@/app/api/cases/[id]/action/route";
 import { POST as simulateRoute } from "@/app/api/cases/[id]/simulate-signal/route";
 import { GET as nextActionRoute } from "@/app/api/cases/[id]/next-action/route";
+import type { CaseDTO } from "@/server/dto";
 
 /**
  * Phase 5+6 verification — the four demo journeys end-to-end through the real
@@ -36,7 +37,7 @@ async function postAction(id: string, actionId: string) {
 async function simulate(id: string) {
   const res = await simulateRoute(new Request("http://localhost/api/cases", { method: "POST" }), PARAMS(id));
   expect(res.status).toBe(200);
-  return (await res.json()) as { case: Record<string, unknown>; applied: boolean; done: boolean };
+  return (await res.json()) as { case: CaseDTO; applied: boolean; done: boolean };
 }
 
 describe("J1 — Farmer action (e-KYC), end-to-end via API", () => {
@@ -65,6 +66,8 @@ describe("J1 — Farmer action (e-KYC), end-to-end via API", () => {
     expect(s1.case.yourAction).toMatchObject({ awaitingConfirmation: false });
     const tl1 = s1.case.timeline as { eventType: string }[];
     expect(tl1.some((e) => e.eventType === "ACTION_CONFIRMED")).toBe(true);
+    // The citizen timeline must never leak internal signal events.
+    expect(tl1.some((e) => e.eventType === "SIGNAL_RECEIVED")).toBe(false);
 
     // Processing → credited.
     await simulate(id);
@@ -98,6 +101,10 @@ describe("J2 — Government action (verification), end-to-end via API", () => {
     expect(s1.case.nextActorLabel).toMatchObject({ en: "State verification team" });
     expect(s1.case.yourAction).toMatchObject({ required: false });
     expect((s1.case.yourAction as { text: { en: string } }).text.en).toBe("Nothing right now");
+    // Evidence is human copy, never raw signal enum names.
+    const ev = s1.case.evidence as { value: string }[];
+    expect(ev.some((e) => e.value === "Eligibility verification: pending")).toBe(true);
+    expect(ev.some((e) => e.value.includes("VERIFICATION_STATUS"))).toBe(false);
 
     const s2 = await simulate(idOf(created));
     expect(s2.case.currentState).toBe("PAYMENT_PROCESSING");

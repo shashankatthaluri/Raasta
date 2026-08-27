@@ -8,6 +8,8 @@ import type { CitizenActionId, CitizenCase } from "@/domain/types";
  * Deliberate: the complete case experience is built against the mock adapter FIRST;
  * Supabase becomes persistence afterwards and must not block product development.
  * NOTE: in-memory only — restarts lose cases. Demo-scoped, clearly documented.
+ * All cases here are demo cases driven by simulated government signals — no live
+ * government data is accessed or implied.
  */
 
 export interface DemoInfo {
