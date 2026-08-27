@@ -114,7 +114,7 @@ When there is no citizen action, the screen does NOT stop at "Nothing right now.
 ## 7. Escalation model ("what if nothing happens?" — first-class)
 
 - Every waiting state answers: what are we waiting for · who owns it · when should we expect movement (only if verified) · what official source supports that expectation · what happens if the window passes · what is the verified escalation route.
-- Verified surfaces (matrix): Helpdesk Query Form + Appeal on pmkisan.gov.in; state grievance mechanisms (official document exists). Exact per-path routes remain PENDING — until then the UI says the route is being verified, never invents contacts.
+- Verified surfaces (matrix): Helpdesk Query Form + Appeal on pmkisan.gov.in; **District Level Grievance Redressal Monitoring Committee** (the verified inclusion/dispute route); grievance disposal **"preferably within two weeks"** as a *handling target* — never rendered as a guaranteed resolution date. Exact per-path routes beyond these remain PENDING — until then the UI says the route is being verified, never invents contacts.
 - No invented SLAs, grievance categories, or escalation contacts.
 
 ## 8. Grievance model
@@ -175,7 +175,7 @@ WHERE DO I GO?             LAST VERIFIED
 
 ## 14. Build order (after this spec is accepted)
 
-1. Extract operational guidelines + FAQ PDFs (requires consent for a PDF extractor install) → upgrade matrix tags
+1. ✅ **Research complete (2026-08-27):** operational guidelines (original + revised), FAQs, amendment, clarification extracted and mined — matrix upgraded with verbatim quotes and tags. Scanned PDFs (refund mechanism, state grievance mechanisms, Aadhaar seeding) and the eKYC process page remain PENDING (OCR/unreachable).
 2. Lock the matrix → implement entry/check flow → playbooks → wait-context → grievance prep
 3. Tests + browser verification of the complete end-to-end story
 4. User test (minimum 1–3 real sessions) against the NEW entry
