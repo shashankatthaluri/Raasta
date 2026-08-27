@@ -54,6 +54,7 @@ If the tester lands on a different journey than targeted, **record the journey t
 - [ ] Did they understand "Nothing right now"? (did they believe it?)
 - [ ] Did they trust the information? (skepticism, re-reading, asking "is this real?")
 - [ ] Did they know what to do next after each screen?
+- [ ] **Entry path:** did they use the buttons, the free-text field, or a scenario card? Did they read the intake hint?
 - [ ] **Confidence without false certainty:** did any tester read an unsupported promise into the copy ("payment will definitely arrive")? Or did certainty stay at "who acts next"?
 
 ### Signals to listen for (never prompt for these — just listen)

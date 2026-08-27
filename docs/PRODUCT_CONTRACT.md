@@ -505,6 +505,7 @@ Fail any → kill or simplify.
 | 2026-08-27 | MVP identity: no auth; demo case IDs (`RAAS-DEMO-…`); visible "Demo case" banner; OTP lookup post-MVP | ✅ IMPLEMENTING |
 | 2026-08-27 | Language: EN + HI display strings for all states from day one (one i18n JSON); Web Speech voice-in as Day-3 stretch behind a flag | ✅ IMPLEMENTING |
 | 2026-08-27 | After citizen completes an action → wait for OFFICIAL confirmation signal before claiming verified (never trust self-report) | ✅ LOCKED |
+| 2026-08-27 | **Panel review (builder-side, NOT user validation) — 5 post-test improvement candidates logged, zero product changes:** (1) collapse demo controls by default (`Demo controls ▸`) — strongest candidate; (2) "State verification team" wording — test-gated; (3) "Payment reprocessing" label — test-gated, technical term stays in Details; (4) visually prioritize free-text intake over category buttons — after test, gated on graceful OTHER fallback; (5) voice/local-language/assisted roadmap — only if it reduces work. Product frozen until real user observations land. | ✅ LOGGED (no change) |
 
 ## 23. Progress log
 
