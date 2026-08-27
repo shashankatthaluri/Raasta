@@ -5,17 +5,19 @@
 
 ---
 
-## Setup (before the tester arrives)
+## Part A — Run the session
+
+### Setup (before the tester arrives)
 
 - [ ] Fresh browser tab at the Raasta entry screen (`/`) — nothing else open
 - [ ] One scenario assigned per tester (table below); do NOT show the assignment to the tester
-- [ ] Recording grid ready (page 2); pen, not laptop (stay present, not typing)
+- [ ] Recording grid ready (Part A); pen, not laptop (stay present, not typing)
 
-## Run the session
+### Run the session
 
 1. Say, verbatim: *"You are a farmer who previously received PM-KISAN instalments, but this time the payment did not arrive. Use this to figure out what is happening."*
 2. **Say nothing else.** No explanation of architecture, case, responsibility, AI, PM-KISAN workflow, or what the "right" answer is.
-3. Let them interact naturally. Watch and record (page 2). Do not correct, help, or point at any UI element — even if they look stuck. Hesitation is data.
+3. Let them interact naturally. Watch and record (Part A grid). Do not correct, help, or point at any UI element — even if they look stuck. Hesitation is data. (If they click "Simulate next official signal", record it — that is observation, not something to prevent.)
 4. After they stop (or after ~5 minutes), ask the four questions **in order**, verbatim:
    1. *"What happened?"*
    2. *"Who needs to act now?"*
@@ -24,7 +26,7 @@
 5. Then: *"If this were a real situation, would you feel comfortable stopping here and waiting?"*
 6. Do not ask "Did you like it?", "Is this useful?", "Would you use this?" — these invite yes-answers.
 
-## Scenario assignment (5 testers, all four journeys covered)
+### Scenario assignment (5 testers, all four journeys covered)
 
 | Tester | Scenario phrasing (say this) | Target journey |
 |---|---|---|
@@ -36,19 +38,19 @@
 
 If the tester lands on a different journey than targeted, **record the journey they actually took** and mark it — deviation is data, not failure.
 
-## Watch-for list (record during interaction)
+### Watch-for list (record during interaction)
 
-- [ ] Exact words/answers (quote them)
+- [ ] Exact words/answers (quote them verbatim)
 - [ ] Hesitation moments (where, how long)
 - [ ] Wrong interpretations (what they believed)
-- [ ] Terminology that confused them (name it)
+- [ ] Terminology that confused them (name it, quote it)
 - [ ] Where they looked / what they clicked (path)
 - [ ] Did they understand the timeline? ("What's been happening")
 - [ ] Did they understand "Nothing right now"? (did they believe it?)
 - [ ] Did they trust the information? (skepticism, re-reading, asking "is this real?")
 - [ ] Did they know what to do next after each screen?
 
-## Recording grid
+### Recording grid
 
 | Tester | Journey | What happened? | Who acts? | What do I do? | What's next? | Hesitation / confusion |
 |---|---|---|---|---|---|---|
@@ -58,16 +60,65 @@ If the tester lands on a different journey than targeted, **record the journey t
 | T4 |  |  |  |  |  |  |
 | T5 |  |  |  |  |  |  |
 
-## Post-test summary (after all five, fill honestly)
+---
+
+## Part B — Interpretation rules
+
+### 1. Comprehension ≠ Trust. Score every journey on six dimensions.
+
+| Dimension | Question |
+|---|---|
+| **Comprehension** | Did they understand what happened? |
+| **Responsibility** | Did they identify who acts next? |
+| **Action** | Did they know exactly what they had to do? |
+| **Next state** | Did they understand what happens next? |
+| **Trust** | Would they actually stop checking and wait? |
+| **Effort** | Did the product make the situation feel easier? |
+
+Scoring key per dimension: **1 = no · 2 = partial/hesitant · 3 = yes.**
+**Trust is behavioral, not verbal.** "I understand the state has the next action" + "I'd still check the portal every day" = Trust 1. Solving comprehension without solving the checking behavior is not success.
+
+### 2. Capture exact language. Never translate.
+
+Quote testers verbatim, even when messy:
+
+| If they say… | That is… |
+|---|---|
+| "Oh, I don't have to do anything?" | **Potentially the strongest signal** — zero-action landed |
+| "I don't know what state verification means." | A terminology defect |
+| "So I guess the government is checking it?" | Comprehension in their own framing — note the gap |
+
+Do not rewrite their words into product terminology in your notes. Their vocabulary is the data.
+
+### 3. After T1–T5: three decisions only.
+
+1. **Keep** — what people understood immediately. Don't touch it.
+2. **Fix** — the biggest *repeated* confusion. One change, highest impact.
+3. **Kill** — anything that looked clever but did not reduce effort.
+
+No feature creep. No "while we're here, let's add…".
+
+### Scoring grid (fill per tester)
+
+| Tester | Journey | Comp. | Resp. | Action | Next | Trust | Effort | Key quotes (verbatim) |
+|---|---|---|---|---|---|---|---|---|
+| T1 |  |  |  |  |  |  |  |  |
+| T2 |  |  |  |  |  |  |  |  |
+| T3 |  |  |  |  |  |  |  |  |
+| T4 |  |  |  |  |  |  |  |  |
+| T5 |  |  |  |  |  |  |  |  |
+
+### Post-test summary (after all five, fill honestly)
 
 1. **Most common misunderstanding**
 2. **Most confusing screen**
 3. **Most confusing terminology**
 4. **Was responsibility understood?** (who acts next — per journey)
-5. **Did zero-action states feel trustworthy?** (did testers believe "nothing right now"?)
+5. **Did zero-action states feel trustworthy?** (did testers believe "nothing right now" — and would they stop checking?)
 6. **Was the next-step chain understood?**
 7. **Any unnecessary interaction** (anything the tester did the product made them do)
 8. **One highest-impact UX change** (if none needed, say so — do not invent one)
 
 **Do not modify the product until these observations are collected.**
 Contract and architecture change only if testing reveals a genuine product-model problem.
+Bring the observations back **raw**, even if messy.
