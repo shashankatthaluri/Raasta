@@ -146,6 +146,14 @@ export interface CitizenCase {
   isDemo: boolean;
   /** Set when the citizen completes an action; cleared when an OFFICIAL signal confirms it. */
   pendingConfirmation: CitizenActionId | null;
+  /** Structured projection of the latest official payment signal (for display). */
+  lastPaymentDetails: {
+    amount?: number;
+    utr?: string;
+    bankName?: string;
+    paymentMode?: string;
+    creditedAt?: Date;
+  } | null;
   evidence: Evidence[];
   events: CaseEvent[];
   createdAt: Date;

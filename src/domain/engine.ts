@@ -103,6 +103,7 @@ export function createCase(input: {
     lastVerifiedAt: null,
     isDemo: input.isDemo ?? true,
     pendingConfirmation: null,
+    lastPaymentDetails: null,
     evidence: [],
     events: [],
     createdAt: now,
@@ -128,6 +129,15 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
   // Every signal is evidence, even when it doesn't change the state.
   const evidence = evidenceFromSignal(signal);
   c.evidence.push(evidence);
+  if (signal.type === "PAYMENT_STATUS") {
+    c.lastPaymentDetails = {
+      amount: signal.amount ?? c.lastPaymentDetails?.amount,
+      utr: signal.utr ?? c.lastPaymentDetails?.utr,
+      bankName: signal.bankName ?? c.lastPaymentDetails?.bankName,
+      paymentMode: signal.paymentMode ?? c.lastPaymentDetails?.paymentMode,
+      creditedAt: signal.creditedAt ?? c.lastPaymentDetails?.creditedAt,
+    };
+  }
   c.lastVerifiedAt = signal.verifiedAt;
   c.updatedAt = new Date();
   c.events.push(
@@ -159,6 +169,18 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
       to: next,
     }),
   );
+
+  // Official confirmation of a completed citizen action (trust boundary):
+  // the citizen's self-report never moves the case — only this does.
+  if (c.pendingConfirmation && (next === "EKYC_VERIFIED" || next === "PAYMENT_CREDITED")) {
+    const confirmed = c.pendingConfirmation;
+    c.pendingConfirmation = null;
+    c.events.push(
+      makeEvent(c, "ACTION_CONFIRMED", previousState, next, "CENTRAL_SYSTEM", `Official confirmation: ${ACTION_CATALOG[confirmed].title}`, {
+        actionId: confirmed,
+      }),
+    );
+  }
 
   if (next === "PAYMENT_CREDITED") {
     c.resolvedAt = new Date();
@@ -234,6 +256,7 @@ export function resolveCase(c: CitizenCase, reason: ResolutionReason, note: stri
   c.nextActor = "NONE";
   c.citizenAction = null;
   c.nextState = null;
+  c.pendingConfirmation = null;
   c.resolvedAt = new Date();
   c.resolution = { reason, note };
   c.events.push(makeEvent(c, "RESOLVED", c.currentState, "RESOLVED", "NONE", "Case resolved"));

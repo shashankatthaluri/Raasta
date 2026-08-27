@@ -496,6 +496,8 @@ Fail any → kill or simplify.
 |---|---|---|
 | 2026-08-27 | Product, name, thesis, pillars, state library, rules, adapter strategy, evidence, journeys J1–J4, MVP boundary frozen | ✅ LOCKED |
 | 2026-08-27 | Stack: Next.js 15 + TypeScript + Tailwind, PostgreSQL (Supabase), Drizzle ORM, port 3998 | ✅ IMPLEMENTING (veto anytime) |
+| 2026-08-27 | **Persistence deferred by design:** complete case experience built against the in-memory demo store + MockGovernmentAdapter FIRST. Supabase becomes persistence afterwards — it must not block product development. | ✅ LOCKED |
+| 2026-08-27 | UI consolidated to two routes: `/` and `/case/:id` (action, details, timeline, resolution render inline on the one case screen) — the four-question block must never be broken across pages. See docs/STATE_TO_EXPERIENCE.md. | ✅ LOCKED |
 | 2026-08-27 | MVP identity: no auth; demo case IDs (`RAAS-DEMO-…`); visible "Demo case" banner; OTP lookup post-MVP | ✅ IMPLEMENTING |
 | 2026-08-27 | Language: EN + HI display strings for all states from day one (one i18n JSON); Web Speech voice-in as Day-3 stretch behind a flag | ✅ IMPLEMENTING |
 | 2026-08-27 | After citizen completes an action → wait for OFFICIAL confirmation signal before claiming verified (never trust self-report) | ✅ LOCKED |
@@ -503,5 +505,7 @@ Fail any → kill or simplify.
 ## 23. Progress log
 
 - **2026-08-27 (Day 2):** Contract v1.1 frozen. Phase 2 state engine implemented and contract-tested (journeys J1–J4 + escalation + rules priority + evidence provenance). Phase 3 schema written (not migrated). Scaffold: Next.js 15, TS, Tailwind, Drizzle, vitest.
+- **2026-08-27 (Day 2, continued):** docs/STATE_TO_EXPERIENCE.md — the 11-state → UX mapping (the frontend contract). Phase 5 API routes (create/get/action/simulate-signal/next-action; in-memory demo store; thin routes, no duplicated business logic). Phase 6 UI — entry ("What happened?") + the one case screen (four-question block, zero-action reassurance, one-action CTA with bank/CSC cards, progressive disclosure with provenance badges, timeline, demo controls, EN/हिंदी). **18/18 tests passing** (13 engine + 5 API journey e2e). Production build clean. J1, J3 and the Hindi toggle verified live in a real browser against the dev server. Engine fix: `pendingConfirmation` now clears on the official confirmation signal (ACTION_CONFIRMED event) — the trust boundary was wired but never cleared.
+- **Next (Day 3):** Phase 7 AI (intent extraction + explanation, behind the case service) · timeline/notification polish · Supabase persistence when the experience is right.
 
 *Anything not in this document is not in the MVP.*

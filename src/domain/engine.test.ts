@@ -59,6 +59,8 @@ describe("J1 — Farmer action (e-KYC)", () => {
     // The official COMPLETE signal is what actually moves it.
     applySignal(c, JOURNEY_BY_ID.J1_FARMER_EKYC.steps[1].signal);
     expect(c.currentState).toBe("EKYC_VERIFIED");
+    expect(c.pendingConfirmation).toBeNull();
+    expect(c.events.some((e) => e.eventType === "ACTION_CONFIRMED")).toBe(true);
   });
 });
 

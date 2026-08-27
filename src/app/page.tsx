@@ -1,28 +1,86 @@
+import { CreateCase } from "@/components/CreateCase";
+
+const JOURNEY_CARDS = [
+  {
+    journeyId: "J1_FARMER_EKYC",
+    label: "J1 — Farmer action",
+    description: "Payment missing → e-KYC required → one action → verified → credited.",
+  },
+  {
+    journeyId: "J2_GOVT_VERIFICATION",
+    label: "J2 — Government action",
+    description: "State verification → the state has the next action → credited.",
+  },
+  {
+    journeyId: "J3_PAYMENT_FAILURE",
+    label: "J3 — Payment failure",
+    description: "Failed → reprocessing → credited. The farmer does nothing.",
+  },
+  {
+    journeyId: "J4_NO_ACTION",
+    label: "J4 — No action",
+    description: "Processing → credited. Not every problem requires a task.",
+  },
+];
+
 export default function Home() {
   return (
-    <main className="mx-auto flex min-h-screen max-w-2xl flex-col justify-center px-6 py-16">
-      <p className="mb-3 text-sm font-medium text-stone-500">Raasta for PM-KISAN · Demo case</p>
-      <h1 className="text-4xl font-semibold tracking-tight text-stone-900">
-        Government complexity.
-        <br />
-        One clear next step.
-      </h1>
-      <p className="mt-4 max-w-md text-lg leading-relaxed text-stone-600">
-        A citizen case system that turns complex government process states into one clear
-        next step — or tells the citizen when no action is required.
+    <main className="mx-auto max-w-2xl px-6 py-14">
+      <p className="text-sm font-medium text-stone-500">
+        Raasta for PM-KISAN · Demo
       </p>
-      <div className="mt-10 rounded-xl border border-stone-200 bg-white p-5 text-sm text-stone-600">
-        <p className="font-medium text-stone-900">Build status — Day 2/4</p>
-        <ul className="mt-2 list-disc space-y-1 pl-5">
-          <li>Phase 1 — Product contract: locked (docs/PRODUCT_CONTRACT.md)</li>
-          <li>Phase 2 — State engine: implemented, contract-tested (npm test)</li>
-          <li>Phase 3 — Schema: written, not migrated</li>
-          <li>Phase 4–8: adapter · API · UI · AI · polish — next</li>
-        </ul>
+      <h1 className="mt-2 text-4xl font-semibold tracking-tight text-stone-900">
+        What happened?
+      </h1>
+      <p className="mt-3 text-lg leading-relaxed text-stone-600">
+        Tell us what happened. We&apos;ll show you what it means, who acts next,
+        and what you need to do.
+      </p>
+
+      <div className="mt-8 grid gap-3 sm:grid-cols-3">
+        <CreateCase
+          journeyId="J3_PAYMENT_FAILURE"
+          problemType="PAYMENT_MISSING"
+          label="My payment didn&apos;t arrive"
+          emoji="💰"
+        />
+        <CreateCase
+          journeyId="J2_GOVT_VERIFICATION"
+          problemType="PAYMENT_STOPPED"
+          label="My payment stopped"
+          emoji="⏸️"
+        />
+        <CreateCase
+          journeyId="J1_FARMER_EKYC"
+          problemType="OTHER"
+          label="Something else"
+          emoji="❓"
+        />
       </div>
-      <p className="mt-8 text-sm text-stone-400">
-        Rules determine reality. AI explains reality. Never make the citizen understand the
-        system to use the service.
+      <div className="mt-3 rounded-xl border border-stone-200 bg-stone-50 p-4 text-sm text-stone-500">
+        🎙️ Tell us instead — voice intake lands in the next build.
+      </div>
+
+      <hr className="my-10 border-stone-200" />
+      <h2 className="text-lg font-semibold text-stone-900">Try a demo scenario</h2>
+      <p className="mt-1 text-sm text-stone-600">
+        Four journeys, driven by simulated official signals.
+      </p>
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        {JOURNEY_CARDS.map((j) => (
+          <CreateCase
+            key={j.journeyId}
+            variant="scenario"
+            journeyId={j.journeyId}
+            label={j.label}
+            description={j.description}
+          />
+        ))}
+      </div>
+
+      <p className="mt-10 text-xs leading-relaxed text-stone-400">
+        Demo — all official signals are simulated. No real government data.
+        Rules determine reality. AI explains reality.
       </p>
     </main>
   );
