@@ -26,7 +26,12 @@
 5. Then: *"If this were a real situation, would you feel comfortable stopping here and waiting?"*
 6. Do not ask "Did you like it?", "Is this useful?", "Would you use this?" — these invite yes-answers.
 
-### Scenario assignment (5 testers, all four journeys covered)
+### Scenario assignment (minimum 1–3 real sessions — five if feasible, never fabricated)
+
+**Time-boxed: do not wait for five people.** One genuinely observed session beats five
+manufactured ones; three reveal a repeated pattern. If only T1 is reachable, work with
+that. Assign journeys to whichever testers you get, prioritising J3 (the thesis moment);
+cover as many journeys as possible.
 
 | Tester | Scenario phrasing (say this) | Target journey |
 |---|---|---|
@@ -34,7 +39,7 @@
 | T2 | "The payments stopped after some time." | J2 — state verification |
 | T3 | "Your payment didn't arrive this time, and you're not sure why." | J1 — e-KYC citizen action |
 | T4 | "You just want to know what's happening with your payment." | J4 — processing → credited |
-| T5 | Same as T1. | J3 (thesis journey, second data point) |
+| T5 | Same as T1. | J3 (second data point, optional) |
 
 If the tester lands on a different journey than targeted, **record the journey they actually took** and mark it — deviation is data, not failure.
 
@@ -157,7 +162,8 @@ Hesitations:
 Clicks:
 ```
 
-…through T5.
+…through T5 (if fewer testers were reached, number them T1…Tn and report what you have —
+**never fill gaps with invented observations**; we work with whatever real evidence exists).
 
 Plus the **aggregate six-dimension scores**: per dimension (Comprehension,
 Responsibility, Action, Next state, Trust, Effort) list the five scores and the
