@@ -152,3 +152,59 @@ Demo scenarios ▸  (reveals the four cards for judges only)
 3. Card → typography/separators language?
 4. Entry reduced to check-only above the fold?
 5. Demo controls muted strip now / drawer post-test?
+
+---
+
+## 9. Location-aware language pairing (spec'd post-test candidate — NOT part of this approval)
+
+> **Status:** specced, not built. Gate: user-test observations + a deliberate translation
+> decision (which languages we commit to fully translating). This section does not change
+> the current approval — it documents the design so it is ready when the gates open.
+
+### 9.1 Pattern — suggest, never lock
+
+The entry gate shows **English + the suggested regional language** as two prominent
+buttons, plus a quiet **"Other languages ▸"** link revealing the full list of
+actually-supported languages. Two visible by default, all reachable in one tap.
+
+- Location is a **default suggestion, never a lock** — a farmer geolocated to the wrong
+  state must always be one tap from their language. This preserves the locked principle:
+  *never require a citizen to understand a language they do not speak to choose the one
+  they do.*
+- **Never assert the guess.** The UI does not say "We think you're in Maharashtra" — it
+  simply orders the pair. Confidence without false certainty applies to geo too.
+- In-product switcher shows **all** supported languages; location only shapes the entry.
+
+### 9.2 Suggestion sources (in priority order)
+
+1. `navigator.language` — the device's own language setting; the best signal, free, no
+   network. A phone set to मराठी almost certainly belongs to a Marathi speaker.
+2. IP geolocation (server-side, when available) — enhancement only, expected to be wrong
+   on mobile carriers/VPNs.
+3. Fallback when both are unknown/unreliable: **English + हिंदी** (Hindi = largest
+   language; the two fully-translated today).
+
+Implementation shape: a pure `suggestedLanguage()` in `src/lib/i18n.ts` returning a
+language code; gate and switcher consume it. Zero engine/API/case-model changes.
+
+### 9.3 The translation wall (the real gate)
+
+This pattern only earns its place **per language fully translated** — all 11 states,
+5 actions, evidence/timeline labels, and chrome, AI-drafted and human-verified (the same
+discipline as the recovery matrix). Showing "English + मराठी" without full Marathi copy
+would violate the accessibility promise. The pattern amplifies the translation decision;
+it does not replace it.
+
+### 9.4 Demo control
+
+Judges are VPN'd and the dev server is local, so geo is unreliable in the demo. The demo
+drawer gets a **"Demo location ▾"** picker (e.g., Telangana → English + తెలుగు,
+Maharashtra → English + मराठी, Delhi → English + हिंदी) so the regional-pair behavior is
+demonstrable on demand, deterministically. Judge moment: *"If this farmer were in
+Telangana, they'd see exactly this."*
+
+### 9.5 Acceptance
+
+A Maharashtra farmer sees English + मराठी prominently · a Telugu-speaking farmer can still
+reach हिंदी or any supported language in one tap · the demo can simulate any state ·
+no language is ever advertised before its full copy is verified.
