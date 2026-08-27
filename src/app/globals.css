@@ -1,26 +1,39 @@
 @import "tailwindcss";
 
+/*
+ * Raasta design language — PRODUCT_CONTRACT.md §14.
+ * Calm, trustworthy, human, minimal. "Almost boring" is the compliment.
+ * Semantic colors only: green = resolved/verified, amber = waiting/another party acting,
+ * red = citizen action/attention, neutral = processing/information.
+ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --raasta-bg: #fafaf8;
+  --raasta-ink: #1c1917;
+  --raasta-muted: #57534e;
+  --raasta-line: #e7e5e4;
+  --raasta-green: #15803d;
+  --raasta-amber: #b45309;
+  --raasta-red: #b91c1c;
+  --raasta-neutral: #44403c;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--raasta-bg);
+  color: var(--raasta-ink);
+  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Semantic status colors — always paired with text/icon, never color alone. */
+.status-green {
+  color: var(--raasta-green);
+}
+.status-amber {
+  color: var(--raasta-amber);
+}
+.status-red {
+  color: var(--raasta-red);
+}
+.status-neutral {
+  color: var(--raasta-neutral);
 }
