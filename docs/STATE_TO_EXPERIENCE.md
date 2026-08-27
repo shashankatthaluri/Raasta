@@ -150,6 +150,7 @@ If the citizen has no required action, the primary experience explicitly says: *
 6. **"Last verified" is always a concrete timestamp** — never "live", never "Updated just now" without a real authorised integration.
 7. **Notifications:** no change → silence · meaningful change → notify · citizen action required → notify prominently.
 8. **No** onboarding, dashboards, chatbot bubbles, AI animations, gamification, or decorative complexity. The UI must feel dramatically simpler than the underlying system.
+9. **Confidence without false certainty:** every statement is traceable to a signal or an actor. Never promise outcomes the system cannot verify — "The state has the next action" is the ceiling of certainty.
 
 ## Free-text intake (Phase 7 — the one AI capability)
 

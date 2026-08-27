@@ -49,6 +49,21 @@ If the tester lands on a different journey than targeted, **record the journey t
 - [ ] Did they understand "Nothing right now"? (did they believe it?)
 - [ ] Did they trust the information? (skepticism, re-reading, asking "is this real?")
 - [ ] Did they know what to do next after each screen?
+- [ ] **Confidence without false certainty:** did any tester read an unsupported promise into the copy ("payment will definitely arrive")? Or did certainty stay at "who acts next"?
+
+### Signals to listen for (never prompt for these — just listen)
+
+**Hurtful (valuable evidence):**
+- "I understand what happened, but I still don't trust it."
+- "I don't know who the state verification team is."
+- "Why do I have to wait?"
+- "I'd still call the bank."
+- "I don't know whether this is actually fixed."
+
+**Gold:**
+- "Oh, I don't have to do anything." → "I'll wait until it tells me something changed."
+
+Capture any of these **verbatim**, with the screen they were on.
 
 ### Recording grid
 
@@ -122,3 +137,30 @@ No feature creep. No "while we're here, let's add…".
 **Do not modify the product until these observations are collected.**
 Contract and architecture change only if testing reveals a genuine product-model problem.
 Bring the observations back **raw**, even if messy.
+
+---
+
+## Part C — Report format (bring back after the five sessions)
+
+Per tester, in this shape (fill from raw notes — do not polish):
+
+```text
+T1
+Journey:
+What happened:
+Who acts:
+What do I do:
+What's next:
+Trust (1-3 + one-line why):
+Exact quotes:
+Hesitations:
+Clicks:
+```
+
+…through T5.
+
+Plus the **aggregate six-dimension scores**: per dimension (Comprehension,
+Responsibility, Action, Next state, Trust, Effort) list the five scores and the
+spread — e.g. `Trust: 3,1,2,2,1 → mean 1.8`. The spread matters as much as the mean.
+
+Then we decide: **KEEP → FIX → KILL**, ideally one high-impact change.

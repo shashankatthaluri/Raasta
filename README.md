@@ -28,6 +28,7 @@ added later behind the same interface **without changing the Case Engine or UX**
 - **UX:** Never make the citizen understand the system to use the service.
 - **Product:** If technology cannot reduce human work, don't add it.
 - **North star:** Complex system → one clear next step.
+- **Trust:** Confidence without false certainty — clarity about who acts next, never unsupported promises about outcomes.
 
 ## The core interaction
 
