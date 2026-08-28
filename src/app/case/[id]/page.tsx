@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { GlossaryText } from "@/components/Glossary";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
@@ -498,6 +499,9 @@ export default function CasePage() {
     if (busy) return;
     setBusy(true);
     try {
+      track("action_completed", { actionId, caseId: id });
+    } catch {}
+    try {
       await fetch(`/api/cases/${id}/action`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -644,6 +648,9 @@ export default function CasePage() {
     isPlayingMagicRef.current = true;
     setAuto(true);
     setShowConfetti(false);
+    try {
+      track("demo_played", { caseId: id, journey: data?.demo?.journeyId });
+    } catch {}
 
     try {
       // -----------------------------------------------------------------

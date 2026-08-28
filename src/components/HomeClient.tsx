@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { track } from "@vercel/analytics";
 import { CreateCase } from "@/components/CreateCase";
 import { IntakeForm } from "@/components/IntakeForm";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
@@ -637,6 +638,9 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
         setBusy(false);
         return;
       }
+      try {
+        track("case_check_submitted", { regNumber: trimmed, lang, caseId: json.case.id });
+      } catch {}
       router.push(`/case/${json.case.id}`);
     } catch {
       setBusy(false);
