@@ -858,18 +858,12 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
             </div>
           </div>
 
-          {/* Header Controls (Journal Link + Language Switcher): Fades in when settled */}
+          {/* Header Controls (Language Switcher): Fades in when settled */}
           <div
-            className={`flex items-center gap-2.5 transition-opacity duration-500 ease-out ${
+            className={`transition-opacity duration-500 ease-out ${
               introStage === "settled" && hasSelectedLang ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
-            <Link
-              href="/journal"
-              className="text-xs font-semibold text-stone-700 hover:text-stone-950 px-2.5 py-1 rounded-full border border-stone-200 bg-white shadow-2xs transition hover:bg-stone-100 active:scale-95"
-            >
-              📖 Journal
-            </Link>
             <LanguageSwitcher
               lang={lang}
               onChange={(l) => {
@@ -1057,11 +1051,18 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               </details>
             </section>
 
-            {/* Data boundary — kept explicit */}
-            <p className="mt-8 text-center text-xs leading-relaxed text-stone-400">
-              {t.boundary} <br />
-              <span className="italic">{t.principle}</span>
-            </p>
+            {/* Footer & Discreet Journal Link */}
+            <footer className="mt-12 pt-6 border-t border-stone-200/80 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-400">
+              <p className="text-center sm:text-left leading-relaxed">
+                {t.boundary}
+              </p>
+              <Link
+                href="/journal"
+                className="font-medium text-stone-500 hover:text-stone-900 transition hover:underline underline-offset-4 shrink-0"
+              >
+                Raasta Journal · Philosophy →
+              </Link>
+            </footer>
           </div>
         )}
       </main>

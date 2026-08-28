@@ -1061,12 +1061,6 @@ export default function CasePage() {
                   : cp.statusWaiting}
               </span>
             </span>
-            <Link
-              href="/journal"
-              className="hidden sm:inline-flex text-xs font-semibold text-stone-600 hover:text-stone-950 px-2.5 py-1 rounded-full border border-stone-200 bg-stone-50 shadow-2xs transition hover:bg-stone-100 active:scale-95"
-            >
-              📖 Journal
-            </Link>
             <LanguageSwitcher lang={lang} onChange={setLanguage} />
           </div>
         </div>
@@ -1902,9 +1896,18 @@ export default function CasePage() {
         </div>
       )}
 
-      <p className="mt-10 text-center text-xs text-stone-400">
-        {cp.principleFooter}
-      </p>
+      {/* Discreet Footer & Journal Link */}
+      <footer className="mt-12 pt-6 border-t border-stone-200/60 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-stone-400">
+        <p className="text-center sm:text-left leading-relaxed">
+          {cp.principleFooter}
+        </p>
+        <Link
+          href="/journal"
+          className="font-medium text-stone-500 hover:text-stone-900 transition hover:underline underline-offset-4 shrink-0"
+        >
+          Raasta Journal · Philosophy →
+        </Link>
+      </footer>
     </main>
   );
 }
