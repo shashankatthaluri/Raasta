@@ -115,7 +115,7 @@ export default function CasePage() {
 
   // Guided Demo Walkthrough states
   const [highlightSection, setHighlightSection] = useState<string | null>(null);
-  const [demoStatusText, setDemoStatusText] = useState<{ en: string; hi: string } | null>(null);
+  const [demoStatusText, setDemoStatusText] = useState<Record<Lang, string> | null>(null);
   const [isTypingPhone, setIsTypingPhone] = useState(false);
   const [autoGrievance, setAutoGrievance] = useState<{
     token: string;
@@ -654,6 +654,12 @@ export default function CasePage() {
         setDemoStatusText({
           en: "Step 1/4: Connecting citizen phone (+91 98765 43210) to live recovery daemon...",
           hi: "चरण 1/4: नागरिक के फोन (+91 98765 43210) को लाइव रिकवरी एजेंट से जोड़ा जा रहा है...",
+          te: "దశ 1/4: పౌరుడి ఫోన్ (+91 98765 43210) ను లైవ్ రికవరీ ఏజెంట్‌తో కనెక్ట్ చేస్తోంది...",
+          ta: "படி 1/4: குடிமகன் தொலைபேசி (+91 98765 43210) நேரலை மீட்பு அமைப்பில் இணைக்கப்படுகிறது...",
+          kn: "ಹಂತ 1/4: ನಾಗರಿಕರ ಫೋನ್ (+91 98765 43210) ಅನ್ನು ಲೈವ್ ರಿಕವರಿ ಏಜೆಂಟ್‌ಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
+          mr: "टप्पा 1/4: नागरिकाचा फोन (+91 98765 43210) थेट रिकव्हरी एजंटशी जोडला जात आहे...",
+          bn: "ধাপ 1/4: নাগরিকের ফোন (+91 98765 43210) লাইভ রিকভারি এজেন্টের সাথে সংযুক্ত হচ্ছে...",
+          pa: "ਪੜਾਅ 1/4: ਨਾਗਰਿਕ ਦਾ ਫ਼ੋਨ (+91 98765 43210) ਲਾਈਵ ਰਿਕਵਰੀ ਏਜੰਟ ਨਾਲ ਜੋੜਿਆ ਜਾ ਰਿਹਾ ਹੈ...",
         });
 
         // 1. Move virtual cursor to WhatsApp input
@@ -702,6 +708,12 @@ export default function CasePage() {
           setDemoStatusText({
             en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
             hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
+            te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
+            ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
+            kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
+            mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
+            bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ ক্রেডিট নিশ্চিত হয়েছে।",
+            pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
           });
           if (typeof window !== "undefined") {
             document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -724,6 +736,12 @@ export default function CasePage() {
           setDemoStatusText({
             en: `Step ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: Performing citizen requirement on portal...`,
             hi: `चरण ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: पोर्टल पर नागरिक प्रक्रिया पूरी की जा रही है...`,
+            te: `దశ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: పోర్టల్‌లో పౌర అవసరాన్ని పూర్తి చేస్తోంది...`,
+            ta: `படி ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: போர்ட்டலில் குடிமகன் தேவையை நிறைவேற்றுகிறது...`,
+            kn: `ಹಂತ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನಾಗರಿಕ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಲಾಗುತ್ತಿದೆ...`,
+            mr: `टप्पा ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: पोर्टलवर नागरिक प्रक्रिया पूर्ण केली जात आहे...`,
+            bn: `ধাপ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: পোর্টালে নাগরিক প্রক্রিয়া সম্পন্ন হচ্ছে...`,
+            pa: `ਪੜਾਅ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: ਪੋਰਟਲ 'ਤੇ ਨਾਗਰਿਕ ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...`,
           });
 
           // Move cursor directly to the action button with visible click wave
@@ -880,6 +898,12 @@ export default function CasePage() {
             setDemoStatusText({
               en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
               hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
+              te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
+              ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
+              kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
+              mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
+              bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ ক্রেডিট নিশ্চিত হয়েছে।",
+              pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
             });
             if (typeof window !== "undefined") {
               document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });

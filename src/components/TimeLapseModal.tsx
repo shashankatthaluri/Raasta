@@ -19,11 +19,10 @@ export function TimeLapseModal({ active, daysText, title, lang }: TimeLapseModal
     return val[lang] ?? val.en ?? "";
   };
 
-  // Apple-style: no page blur, no dark overlay. A subtle floating pill banner
-  // anchored near the bottom — like time-skip captions in documentaries.
+  // Apple-style: subtle floating pill banner elevated above the bottom HUD
   return (
-    <div className="pointer-events-none fixed bottom-8 inset-x-0 z-[150] flex items-end justify-center px-4 animate-in slide-in-from-bottom-2 fade-in duration-500">
-      <div className="flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white/92 px-5 py-3.5 shadow-lg shadow-stone-900/8 backdrop-blur-md">
+    <div className="pointer-events-none fixed bottom-22 sm:bottom-24 inset-x-0 z-[150] flex items-end justify-center px-4 animate-in slide-in-from-bottom-3 fade-in duration-300">
+      <div className="flex items-center gap-3 rounded-2xl border border-stone-200/90 bg-white/98 px-5 py-3.5 shadow-2xl shadow-stone-900/15 backdrop-blur-xl">
 
         {/* Slim pulsing clock icon */}
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/70">
