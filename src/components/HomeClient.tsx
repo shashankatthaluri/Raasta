@@ -785,14 +785,16 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               <RaastaLogoEmblem size="md" />
             </button>
 
-            {/* Brand Text Column: Wordmark on top, Tagline directly below it */}
+            {/* Brand Text Column: In Center, renders 2 stacked rows (Wordmark + Tagline). In Header, renders 1 laser-straight aligned row */}
             <div
-              className={`flex flex-col justify-center items-start transition-opacity duration-700 ease-out ml-2.5 ${
+              className={`flex ${
+                isAtCenter ? "flex-col justify-center items-start ml-2.5" : "flex-row items-center gap-1.5 ml-2.5"
+              } transition-opacity duration-700 ease-out ${
                 isTextUnrolled ? "opacity-100" : "opacity-0 pointer-events-none"
               }`}
             >
-              {/* Top line: Wordmark (Subtle stationary optical dissolve across Indic scripts) */}
-              <div className="flex items-center gap-1.5 whitespace-nowrap py-0.5 min-h-[26px]">
+              {/* Top line: Wordmark + Demo Badge */}
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 <AppleMorphWordmark
                   currentWord={WORDMARKS[activeCycleLang]}
                   isRevealed={isTextUnrolled}
@@ -801,7 +803,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
                 <span
                   className={`rounded-full border border-amber-300 bg-amber-50/80 px-2 py-0.5 text-[9px] font-bold text-amber-800 uppercase transition-opacity duration-500 ${
-                    isAtCenter ? "opacity-0 scale-75 pointer-events-none" : "opacity-100 scale-100"
+                    isAtCenter ? "opacity-0 scale-75 pointer-events-none hidden" : "opacity-100 scale-100 inline-flex items-center"
                   }`}
                 >
                   <span className="grid place-items-center relative">
@@ -824,33 +826,35 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                 </span>
               </div>
 
-              {/* Bottom line: Tagline (directly under Raasta, 100% in-place optical dissolve) */}
-              <div
-                style={{
-                  transitionDelay: isTaglineVisible ? "260ms" : "0ms",
-                }}
-                className={`mt-0.5 py-0.5 transition-opacity duration-600 ease-out ${
-                  isTaglineVisible ? "opacity-100" : "opacity-0 pointer-events-none"
-                }`}
-              >
-                <div className="grid place-items-start relative">
-                  {SUPPORTED_LANGUAGES.map((l) => {
-                    const isActive = activeCycleLang === l.code;
-                    return (
-                      <p
-                        key={l.code}
-                        className={`col-start-1 row-start-1 text-[10.5px] font-medium tracking-tight text-stone-500 whitespace-nowrap leading-normal select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                          isActive
-                            ? "opacity-100 blur-0"
-                            : "opacity-0 blur-[2px] pointer-events-none"
-                        }`}
-                      >
-                        {TAGLINES[l.code]}
-                      </p>
-                    );
-                  })}
+              {/* Bottom line: Tagline (rendered ONLY when in Center mode) */}
+              {isAtCenter && (
+                <div
+                  style={{
+                    transitionDelay: isTaglineVisible ? "260ms" : "0ms",
+                  }}
+                  className={`mt-0.5 py-0.5 transition-opacity duration-600 ease-out ${
+                    isTaglineVisible ? "opacity-100" : "opacity-0 pointer-events-none"
+                  }`}
+                >
+                  <div className="grid place-items-start relative">
+                    {SUPPORTED_LANGUAGES.map((l) => {
+                      const isActive = activeCycleLang === l.code;
+                      return (
+                        <p
+                          key={l.code}
+                          className={`col-start-1 row-start-1 text-[10.5px] font-medium tracking-tight text-stone-500 whitespace-nowrap leading-normal select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                            isActive
+                              ? "opacity-100 blur-0"
+                              : "opacity-0 blur-[2px] pointer-events-none"
+                          }`}
+                        >
+                          {TAGLINES[l.code]}
+                        </p>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
