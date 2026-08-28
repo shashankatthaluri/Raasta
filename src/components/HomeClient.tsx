@@ -553,10 +553,10 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     if (brandRef.current) {
       const rect = brandRef.current.getBoundingClientRect();
       const targetCenterX = window.innerWidth / 2;
-      const targetCenterY = window.innerHeight * 0.44;
+      const targetCenterY = window.innerHeight * 0.48; // Perfect optical viewport center
 
       const INTRO_SCALE = 2.2;
-      const fullWidth = 175;
+      const fullWidth = 158; // Exact calibrated lockup width (Logo 32px + Gap 10px + Text 116px)
       const fullHeight = 44;
       const logoWidth = 32;
 
