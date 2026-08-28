@@ -1163,6 +1163,12 @@ export default function CasePage() {
                     {t(data.demo.journeyName)}
                   </span>
                 )}
+                {isSubscribed && (
+                  <span className="rounded-md bg-emerald-50 border border-emerald-200/80 px-1.5 py-0.5 text-[10px] font-sans font-semibold text-emerald-800 inline-flex items-center gap-1">
+                    <WhatsAppIcon className="h-2.5 w-2.5 text-emerald-600" />
+                    <span>+91 {phoneInput || "98765 43210"}</span>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -1672,88 +1678,60 @@ export default function CasePage() {
         </section>
       )}
 
-      {/* Proactive WhatsApp & SMS Alert Subscription */}
-      {!resolved && (
-        <section
+      {/* Quiet Bottom-Corner WhatsApp Reassurance (Unobtrusive & Calm) */}
+      {!resolved && !isSubscribed && (
+        <aside
           id="whatsapp-subscription-card"
-          className={`mt-5 rounded-3xl border border-stone-200/80 bg-white p-5 shadow-xs sm:p-6 transition-all duration-700 ${
-            highlightSection === "whatsapp"
-              ? "ring-4 ring-emerald-500 shadow-xl ring-offset-2 ring-offset-stone-50 scale-[1.01]"
-              : ""
-          }`}
+          className="mt-4 rounded-2xl border border-stone-200/70 bg-stone-50/70 p-4 transition-all duration-300"
         >
-          <div className="flex items-start justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white shadow-2xs">
-                <WhatsAppIcon className="h-4 w-4" />
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg bg-emerald-600 text-white shadow-2xs">
+                <WhatsAppIcon className="h-3.5 w-3.5" />
               </span>
-              <div>
-                <h3 className="text-sm font-bold text-stone-900">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-stone-900 truncate">
                   {cp.whatsAppAlertsTitle}
-                </h3>
-                <p className="text-xs text-stone-500">
+                </p>
+                <p className="text-[11px] text-stone-500 truncate">
                   {cp.whatsAppAlertsDesc}
                 </p>
               </div>
             </div>
-          </div>
 
-          {isSubscribed ? (
-            <div className="mt-4 flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-semibold text-emerald-900 animate-in fade-in zoom-in-95 duration-300">
-              <div className="flex items-center gap-2">
-                <WhatsAppIcon className="h-3.5 w-3.5 text-emerald-700" />
-                <span>
-                  {cp.whatsAppSubscribed} +91 {phoneInput || "98765 43210"}
-                </span>
-              </div>
-              <button
-                onClick={() => setIsSubscribed(false)}
-                className="text-[11px] font-semibold text-emerald-700 underline hover:text-emerald-900"
-              >
-                {cp.changeBtn}
-              </button>
-            </div>
-          ) : (
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 const num = phoneInput.trim() || "9876543210";
                 setPhoneInput(num);
                 setIsSubscribed(true);
-                setPushNotification({
-                  title: cp.whatsAppToastTitle,
-                  body: `Case #${data.id}: ${cp.whatsAppToastBody}`,
-                  type: "subscribed",
-                });
+                setPushNotification(getWhatsAppAlert({ type: "welcome" }));
               }}
-              className="mt-4 flex flex-col gap-2 sm:flex-row"
+              className="flex items-center gap-2 shrink-0"
             >
-              <div className="relative flex-1">
-                <span className="absolute left-3.5 top-2.5 font-mono text-xs font-semibold text-stone-400">+91</span>
+              <div className="relative">
+                <span className="absolute left-2.5 top-1.5 font-mono text-[11px] font-semibold text-stone-400">+91</span>
                 <input
                   type="tel"
                   maxLength={10}
                   value={phoneInput}
                   onChange={(e) => setPhoneInput(e.target.value.replace(/\D/g, "").slice(0, 10))}
                   placeholder="98765 43210"
-                  className={`w-full rounded-xl border border-stone-200 bg-stone-50/60 pl-11 pr-4 py-2.5 font-mono text-xs font-semibold text-stone-900 outline-none transition focus:border-stone-900 focus:bg-white ${
-                    isTypingPhone ? "border-emerald-500 bg-emerald-50/40 ring-2 ring-emerald-500 animate-pulse" : ""
+                  className={`w-36 rounded-xl border border-stone-200 bg-white pl-9 pr-2 py-1.5 font-mono text-xs text-stone-900 outline-none transition focus:border-stone-900 ${
+                    isTypingPhone ? "border-emerald-500 bg-emerald-50 ring-2 ring-emerald-500" : ""
                   }`}
                 />
               </div>
               <button
                 id="whatsapp-submit-btn"
                 type="submit"
-                className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-emerald-700 px-5 py-2.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-emerald-800 active:scale-[0.98] ${
-                  isTypingPhone ? "bg-emerald-600 scale-[0.98]" : ""
-                }`}
+                className="rounded-xl bg-stone-900 px-3.5 py-1.5 text-xs font-semibold text-white shadow-2xs transition hover:bg-stone-800 active:scale-[0.98]"
               >
-                <WhatsAppIcon className="h-3.5 w-3.5" />
                 <span>{cp.whatsAppEnable}</span>
               </button>
             </form>
-          )}
-        </section>
+          </div>
+        </aside>
       )}
 
       {/* Resolution — Apple-grade "Relief Moment" */}
@@ -1806,63 +1784,51 @@ export default function CasePage() {
         </section>
       )}
 
-      {/* Recovery Simulator Card for Judges (Visible only before resolution) */}
+      {/* Evaluation & Simulation Controls (Secondary, Collapsed Drawer) */}
       {data.isDemo && data.demo && !resolved && (
-        <section className="mt-8 rounded-3xl border border-stone-200/80 bg-stone-50/70 p-5 sm:p-6 transition-all shadow-2xs">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-start gap-3 min-w-0 flex-1">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-stone-900 text-white shadow-xs">
-                <SparklesIcon className="h-4 w-4" />
-              </span>
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-semibold text-stone-900">
-                    {cp.seeHowRaastaResolves}
-                  </h3>
-                  {auto && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 border border-emerald-200">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      {cp.liveAgentActive}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-0.5 text-xs text-stone-500">
-                  {auto ? cp.liveSimulationDesc : cp.oneClickDaemon}
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => void playMagicDemo()}
-                disabled={busy || isTypingPhone}
-                className={`inline-flex items-center gap-1.5 rounded-2xl px-5 py-2.5 text-xs font-semibold shadow-xs transition-all duration-150 active:scale-[0.98] ${
-                  auto
-                    ? "bg-rose-600 hover:bg-rose-700 text-white"
-                    : "bg-stone-900 hover:bg-stone-800 text-white"
-                }`}
-              >
-                {auto ? <PauseIcon className="h-3 w-3" /> : <PlayIcon className="h-3 w-3" />}
-                <span>{auto ? cp.pauseMagic : cp.playMagicDemo}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Real-time Agent Steps Rail */}
-          {auto && (
-            <div className="mt-4 pt-3.5 border-t border-stone-200/60 flex items-center justify-between text-[11px] text-stone-500">
-              <div className="flex items-center gap-2 font-mono">
-                <span className="h-2 w-2 rounded-full bg-emerald-600 animate-ping" />
-                <span>
-                  {cp.stepLabel} {data.demo.step} / {data.demo.totalSteps}: {t(data.demo.journeyName)}
+        <section className="mt-8">
+          <details className="group rounded-2xl border border-stone-200/70 bg-stone-50/50 transition">
+            <summary className="flex cursor-pointer items-center justify-between p-3.5 text-xs font-medium text-stone-500 hover:text-stone-800 list-none select-none">
+              <div className="flex items-center gap-2">
+                <SparklesIcon className="h-3.5 w-3.5 text-stone-400" />
+                <span>{cp.seeHowRaastaResolves || "Simulate Case Resolution"}</span>
+                <span className="rounded-md bg-stone-200/70 px-1.5 py-0.5 text-[9px] font-mono font-bold uppercase tracking-wider text-stone-600">
+                  Simulation
                 </span>
               </div>
-              <span className="text-stone-400 font-sans">
-                {cp.nextSignalIn}
-              </span>
+              <span className="text-xs text-stone-400 transition-transform duration-200 group-open:rotate-180">▼</span>
+            </summary>
+            <div className="border-t border-stone-200/60 p-4">
+              <p className="text-xs text-stone-500 mb-3 leading-relaxed">
+                {cp.oneClickDaemon} (Simulated signal injection for verification & evaluation)
+              </p>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => void playMagicDemo()}
+                  disabled={busy || isTypingPhone}
+                  className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-xs font-semibold shadow-2xs transition-all duration-150 active:scale-[0.98] ${
+                    auto
+                      ? "bg-rose-600 hover:bg-rose-700 text-white"
+                      : "bg-stone-900 hover:bg-stone-800 text-white"
+                  }`}
+                >
+                  {auto ? <PauseIcon className="h-3 w-3" /> : <PlayIcon className="h-3 w-3" />}
+                  <span>{auto ? cp.pauseMagic : cp.playMagicDemo}</span>
+                </button>
+              </div>
+
+              {auto && (
+                <div className="mt-3 pt-2.5 border-t border-stone-200/60 flex items-center justify-between text-[11px] text-stone-500 font-mono">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-emerald-600 animate-ping" />
+                    <span>{cp.stepLabel} {data.demo.step} / {data.demo.totalSteps}: {t(data.demo.journeyName)}</span>
+                  </span>
+                  <span className="font-sans font-semibold text-emerald-800">{cp.nextSignalIn}</span>
+                </div>
+              )}
             </div>
-          )}
+          </details>
         </section>
       )}
 
