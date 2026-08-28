@@ -38,13 +38,25 @@ export default function JournalArticlePage() {
             <span>All Essays</span>
           </Link>
 
-          <Link
-            href="/"
-            className="flex items-center gap-2 transition-opacity hover:opacity-80 active:scale-95"
-          >
-            <RaastaLogoEmblem size="sm" />
-            <span className="text-xs font-bold tracking-tight text-stone-900">Raasta</span>
-          </Link>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://github.com/shashankatthaluri/Raasta"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-stone-600 transition hover:text-stone-900 active:scale-95"
+            >
+              <span>GitHub</span>
+              <span className="text-[10px]">↗</span>
+            </a>
+            <span className="text-stone-300">·</span>
+            <Link
+              href="/"
+              className="flex items-center gap-2 transition-opacity hover:opacity-80 active:scale-95"
+            >
+              <RaastaLogoEmblem size="sm" />
+              <span className="text-xs font-bold tracking-tight text-stone-900">Raasta</span>
+            </Link>
+          </div>
         </div>
       </header>
 

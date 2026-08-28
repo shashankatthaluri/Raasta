@@ -21,10 +21,20 @@ export default function JournalIndexPage() {
             </div>
           </Link>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3.5">
             <span className="rounded-full bg-amber-100/80 border border-amber-300/80 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-amber-900">
               Journal
             </span>
+            <a
+              href="https://github.com/shashankatthaluri/Raasta"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-stone-600 transition hover:text-stone-900 active:scale-95"
+            >
+              <span>GitHub</span>
+              <span className="text-[10px]">↗</span>
+            </a>
+            <span className="text-stone-300">·</span>
             <Link
               href="/"
               className="text-xs font-semibold text-stone-600 transition hover:text-stone-900 active:scale-95"
@@ -92,6 +102,17 @@ export default function JournalIndexPage() {
           <p className="font-semibold text-stone-700">Raasta · Built for Build What Moves India (2026)</p>
           <p className="max-w-xl mx-auto leading-relaxed">
             Raasta is public recovery infrastructure for DBT and government entitlement failures. Simulated signals are derived from publicly documented PM-KISAN guidelines.
+          </p>
+          <p className="pt-2 border-t border-stone-200/60 text-stone-400">
+            <a
+              href="https://github.com/shashankatthaluri/Raasta"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-stone-600 hover:text-stone-900 underline underline-offset-2 font-medium"
+            >
+              Open-source on GitHub
+            </a>{" "}
+            · MIT License
           </p>
         </div>
       </div>
