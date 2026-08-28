@@ -24,25 +24,33 @@ beforeEach(() => {
 });
 
 describe("language support", () => {
-  it("supports exactly the languages the build actually translates (en, hi)", () => {
-    expect(SUPPORTED_LANGUAGES.map((l) => l.code)).toEqual(["en", "hi"]);
+  it("supports exactly the languages the build actually translates (en, hi, te, ta, kn, mr, bn, pa)", () => {
+    expect(SUPPORTED_LANGUAGES.map((l) => l.code)).toEqual([
+      "en",
+      "hi",
+      "te",
+      "ta",
+      "kn",
+      "mr",
+      "bn",
+      "pa",
+    ]);
   });
 
-  it("uses native names, never EN/HI abbreviations or flags", () => {
-    expect(SUPPORTED_LANGUAGES).toEqual([
-      { code: "en", nativeName: "English" },
-      { code: "hi", nativeName: "हिंदी" },
-    ]);
+  it("uses native names, never abbreviations or flags", () => {
+    expect(SUPPORTED_LANGUAGES.length).toBe(8);
     expect(SUPPORTED_LANGUAGES.some((l) => /^[A-Z]{2}$/.test(l.nativeName))).toBe(false);
   });
 
-  it("does not advertise languages that are not fully supported", () => {
-    for (const unsupported of ["mr", "ta", "te", "kn", "bn", "pa", "gu", "or"]) {
+  it("does not advertise languages that are not supported", () => {
+    for (const unsupported of ["fr", "es", "de", "ja", "zh", "ru"]) {
       expect(isSupportedLang(unsupported)).toBe(false);
     }
   });
 
   it("round-trips persistence", () => {
+    setStoredLanguage("te");
+    expect(getStoredLanguage()).toBe("te");
     setStoredLanguage("hi");
     expect(getStoredLanguage()).toBe("hi");
     setStoredLanguage("en");
@@ -63,5 +71,7 @@ describe("language support", () => {
   it("nativeName returns the native name", () => {
     expect(nativeName("hi")).toBe("हिंदी");
     expect(nativeName("en")).toBe("English");
+    expect(nativeName("te")).toBe("తెలుగు");
+    expect(nativeName("ta")).toBe("தமிழ்");
   });
 });

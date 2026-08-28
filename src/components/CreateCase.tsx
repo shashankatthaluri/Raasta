@@ -26,7 +26,17 @@ export function CreateCase({
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
-  const busyText = lang === "hi" ? "डेमो केस खुल रहा है…" : "Opening demo case…";
+  const BUSY_MAP: Record<Lang, string> = {
+    en: "Opening demo case…",
+    hi: "डेमो केस खुल रहा है…",
+    te: "డెమో కేస్ తెరుస్తోంది…",
+    ta: "மாதிரி வழக்கு திறக்கிறது…",
+    kn: "ಡೆಮೊ ಪ್ರಕರಣ ತೆರೆಯಲಾಗುತ್ತಿದೆ…",
+    mr: "डेमो प्रकरण उघडत आहे…",
+    bn: "ডেমো কেস খোলা হচ্ছে…",
+    pa: "ਡੈਮੋ ਕੇਸ ਖੁੱਲ੍ਹ ਰਿਹਾ ਹੈ…",
+  };
+  const busyText = BUSY_MAP[lang] ?? BUSY_MAP.en;
 
   async function create() {
     if (busy) return;

@@ -40,10 +40,36 @@ export type CitizenActionId =
   | "PREPARE_GRIEVANCE"
   | "PROVIDE_INFORMATION";
 
+export interface SubstantiatedRequirement {
+  en: string;
+  hi: string;
+}
+
 export interface HandoffCard {
   heading: string;
+  headingHi?: string;
   statement: string;
+  statementHi?: string;
+  ask: { en: string; hi: string };
+  requirements: SubstantiatedRequirement[];
   lines: string[];
+  [key: string]: any;
+}
+
+export interface StructuredDispute {
+  officialClaim: { en: string; hi: string };
+  citizenStatement: { en: string; hi: string };
+  submittedAt: Date;
+}
+
+export interface GrievanceDraft {
+  registrationNumber: string;
+  category: { en: string; hi: string };
+  subject: { en: string; hi: string };
+  summary: { en: string; hi: string };
+  facts: { en: string; hi: string }[];
+  citizenStatement?: { en: string; hi: string };
+  officialPortalUrl: string;
 }
 
 export interface CitizenAction {
@@ -64,23 +90,23 @@ export interface Evidence {
   source: string;
   sourceType: SourceType;
   verifiedAt: Date;
-  /** Human-readable evidence value, bilingual — visible case information. */
-  value: { en: string; hi: string };
+  /** Human-readable evidence value, multilingual — visible case information. */
+  value: Record<string, string>;
   confidence: number;
 }
 
 export interface CaseStateDef {
   id: CaseStateId;
-  humanTitle: string;
-  humanTitleHi: string;
-  humanExplanation: string;
-  humanExplanationHi: string;
-  nextActor: Actor;
-  citizenActionId: CitizenActionId | null;
+  humanTitle: Record<string, string> | string;
+  humanTitleHi?: string;
+  humanExplanation?: Record<string, string> | string;
+  humanExplanationHi?: string;
+  nextActor?: Actor;
+  citizenActionId?: CitizenActionId | null;
   nextStates: CaseStateId[];
-  chain: string[];
-  chainHi: string[];
-  color: ColorSemantic;
+  chain?: Record<string, string[]> | string[];
+  chainHi?: string[];
+  color?: ColorSemantic;
   isTerminal?: boolean;
   isInternal?: boolean;
 }
@@ -90,8 +116,8 @@ export type EkycStatus = "INCOMPLETE" | "COMPLETE";
 export type VerificationStatus = "PENDING" | "COMPLETE" | "FAILED";
 
 /**
- * Government signals — the ONLY thing that may mutate official case state.
- * sourceType is always OFFICIAL when produced by an adapter.
+ * Normalized official signal — the ONLY thing that moves case state.
+ * Direct translation of official government portal status codes.
  */
 export type GovernmentSignal =
   | { type: "EKYC_STATUS"; status: EkycStatus; verifiedAt: Date; source: string }
@@ -99,6 +125,7 @@ export type GovernmentSignal =
       type: "PAYMENT_STATUS";
       status: PaymentStatus;
       reprocessingAvailable?: boolean;
+      failureReason?: string;
       amount?: number;
       utr?: string;
       bankName?: string;
@@ -125,8 +152,8 @@ export interface CaseEvent {
   newState: CaseStateId;
   actor: Actor;
   eventType: EventType;
-  /** Bilingual human label shown on the citizen timeline. */
-  humanLabel: { en: string; hi: string };
+  /** Multilingual human label shown on the citizen timeline. */
+  humanLabel: Record<string, string>;
   metadata: Record<string, unknown>;
   createdAt: Date;
 }
@@ -160,6 +187,8 @@ export interface CitizenCase {
   } | null;
   evidence: Evidence[];
   events: CaseEvent[];
+  registrationNumber?: string | null;
+  dispute?: StructuredDispute | null;
   createdAt: Date;
   updatedAt: Date;
   resolvedAt: Date | null;

@@ -1,30 +1,72 @@
 @import "tailwindcss";
 
 /*
- * Raasta design language — PRODUCT_CONTRACT.md §14.
- * Calm, trustworthy, human, minimal. "Almost boring" is the compliment.
- * Semantic colors only: green = resolved/verified, amber = waiting/another party acting,
- * red = citizen action/attention, neutral = processing/information.
+ * Raasta Design System — Apple-Grade Civic Recovery Architecture
+ * Fusion of Apple spatial precision (depth, sub-pixel borders, spring physics)
+ * and authentic Indian public digital infrastructure.
  */
 
 :root {
-  --raasta-bg: #fafaf8;
-  --raasta-ink: #1c1917;
-  --raasta-muted: #57534e;
-  --raasta-line: #e7e5e4;
-  --raasta-green: #15803d;
-  --raasta-amber: #b45309;
-  --raasta-red: #b91c1c;
-  --raasta-neutral: #44403c;
+  --raasta-bg: #FBFBFA;
+  --raasta-card: #FFFFFF;
+  --raasta-ink: #0F172A;
+  --raasta-muted: #64748B;
+  --raasta-line: #E2E8F0;
+  --raasta-subtle: #F8FAFC;
+  --raasta-green: #059669;
+  --raasta-amber: #D97706;
+  --raasta-red: #E11D48;
+  --raasta-neutral: #475569;
 }
 
 body {
   background: var(--raasta-bg);
   color: var(--raasta-ink);
-  font-family: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-geist-sans), "Nirmala UI", "Segoe UI", -apple-system, BlinkMacSystemFont, "Noto Sans Devanagari", "Noto Sans Telugu", "Noto Sans Tamil", "Noto Sans Kannada", "Noto Sans Bengali", "Noto Sans Gurmukhi", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Semantic status colors — always paired with text/icon, never color alone. */
+/* Apple-style ambient card diffusion shadow */
+.apple-card {
+  background: #FFFFFF;
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 6px -1px rgba(15, 23, 42, 0.02);
+}
+
+.apple-card-hover {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.apple-card-hover:hover {
+  box-shadow: 0 10px 30px -4px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.03);
+  transform: translateY(-1px);
+}
+
+/* Official Counter Pass Ticket Perforation Notch */
+.ticket-notch-divider {
+  position: relative;
+  border-top: 1.5px dashed #CBD5E1;
+}
+.ticket-notch-divider::before,
+.ticket-notch-divider::after {
+  content: "";
+  position: absolute;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  background-color: var(--raasta-bg);
+  border-radius: 50%;
+}
+.ticket-notch-divider::before {
+  left: -20px;
+  box-shadow: inset -2px 0 3px rgba(0, 0, 0, 0.04);
+}
+.ticket-notch-divider::after {
+  right: -20px;
+  box-shadow: inset 2px 0 3px rgba(0, 0, 0, 0.04);
+}
+
+/* Semantic status colors */
 .status-green {
   color: var(--raasta-green);
 }
@@ -37,3 +79,48 @@ body {
 .status-neutral {
   color: var(--raasta-neutral);
 }
+
+/* Apple "Hello" Signature Progressive Letter-by-Letter Handwriting Morph */
+@keyframes appleGlyphFadeIn {
+  0% {
+    opacity: 0;
+    transform: translateY(3px) scale(0.92);
+    filter: blur(3px);
+  }
+  60% {
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+    filter: blur(0px);
+  }
+}
+
+@keyframes appleGlyphFadeOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-3px) scale(0.94);
+    filter: blur(3px);
+  }
+}
+
+.apple-hello-active {
+  animation: appleHelloBloom 500ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform, opacity, filter, clip-path;
+}
+
+@keyframes timeLapseFill {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
+

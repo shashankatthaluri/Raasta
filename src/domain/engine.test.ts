@@ -185,3 +185,35 @@ describe("resolveCase", () => {
     expect(calculateCitizenAction(c).required).toBe(false);
   });
 });
+
+describe("Structured Dispute & Grievance Compiler", () => {
+  it("records a citizen dispute without adjudicating and sets dispute property", async () => {
+    const { recordDispute } = await import("./engine");
+    const c = createCase({ id: "RAAS-DEMO-DSP", problemType: "PAYMENT_MISSING" });
+    applySignal(c, JOURNEY_BY_ID.J1_FARMER_EKYC.steps[0].signal);
+    recordDispute(c, "My Aadhaar details are correct and updated.");
+
+    expect(c.dispute).toBeDefined();
+    expect(c.dispute?.citizenStatement.en).toBe("My Aadhaar details are correct and updated.");
+    expect(c.dispute?.officialClaim.en).toBeDefined();
+    const disputeEvidence = c.evidence.find((e) => e.value.en.includes("dispute"));
+    expect(disputeEvidence?.sourceType).toBe("CITIZEN_REPORTED");
+  });
+
+  it("compiles a structured grievance draft from verified case memory", async () => {
+    const { compileGrievanceDraft } = await import("./engine");
+    const c = createCase({
+      id: "RAAS-DEMO-GRV",
+      problemType: "PAYMENT_MISSING",
+      registrationNumber: "10203040506",
+    });
+    applySignal(c, JOURNEY_BY_ID.J3_PAYMENT_FAILURE.steps[0].signal);
+
+    const draft = compileGrievanceDraft(c);
+    expect(draft.registrationNumber).toBe("10203040506");
+    expect(draft.subject.en).toContain("10203040506");
+    expect(draft.officialPortalUrl).toBe("https://pmkisan.gov.in/Grievance.aspx");
+    expect(draft.facts.length).toBeGreaterThan(0);
+  });
+});
+

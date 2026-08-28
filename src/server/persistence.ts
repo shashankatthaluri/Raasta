@@ -71,12 +71,18 @@ interface CaseRowLike {
   isDemo: boolean;
   pendingConfirmation: string | null;
   intakeLanguage: string | null;
+  registrationNumber: string | null;
   lastPaymentDetails: {
     amount?: number;
     utr?: string;
     bankName?: string;
     paymentMode?: string;
     creditedAt?: string;
+  } | null;
+  dispute: {
+    officialClaim: { en: string; hi: string };
+    citizenStatement: { en: string; hi: string };
+    submittedAt: string;
   } | null;
   journeyId: string | null;
   journeyStep: number;
@@ -93,7 +99,7 @@ interface EventRowLike {
   newState: string;
   actor: string;
   eventType: string;
-  humanLabel: { en: string; hi: string };
+  humanLabel: Record<string, string>;
   metadata: Record<string, unknown> | null;
   createdAt: Date;
 }
@@ -104,7 +110,7 @@ interface EvidenceRowLike {
   source: string;
   sourceType: string;
   verifiedAt: Date;
-  value: { en: string; hi: string };
+  value: Record<string, string>;
   confidence: number;
 }
 
@@ -122,7 +128,15 @@ function toCaseRow(c: CitizenCase, meta: CaseMeta) {
     isDemo: c.isDemo,
     pendingConfirmation: c.pendingConfirmation,
     intakeLanguage: c.intakeLanguage,
+    registrationNumber: c.registrationNumber ?? null,
     lastPaymentDetails: c.lastPaymentDetails,
+    dispute: c.dispute
+      ? {
+          officialClaim: c.dispute.officialClaim,
+          citizenStatement: c.dispute.citizenStatement,
+          submittedAt: c.dispute.submittedAt.toISOString(),
+        }
+      : null,
     journeyId: meta.journeyId,
     journeyStep: meta.journeyStep,
     createdAt: c.createdAt,
@@ -211,6 +225,7 @@ function toCitizenCase(
     lastVerifiedAt: row.lastVerifiedAt,
     isDemo: row.isDemo,
     intakeLanguage: row.intakeLanguage,
+    registrationNumber: row.registrationNumber ?? null,
     pendingConfirmation: row.pendingConfirmation as CitizenActionId | null,
     lastPaymentDetails: row.lastPaymentDetails
       ? {
@@ -239,6 +254,13 @@ function toCitizenCase(
       metadata: e.metadata ?? {},
       createdAt: e.createdAt,
     })),
+    dispute: row.dispute
+      ? {
+          officialClaim: row.dispute.officialClaim,
+          citizenStatement: row.dispute.citizenStatement,
+          submittedAt: new Date(row.dispute.submittedAt),
+        }
+      : null,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     resolvedAt: row.resolvedAt,

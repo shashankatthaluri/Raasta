@@ -28,7 +28,11 @@ export interface StoredCase {
   step: number;
 }
 
-const memory = new Map<string, StoredCase>();
+const globalForCases = globalThis as unknown as { caseMemory?: Map<string, StoredCase> };
+const memory = globalForCases.caseMemory ?? new Map<string, StoredCase>();
+if (process.env.NODE_ENV !== "production") {
+  globalForCases.caseMemory = memory;
+}
 
 export function persistenceInfo(): string {
   return persistenceMode;
@@ -37,6 +41,7 @@ export function persistenceInfo(): string {
 export async function createDemoCase(input: {
   journeyId: string;
   problemType?: string;
+  registrationNumber?: string;
   message?: string;
 }): Promise<CitizenCase> {
   const journey = JOURNEY_BY_ID[input.journeyId];
@@ -46,6 +51,7 @@ export async function createDemoCase(input: {
   const c = createCase({
     id,
     problemType: input.problemType ?? "PAYMENT_MISSING",
+    registrationNumber: input.registrationNumber,
     isDemo: true,
     intake: input.message
       ? { message: input.message, language: detectLanguage(input.message) }
@@ -65,6 +71,15 @@ export async function createDemoCase(input: {
 export async function getStoredCase(id: string): Promise<StoredCase | null> {
   const cached = memory.get(id);
   if (cached) return cached;
+
+  // Check if any stored case in memory matches registrationNumber
+  for (const stored of memory.values()) {
+    if (stored.case.registrationNumber === id) {
+      memory.set(id, stored);
+      return stored;
+    }
+  }
+
   if (persistenceMode === "supabase") {
     const snap = await loadCaseSnapshot(id);
     if (snap) {
@@ -77,6 +92,25 @@ export async function getStoredCase(id: string): Promise<StoredCase | null> {
       return stored;
     }
   }
+
+  // If an 11-digit registration number is accessed directly in URL
+  if (/^\d{11}$/.test(id)) {
+    const journeyId = "J3_PAYMENT_FAILURE";
+    const c = createCase({
+      id,
+      problemType: "PAYMENT_MISSING",
+      registrationNumber: id,
+      isDemo: true,
+    });
+    const adapter = new MockGovernmentAdapter(journeyId, id, 0);
+    const first = adapter.nextSignal();
+    if (first) applySignal(c, first);
+    const stored: StoredCase = { case: c, journeyId, step: adapter.currentStepIndex };
+    memory.set(id, stored);
+    await persist(stored);
+    return stored;
+  }
+
   return null;
 }
 
@@ -124,12 +158,51 @@ export async function completeActionOnCase(id: string, actionId: CitizenActionId
   return stored.case;
 }
 
+export async function updateRegistrationNumber(id: string, registrationNumber: string): Promise<CitizenCase> {
+  const stored = await getStoredCase(id);
+  if (!stored) throw new Error(`Case not found: ${id}`);
+  stored.case.registrationNumber = registrationNumber.trim();
+  stored.case.updatedAt = new Date();
+  await persist(stored);
+  return stored.case;
+}
+
+export async function resetDemoCase(id: string): Promise<StoredCase> {
+  const stored = await getStoredCase(id);
+  if (!stored) throw new Error(`Case not found: ${id}`);
+  const journeyId = stored.journeyId;
+  const c = createCase({
+    id,
+    problemType: stored.case.problemType,
+    registrationNumber: stored.case.registrationNumber ?? undefined,
+    intake: stored.case.intakeLanguage
+      ? { message: "", language: stored.case.intakeLanguage }
+      : undefined,
+    isDemo: true,
+  });
+  const adapter = new MockGovernmentAdapter(journeyId, id, 0);
+  const first = adapter.nextSignal();
+  if (first) applySignal(c, first);
+  const updated: StoredCase = { case: c, journeyId, step: adapter.currentStepIndex };
+  memory.set(id, updated);
+  await persist(updated);
+  return updated;
+}
+
+export async function recordDisputeOnCase(id: string, statement: string): Promise<CitizenCase> {
+  const stored = await getStoredCase(id);
+  if (!stored) throw new Error(`Case not found: ${id}`);
+  const { recordDispute } = await import("@/domain/engine");
+  recordDispute(stored.case, statement);
+  await persist(stored);
+  return stored.case;
+}
+
 async function persist(stored: StoredCase): Promise<void> {
+  memory.set(stored.case.id, stored);
   if (persistenceMode === "supabase") {
     const meta: CaseMeta = { journeyId: stored.journeyId, journeyStep: stored.step };
     await saveCaseSnapshot(stored.case, meta);
-  } else {
-    memory.set(stored.case.id, stored);
   }
 }
 

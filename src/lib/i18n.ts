@@ -8,19 +8,39 @@
  * Language selection is part of access, not settings.
  */
 
-export type Lang = "en" | "hi";
+export type Lang = "en" | "hi" | "te" | "ta" | "kn" | "mr" | "bn" | "pa";
 
 export const LANG_STORAGE_KEY = "raasta_lang";
 export const LANG_COOKIE_KEY = "raasta_lang";
 
 /** Native names only — never "EN"/"HI" abbreviations, never flags. */
-export const SUPPORTED_LANGUAGES: ReadonlyArray<{ code: Lang; nativeName: string }> = [
-  { code: "en", nativeName: "English" },
-  { code: "hi", nativeName: "हिंदी" },
+export const SUPPORTED_LANGUAGES: ReadonlyArray<{
+  code: Lang;
+  nativeName: string;
+  englishName: string;
+  sub: string;
+}> = [
+  { code: "en", nativeName: "English", englishName: "English", sub: "English" },
+  { code: "hi", nativeName: "हिंदी", englishName: "Hindi", sub: "Hindi" },
+  { code: "te", nativeName: "తెలుగు", englishName: "Telugu", sub: "Telugu" },
+  { code: "ta", nativeName: "தமிழ்", englishName: "Tamil", sub: "Tamil" },
+  { code: "kn", nativeName: "ಕನ್ನಡ", englishName: "Kannada", sub: "Kannada" },
+  { code: "mr", nativeName: "मराठी", englishName: "Marathi", sub: "Marathi" },
+  { code: "bn", nativeName: "বাংলা", englishName: "Bengali", sub: "Bengali" },
+  { code: "pa", nativeName: "ਪੰਜਾਬੀ", englishName: "Punjabi", sub: "Punjabi" },
 ];
 
 export function isSupportedLang(value: string | null | undefined): value is Lang {
-  return value === "en" || value === "hi";
+  return (
+    value === "en" ||
+    value === "hi" ||
+    value === "te" ||
+    value === "ta" ||
+    value === "kn" ||
+    value === "mr" ||
+    value === "bn" ||
+    value === "pa"
+  );
 }
 
 /**

@@ -30,7 +30,7 @@ function makeEvent(
   previousState: CaseStateId | null,
   newState: CaseStateId,
   actor: Actor,
-  humanLabel: { en: string; hi: string },
+  humanLabel: Record<string, string>,
   metadata: Record<string, unknown> = {},
 ): CaseEvent {
   return {
@@ -47,53 +47,61 @@ function makeEvent(
 }
 
 function evidenceFromSignal(signal: GovernmentSignal): Evidence {
-  // Evidence values are L4 "official status" copy — KYS-style, never raw enum names.
-  // Bilingual: visible case information must follow the selected language.
-  let value: { en: string; hi: string };
-  const statusHi = { FAILED: "विफल", PROCESSING: "प्रोसेसिंग", REPROCESSING: "दोबारा प्रोसेस", CREDITED: "जमा", PENDING: "लंबित", COMPLETE: "पूर्ण" } as const;
+  let value: Record<string, string>;
+
+  const STATUS_DICT: Record<string, Record<string, string>> = {
+    FAILED: { en: "failed", hi: "विफल", te: "విఫలమైంది", ta: "தோல்வியடைந்தது", kn: "ವಿಫಲವಾಗಿದೆ", mr: "विफल", bn: "ব্যর্থ", pa: "ਅਸਫਲ" },
+    PROCESSING: { en: "processing", hi: "प्रोसेसिंग", te: "ప్రాసెసింగ్", ta: "செயலாக்கத்தில்", kn: "ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ", mr: "प्रक्रिया सुरू", bn: "প্রক্রিয়াধীন", pa: "ਪ੍ਰਕਿਰਿਆ ਅਧੀਨ" },
+    REPROCESSING: { en: "reprocessing", hi: "दोबारा प्रोसेस", te: "పునఃపరిశీలన", ta: "மறுசெயலாக்கம்", kn: "ಮರುಪ್ರಕ್ರಿಯೆ", mr: "पुनर्प्रक्रिया", bn: "পুনঃপ্রক্রিয়া", pa: "ਮੁੜ ਪ੍ਰਕਿਰਿਆ" },
+    CREDITED: { en: "credited", hi: "जमा", te: "జమ అయింది", ta: "வரவு வைக்கப்பட்டது", kn: "ಜಮೆಯಾಗಿದೆ", mr: "जमा", bn: "জমা হয়েছে", pa: "ਜਮ੍ਹਾ ਹੋਇਆ" },
+    PENDING: { en: "pending", hi: "लंबित", te: "పెండింగ్‌లో ఉంది", ta: "நிலுவையில் உள்ளது", kn: "ಬಾಕಿ ಇದೆ", mr: "प्रलंबित", bn: "মুলতুবি", pa: "ਬਕਾਇਆ" },
+    COMPLETE: { en: "complete", hi: "पूर्ण", te: "పూర్తయింది", ta: "முடிந்தது", kn: "ಪೂರ್ಣಗೊಂಡಿದೆ", mr: "पूर्ण", bn: "সম্পূর্ণ", pa: "ਪੂਰਾ" },
+  };
+
+  const LABELS = {
+    paymentStatus: { en: "Payment status", hi: "भुगतान स्थिति", te: "చెల్లింపు స్థితి", ta: "கட்டண நிலை", kn: "ಪಾವತಿ ಸ್ಥಿತಿ", mr: "पेमेंट स्थिती", bn: "পেমেন্ট স্থিতি", pa: "ਭੁਗਤਾਨ ਸਥਿਤੀ" },
+    ekycStatus: { en: "e-KYC status", hi: "ई-केवाईसी स्थिति", te: "ఇ-కెవైసి స్థితి", ta: "இ-கேஒய்சி நிலை", kn: "ಇ-ಕೆವೈಸಿ ಸ್ಥಿತಿ", mr: "ई-केवायसी स्थिती", bn: "ই-কেওয়াইসি স্থিতি", pa: "ਈ-ਕੇਵਾਈਸੀ ਸਥਿਤੀ" },
+    eligibility: { en: "Eligibility verification", hi: "पात्रता सत्यापन", te: "అర్హత ధృవీకరణ", ta: "தகுதி சரிபார்ப்பு", kn: "ಅರ್ಹತೆ ಪರಿಶೀಲನೆ", mr: "पात्रता पडताळणी", bn: "যোগ্যতা যাচাইকরণ", pa: "ਯੋਗਤਾ ਤਸਦੀਕ" },
+    amount: { en: "amount", hi: "राशि", te: "మొత్తం", ta: "தொகை", kn: "ಮೊತ್ತ", mr: "रक्कम", bn: "পরিমাণ", pa: "ਰਕਮ" },
+    bank: { en: "bank", hi: "बैंक", te: "బ్యాంక్", ta: "வங்கி", kn: "ಬ್ಯಾಂಕ್", mr: "बँक", bn: "ব্যাঙ্ক", pa: "ਬੈਂਕ" },
+  };
+
   if (signal.type === "PAYMENT_STATUS") {
-    const partsEn: string[] = [`Payment status: ${signal.status.toLowerCase()}`];
-    const partsHi: string[] = [`भुगतान स्थिति: ${statusHi[signal.status] ?? signal.status.toLowerCase()}`];
-    if (signal.amount !== undefined) {
-      partsEn.push(`amount ₹${signal.amount}`);
-      partsHi.push(`राशि ₹${signal.amount}`);
+    const langs = ["en", "hi", "te", "ta", "kn", "mr", "bn", "pa"];
+    value = {};
+    for (const l of langs) {
+      const st = STATUS_DICT[signal.status]?.[l] ?? signal.status.toLowerCase();
+      const pStatus = LABELS.paymentStatus[l as keyof typeof LABELS.paymentStatus] ?? "Payment status";
+      const parts = [`${pStatus}: ${st}`];
+      if (signal.amount !== undefined) parts.push(`${LABELS.amount[l as keyof typeof LABELS.amount] ?? "amount"} ₹${signal.amount}`);
+      if (signal.utr) parts.push(`UTR ${signal.utr}`);
+      if (signal.bankName) parts.push(`${LABELS.bank[l as keyof typeof LABELS.bank] ?? "bank"} ${signal.bankName}`);
+      value[l] = parts.join(" · ");
     }
-    if (signal.utr) {
-      partsEn.push(`UTR ${signal.utr}`);
-      partsHi.push(`UTR ${signal.utr}`);
-    }
-    if (signal.bankName) {
-      partsEn.push(`bank ${signal.bankName}`);
-      partsHi.push(`बैंक ${signal.bankName}`);
-    }
-    if (signal.paymentMode) {
-      partsEn.push(`mode ${signal.paymentMode}`);
-      partsHi.push(`मोड ${signal.paymentMode}`);
-    }
-    if (signal.reprocessingAvailable === false) {
-      partsEn.push("reprocessing unavailable");
-      partsHi.push("दोबारा प्रोसेस उपलब्ध नहीं");
-    }
-    value = { en: partsEn.join(" · "), hi: partsHi.join(" · ") };
   } else if (signal.type === "EKYC_STATUS") {
-    value =
-      signal.status === "COMPLETE"
-        ? { en: "e-KYC status: complete", hi: "ई-केवाईसी स्थिति: पूर्ण" }
-        : { en: "e-KYC status: incomplete", hi: "ई-केवाईसी स्थिति: अधूरा" };
+    const langs = ["en", "hi", "te", "ta", "kn", "mr", "bn", "pa"];
+    value = {};
+    for (const l of langs) {
+      const st = STATUS_DICT[signal.status]?.[l] ?? signal.status.toLowerCase();
+      const ekLabel = LABELS.ekycStatus[l as keyof typeof LABELS.ekycStatus] ?? "e-KYC status";
+      value[l] = `${ekLabel}: ${st}`;
+    }
   } else {
-    const map = { PENDING: "pending", COMPLETE: "complete", FAILED: "failed" } as const;
-    const mapHi = { PENDING: "लंबित", COMPLETE: "पूर्ण", FAILED: "विफल" } as const;
-    value = {
-      en: `Eligibility verification: ${map[signal.status]}`,
-      hi: `पात्रता सत्यापन: ${mapHi[signal.status]}`,
-    };
+    const langs = ["en", "hi", "te", "ta", "kn", "mr", "bn", "pa"];
+    value = {};
+    for (const l of langs) {
+      const st = STATUS_DICT[signal.status]?.[l] ?? signal.status.toLowerCase();
+      const elLabel = LABELS.eligibility[l as keyof typeof LABELS.eligibility] ?? "Eligibility verification";
+      value[l] = `${elLabel}: ${st}`;
+    }
   }
+
   return {
     id: uuid(),
     source: signal.source,
     sourceType: "OFFICIAL",
     verifiedAt: signal.verifiedAt,
-    value,
+    value: value as any,
     confidence: 1,
   };
 }
@@ -118,6 +126,7 @@ function advanceLifecycle(c: CitizenCase): void {
 export function createCase(input: {
   id: string;
   problemType: string;
+  registrationNumber?: string;
   isDemo?: boolean;
   intake?: { message: string; language: string };
 }): CitizenCase {
@@ -134,6 +143,7 @@ export function createCase(input: {
     retryCount: 0,
     lastVerifiedAt: null,
     isDemo: input.isDemo ?? true,
+    registrationNumber: input.registrationNumber ?? null,
     intakeLanguage: input.intake?.language ?? null,
     pendingConfirmation: null,
     lastPaymentDetails: null,
@@ -145,7 +155,16 @@ export function createCase(input: {
     resolution: null,
   };
   c.events.push(
-    makeEvent(c, "CASE_CREATED", null, "PAYMENT_EXPECTED", "CENTRAL_SYSTEM", { en: "Case created", hi: "केस बनाया गया" }),
+    makeEvent(c, "CASE_CREATED", null, "PAYMENT_EXPECTED", "CENTRAL_SYSTEM", {
+      en: "Case created",
+      hi: "केस बनाया गया",
+      te: "కేసు నమోదు చేయబడింది",
+      ta: "வழக்கு உருவாக்கப்பட்டது",
+      kn: "ಪ್ರಕರಣ ರಚಿಸಲಾಗಿದೆ",
+      mr: "केस नोंदवली गेली",
+      bn: "কেস তৈরি করা হয়েছে",
+      pa: "ਕੇਸ ਬਣਾਇਆ ਗਿਆ",
+    }),
   );
   // The citizen's own words are evidence — CITIZEN_REPORTED, never mistaken for OFFICIAL.
   if (input.intake) {
@@ -213,11 +232,10 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
     );
   }
 
+  const humanTitleObj = typeof def.humanTitle === "object" ? def.humanTitle : { en: def.humanTitle, hi: def.humanTitleHi };
+
   c.events.push(
-    makeEvent(c, "STATE_CHANGED", previousState, next, def.nextActor, {
-      en: def.humanTitle,
-      hi: def.humanTitleHi,
-    }, {
+    makeEvent(c, "STATE_CHANGED", previousState, next, def.nextActor, humanTitleObj as any, {
       from: previousState,
       to: next,
     }),
@@ -225,13 +243,16 @@ export function applySignal(c: CitizenCase, signal: GovernmentSignal): CitizenCa
 
   // Official confirmation of a completed citizen action (trust boundary):
   // the citizen's self-report never moves the case — only this does.
-  if (c.pendingConfirmation && (next === "EKYC_VERIFIED" || next === "PAYMENT_CREDITED")) {
+  if (c.pendingConfirmation && (next === "EKYC_VERIFIED" || next === "PAYMENT_CREDITED" || next === "PAYMENT_PROCESSING")) {
     const confirmed = c.pendingConfirmation;
     c.pendingConfirmation = null;
+    const actDef = ACTION_CATALOG[confirmed];
+    const actTitleEn = actDef ? (typeof actDef.title === "object" ? actDef.title.en : actDef.title) : confirmed;
+    const actTitleHi = actDef ? (typeof actDef.title === "object" ? actDef.title.hi : actDef.titleHi) : confirmed;
     c.events.push(
       makeEvent(c, "ACTION_CONFIRMED", previousState, next, "CENTRAL_SYSTEM", {
-        en: `Official confirmation: ${ACTION_CATALOG[confirmed].title}`,
-        hi: `आधिकारिक पुष्टि: ${ACTION_CATALOG[confirmed].titleHi}`,
+        en: `Official confirmation: ${actTitleEn}`,
+        hi: `आधिकारिक पुष्टि: ${actTitleHi}`,
       }, {
         actionId: confirmed,
       }),
@@ -269,6 +290,9 @@ export function completeCitizenAction(c: CitizenCase, actionId: CitizenActionId)
   }
   const action = ACTION_CATALOG[actionId];
   c.pendingConfirmation = actionId;
+  const actTitleEn = typeof action.title === "object" ? action.title.en : action.title;
+  const actTitleHi = typeof action.title === "object" ? action.title.hi : action.titleHi;
+
   c.citizenAction = null;
   // Responsibility baton: back to the system until the official signal confirms.
   c.nextActor = "CENTRAL_SYSTEM";
@@ -277,13 +301,13 @@ export function completeCitizenAction(c: CitizenCase, actionId: CitizenActionId)
     source: "Citizen report",
     sourceType: "CITIZEN_REPORTED",
     verifiedAt: new Date(),
-    value: { en: `Citizen completed: ${action.title}`, hi: `आपने पूरा किया: ${action.titleHi}` },
+    value: { en: `Citizen completed: ${actTitleEn}`, hi: `आपने पूरा किया: ${actTitleHi}` },
     confidence: 1,
   });
   c.events.push(
     makeEvent(c, "ACTION_COMPLETED", c.currentState, c.currentState, "CITIZEN", {
-      en: `${action.title} — waiting for official confirmation`,
-      hi: `${action.titleHi} — आधिकारिक पुष्टि की प्रतीक्षा`,
+      en: `${actTitleEn} — waiting for official confirmation`,
+      hi: `${actTitleHi} — आधिकारिक पुष्टि की प्रतीक्षा`,
     }, {
       actionId,
     }),
@@ -299,10 +323,13 @@ export function confirmCitizenAction(c: CitizenCase, actionId: CitizenActionId):
     throw new Error(`No pending confirmation for ${actionId} on case ${c.id}`);
   }
   c.pendingConfirmation = null;
+  const actDef = ACTION_CATALOG[actionId];
+  const actTitleEn = actDef ? (typeof actDef.title === "object" ? actDef.title.en : actDef.title) : actionId;
+  const actTitleHi = actDef ? (typeof actDef.title === "object" ? actDef.title.hi : actDef.titleHi) : actionId;
   c.events.push(
     makeEvent(c, "ACTION_CONFIRMED", c.currentState, c.currentState, "CENTRAL_SYSTEM", {
-      en: `Official confirmation: ${ACTION_CATALOG[actionId].title}`,
-      hi: `आधिकारिक पुष्टि: ${ACTION_CATALOG[actionId].titleHi}`,
+      en: `Official confirmation: ${actTitleEn}`,
+      hi: `आधिकारिक पुष्टि: ${actTitleHi}`,
     }, {
       actionId,
     }),
@@ -356,6 +383,84 @@ export function calculateCitizenAction(c: CitizenCase): NextActionDecision {
   };
 }
 
+/**
+ * Record a citizen dispute / structured disagreement.
+ * Raasta creates a structured contrast: OFFICIAL vs YOU without adjudicating.
+ */
+export function recordDispute(c: CitizenCase, statement: string): CitizenCase {
+  const def = STATE_CATALOG[c.currentState];
+  const now = new Date();
+  c.dispute = {
+    officialClaim: { en: def.humanExplanation, hi: def.humanExplanationHi },
+    citizenStatement: { en: statement, hi: statement },
+    submittedAt: now,
+  };
+  c.evidence.push({
+    id: uuid(),
+    source: "Citizen statement",
+    sourceType: "CITIZEN_REPORTED",
+    verifiedAt: now,
+    value: {
+      en: `You told us (dispute): ${statement}`,
+      hi: `आपने बताया (असहमति): ${statement}`,
+    },
+    confidence: 1,
+  });
+  c.events.push(
+    makeEvent(c, "ACTION_COMPLETED", c.currentState, c.currentState, "CITIZEN", {
+      en: "Citizen statement recorded",
+      hi: "नागरिक का बयान दर्ज किया गया",
+    }, {
+      statement,
+    }),
+  );
+  c.updatedAt = now;
+  return c;
+}
+
+/**
+ * Compile a structured grievance draft from verified case memory.
+ * No fabricated claims — strictly compiles official facts, dates, and citizen statements.
+ */
+export function compileGrievanceDraft(c: CitizenCase): {
+  registrationNumber: string;
+  category: Record<string, string>;
+  subject: Record<string, string>;
+  summary: Record<string, string>;
+  request: Record<string, string>;
+  facts: Record<string, string>[];
+  citizenStatement?: Record<string, string>;
+  officialPortalUrl: string;
+} {
+  const def = STATE_CATALOG[c.currentState];
+  const facts: Record<string, string>[] = c.evidence
+    .filter((e) => e.sourceType === "OFFICIAL")
+    .map((e) => e.value);
+
+  return {
+    registrationNumber: c.registrationNumber ?? c.id,
+    category: {
+      en: "PM-KISAN Payment / Verification Discrepancy",
+      hi: "PM-KISAN भुगतान / सत्यापन विसंगति",
+    },
+    subject: {
+      en: `Request for review: PM-KISAN case ${c.registrationNumber ?? c.id}`,
+      hi: `समीक्षा अनुरोध: PM-KISAN मामला ${c.registrationNumber ?? c.id}`,
+    },
+    summary: {
+      en: `Current official status: ${typeof def.humanTitle === "object" ? def.humanTitle.en : def.humanTitle}. Reason: ${typeof def.humanExplanation === "object" ? def.humanExplanation.en : def.humanExplanation}`,
+      hi: `वर्तमान आधिकारिक स्थिति: ${typeof def.humanTitle === "object" ? def.humanTitle.hi : def.humanTitleHi}। कारण: ${typeof def.humanExplanation === "object" ? def.humanExplanation.hi : def.humanExplanationHi}`,
+    },
+    request: {
+      en: "Please review the verified case records and advise on the required resolution or correction.",
+      hi: "कृपया सत्यापित मामले के रिकॉर्ड की समीक्षा करें और आवश्यक समाधान या सुधार पर सलाह दें।",
+    },
+    facts,
+    citizenStatement: c.dispute?.citizenStatement,
+    officialPortalUrl: "https://pmkisan.gov.in/Grievance.aspx",
+  };
+}
+
 /** The four-question answer block for the case screen. */
 export function caseSummary(c: CitizenCase): {
   state: CaseStateId;
@@ -372,20 +477,31 @@ export function caseSummary(c: CitizenCase): {
 } {
   const def = STATE_CATALOG[c.currentState];
   const decision = calculateCitizenAction(c);
+  const titleEn = typeof def.humanTitle === "object" ? def.humanTitle.en : def.humanTitle;
+  const titleHi = typeof def.humanTitle === "object" ? def.humanTitle.hi : def.humanTitleHi;
+  const whyEn = typeof def.humanExplanation === "object" ? def.humanExplanation.en : def.humanExplanation;
+  const whyHi = typeof def.humanExplanation === "object" ? def.humanExplanation.hi : def.humanExplanationHi;
+  const chainEn = Array.isArray(def.chain) ? def.chain : (def.chain as any)?.en ?? [];
+  const chainHi = Array.isArray(def.chain) ? def.chainHi : (def.chain as any)?.hi ?? [];
+
   return {
     state: c.currentState,
-    title: def.humanTitle,
-    titleHi: def.humanTitleHi,
-    why: def.humanExplanation,
-    whyHi: def.humanExplanationHi,
+    title: titleEn,
+    titleHi: titleHi,
+    why: whyEn,
+    whyHi: whyHi,
     nextActor: c.nextActor,
     yourAction: decision.required && decision.action
-      ? { required: true, text: decision.action.title, textHi: decision.action.titleHi }
+      ? {
+          required: true,
+          text: ((decision.action.title as unknown as Record<string, string>)?.en) ?? decision.action.title,
+          textHi: ((decision.action.title as unknown as Record<string, string>)?.hi) ?? decision.action.titleHi,
+        }
       : c.pendingConfirmation
         ? { required: false, text: "Action done — waiting for official confirmation", textHi: "कार्रवाई पूरी — आधिकारिक पुष्टि की प्रतीक्षा" }
         : { required: false, text: "Nothing right now", textHi: "अभी कुछ नहीं करना है" },
-    chain: def.chain,
-    chainHi: def.chainHi,
+    chain: chainEn,
+    chainHi: chainHi,
     lastVerifiedAt: c.lastVerifiedAt,
     color: def.color,
   };

@@ -18,8 +18,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   const result = await simulateNextSignal(id);
+  const updated = (await getStoredCase(id))!;
   return NextResponse.json({
-    case: toCaseDTO(stored.case, demoInfoFor(stored)),
+    case: toCaseDTO(updated.case, demoInfoFor(updated)),
     applied: result.applied,
     signalLabel: result.signalLabel,
     done: !result.applied,
