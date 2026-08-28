@@ -853,28 +853,46 @@ export default function CasePage() {
           >
             <ArrowLeftIcon className="h-4 w-4 text-stone-700 transition-transform duration-200 ease-out group-hover:-translate-x-0.5" />
           </Link>
-          <p className="text-xs font-bold uppercase tracking-wider text-stone-900 truncate">
-            {cp.schemeTitle}
-          </p>
+          <div className="flex items-center gap-2">
+            <RaastaLogoEmblem size="sm" />
+            <p className="text-xs font-bold uppercase tracking-wider text-stone-900 truncate">
+              {cp.schemeTitle}
+            </p>
+          </div>
           <LanguageSwitcher lang={lang} onChange={setLanguage} />
         </div>
 
-        <div className="mt-12 rounded-3xl border border-stone-200/80 bg-white p-8 text-center shadow-xs">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-600 border border-stone-200">
-            <svg className="h-6 w-6 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+        <div className="mt-10 rounded-3xl border border-stone-200/80 bg-white p-8 sm:p-10 text-center shadow-xs">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50/80 text-amber-800 border border-amber-200/70 shadow-2xs">
+            <svg className="h-7 w-7 text-amber-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m5.231 13.481L15 17.25m-4.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Zm3.75 11.625a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
             </svg>
           </div>
-          <h1 className="mt-4 text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">{error}</h1>
-          <p className="mt-2 text-sm text-stone-500">{cp.caseLoadError}</p>
-          <div className="mt-6">
+          <h1 className="mt-5 text-xl font-bold tracking-tight text-stone-950 sm:text-2xl">
+            {error}
+          </h1>
+          <p className="mt-2.5 text-sm text-stone-600 max-w-md mx-auto leading-relaxed">
+            {lang === "hi"
+              ? "इस संदर्भ के लिए कोई सक्रिय रिकवरी रिकॉर्ड नहीं मिला। कृपया अपने 11-अंकीय नंबर की पुष्टि करें या नई जांच शुरू करें।"
+              : "We couldn't locate an active recovery docket for this reference. Please check your 11-digit number or start a new inquiry."}
+          </p>
+          <div className="mt-7 flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-xl bg-stone-900 px-5 py-2.5 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:bg-stone-800 active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-stone-900 px-6 py-3 text-xs font-semibold text-white shadow-xs transition-all duration-150 hover:bg-stone-800 active:scale-[0.98] w-full sm:w-auto cursor-pointer"
             >
               <ArrowLeftIcon className="h-3.5 w-3.5" />
               <span>{cp.startNewCase}</span>
             </Link>
+            <a
+              href="https://pmkisan.gov.in/"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-stone-50 px-5 py-3 text-xs font-semibold text-stone-700 transition hover:bg-stone-100 hover:text-stone-950 active:scale-[0.98] w-full sm:w-auto"
+            >
+              <span>Official Portal</span>
+              <span className="text-stone-400">↗</span>
+            </a>
           </div>
         </div>
       </main>
