@@ -638,9 +638,8 @@ export default function CasePage() {
     if (typeof window === "undefined") return;
     const el = document.getElementById(elemId);
     if (!el) return;
-    // Frame the changing section/card fully in the center of the screen
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    await new Promise((r) => setTimeout(r, 550)); // Allow smooth scroll to settle
+    await new Promise((r) => setTimeout(r, 550));
     const rect = el.getBoundingClientRect();
     setCursor({
       visible: true,
@@ -676,10 +675,34 @@ export default function CasePage() {
 
     try {
       // -----------------------------------------------------------------
+      // 0. Auto-Reset if case is already resolved or advanced
+      // -----------------------------------------------------------------
+      let currentCase = data;
+      if (
+        !currentCase ||
+        currentCase.stateCategory === "resolved" ||
+        currentCase.demo?.complete ||
+        (currentCase.demo?.step && currentCase.demo.step > 1)
+      ) {
+        try {
+          const resetRes = await fetch(`/api/cases/${id}/reset`, { method: "POST" });
+          if (resetRes.ok) {
+            const resetJson = (await resetRes.json()) as { case: CaseDTO };
+            if (resetJson.case) {
+              currentCase = resetJson.case;
+              setData(resetJson.case);
+              await new Promise((r) => setTimeout(r, 600));
+            }
+          }
+        } catch {}
+      }
+
+      // -----------------------------------------------------------------
       // STAGE 1: Real-time pointer glide & phone number typing
       // -----------------------------------------------------------------
       if (!isSubscribed) {
         setHighlightSection("whatsapp");
+        scrollToCard("whatsapp-subscription-card");
         setDemoStatusText({
           en: "Step 1/4: Connecting citizen phone (+91 98765 43210) to live recovery daemon...",
           hi: "चरण 1/4: नागरिक के फोन (+91 98765 43210) को लाइव रिकवरी एजेंट से जोड़ा जा रहा है...",
@@ -699,7 +722,7 @@ export default function CasePage() {
         const targetPhone = "9876543210";
         for (let i = 1; i <= targetPhone.length; i++) {
           if (!isPlayingMagicRef.current) return;
-          await new Promise((r) => setTimeout(r, 65));
+          await new Promise((r) => setTimeout(r, 55));
           setPhoneInput(targetPhone.slice(0, i));
         }
         setIsTypingPhone(false);
@@ -711,8 +734,7 @@ export default function CasePage() {
 
         // Deliver instant WhatsApp Welcome Alert
         setPushNotification(getWhatsAppAlert({ type: "welcome" }));
-
-        await new Promise((r) => setTimeout(r, 1800));
+        await new Promise((r) => setTimeout(r, 1600));
       }
 
       // -----------------------------------------------------------------
@@ -722,56 +744,26 @@ export default function CasePage() {
       while (isPlayingMagicRef.current && loopCount < 8) {
         loopCount++;
 
-        // 1. Fetch freshest case snapshot
+        // Fetch freshest case snapshot
         const checkRes = await fetch(`/api/cases/${id}`);
         if (!checkRes.ok) break;
         const checkJson = (await checkRes.json()) as { case: CaseDTO };
-        const currentCase = checkJson.case;
+        currentCase = checkJson.case;
         setData(currentCase);
 
-        // Check if resolved / credited
-        if (currentCase.stateCategory === "resolved" || currentCase.demo?.complete) {
-          setHighlightSection("resolution");
-          setShowConfetti(true);
-          setCursor((prev) => ({ ...prev, visible: false }));
-          setDemoStatusText({
-            en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
-            hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
-            te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
-            ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
-            kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
-            mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
-            bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ ক্রেডিট নিশ্চিত হয়েছে।",
-            pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
-          });
-          if (typeof window !== "undefined") {
-            document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
-          }
-
-          setPushNotification(getWhatsAppAlert({ type: "resolved" }));
-
-          await new Promise((r) => setTimeout(r, 3500));
-
-          setAuto(false);
-          setHighlightSection(null);
-          setDemoStatusText(null);
-          isPlayingMagicRef.current = false;
-          break;
-        }
-
-        // 2. If Citizen Action required (e.g. e-KYC or Grievance)
+        // If Citizen Action required (e.g. e-KYC or Grievance)
         if (currentCase.yourAction.required && currentCase.yourAction.action) {
           setHighlightSection("action");
           scrollToCard("action-container");
           setDemoStatusText({
-            en: `Step ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: Performing citizen requirement on portal...`,
-            hi: `चरण ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: पोर्टल पर नागरिक प्रक्रिया पूरी की जा रही है...`,
-            te: `దశ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: పోర్టల్‌లో పౌర అవసరాన్ని పూర్తి చేస్తోంది...`,
-            ta: `படி ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: போர்ட்டலில் குடிமகன் தேவையை நிறைவேற்றுகிறது...`,
-            kn: `ಹಂತ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನಾಗರಿಕ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಲಾಗುತ್ತಿದೆ...`,
-            mr: `टप्पा ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: पोर्टलवर नागरिक प्रक्रिया पूर्ण केली जात आहे...`,
-            bn: `ধাপ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: পোর্টালে নাগরিক প্রক্রিয়া সম্পন্ন হচ্ছে...`,
-            pa: `ਪੜਾਅ ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: ਪੋਰਟਲ 'ਤੇ ਨਾਗਰਿਕ ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...`,
+            en: "Step 1/4: Performing citizen requirement on portal...",
+            hi: "चरण 1/4: पोर्टल पर नागरिक प्रक्रिया पूरी की जा रही है...",
+            te: "దశ 1/4: పోర్టల్‌లో పౌర అవసరాన్ని పూర్తి చేస్తోంది...",
+            ta: "படி 1/4: போர்ட்டலில் குடிமகன் தேவையை நிறைவேற்றுகிறது...",
+            kn: "ಹಂತ 1/4: ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನಾಗರಿಕ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಲಾಗುತ್ತಿದೆ...",
+            mr: "टप्पा 1/4: पोर्टलवर नागरिक प्रक्रिया पूर्ण केली जात आहे...",
+            bn: "ধাপ 1/4: পোর্টালে नागरिक प्रक्रिया সম্পন্ন হচ্ছে...",
+            pa: "ਪੜਾਅ 1/4: ਪੋਰਟਲ 'ਤੇ ਨਾਗਰਿਕ ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...",
           });
 
           // Move cursor directly to the action button with visible click wave
@@ -821,16 +813,40 @@ export default function CasePage() {
             },
           });
 
-          await new Promise((r) => setTimeout(r, 2400));
+          await new Promise((r) => setTimeout(r, 2200));
           setTimeLapse(null);
 
           // Dispatch citizen action WhatsApp notification
           setPushNotification(getWhatsAppAlert({ type: "action_recorded" }));
-
-          await new Promise((r) => setTimeout(r, 1600));
+          await new Promise((r) => setTimeout(r, 1400));
         }
 
-        // 3. Inject next official government signal
+        // Check if already resolved
+        if (currentCase.stateCategory === "resolved" || currentCase.demo?.complete) {
+          setHighlightSection("resolution");
+          setShowConfetti(true);
+          setCursor((prev) => ({ ...prev, visible: false }));
+          setDemoStatusText({
+            en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
+            hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
+            te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
+            ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
+            kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
+            mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
+            bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ кредит নিশ্চিত হয়েছে।",
+            pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
+          });
+          scrollToCard("resolution-card");
+          setPushNotification(getWhatsAppAlert({ type: "resolved" }));
+          await new Promise((r) => setTimeout(r, 3500));
+          setAuto(false);
+          setHighlightSection(null);
+          setDemoStatusText(null);
+          isPlayingMagicRef.current = false;
+          break;
+        }
+
+        // Inject next official government signal
         if (!isPlayingMagicRef.current) return;
         setHighlightSection("baton");
         scrollToCard("baton-rail");
@@ -838,7 +854,18 @@ export default function CasePage() {
         const totalSteps = currentCase.demo?.totalSteps ?? 4;
         const nextStep = Math.min(totalSteps, currentStep + 1);
 
-        if (nextStep === 3) {
+        if (nextStep === 2 || nextStep === 3) {
+          setDemoStatusText({
+            en: `Step ${nextStep}/4: State verification batch review in progress...`,
+            hi: `चरण ${nextStep}/4: राज्य सत्यापन बैच समीक्षा जारी है...`,
+            te: `దశ ${nextStep}/4: రాష్ట్ర ధృవీకరణ బ్యాచ్ పరిశీలన జరుగుతోంది...`,
+            ta: `படி ${nextStep}/4: மாநில சரிபார்ப்பு தொகுதி ஆய்வு நடைபெறுகிறது...`,
+            kn: `ಹಂತ ${nextStep}/4: ರಾಜ್ಯ ಪರಿಶೀಲನಾ ಬ್ಯಾಚ್ ಪರಿಶೀಲನೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ...`,
+            mr: `टप्पा ${nextStep}/4: राज्य पडताळणी तुकडी पुनरावलोकन सुरू आहे...`,
+            bn: `ধাপ ${nextStep}/4: রাজ্য যাচাই ব্যাচ পর্যালোচনা চলছে...`,
+            pa: `ਪੜਾਅ ${nextStep}/4: ਰਾਜ ਤਸਦੀਕ ਬੈਚ ਸਮੀਖਿਆ ਜਾਰੀ ਹੈ...`,
+          });
+
           // ⏳ Time-Lapse Pop-up Card: 2 Days Later (State Nodal Review)
           setTimeLapse({
             active: true,
@@ -869,13 +896,24 @@ export default function CasePage() {
               ta: "மாவட்ட வேளாண் அதிகாரி தகுதி தணிக்கையை முடித்து PFMS கருவூலத்திற்கு அனுப்பினார்.",
               kn: "ಜಿಲ್ಲಾ ಕೃಷಿ ಅಧಿಕಾರಿಯು ಅರ್ಹತಾ ಪರಿಶೀಲನೆ ಪೂರ್ಣಗೊಳಿಸಿ PFMS ಖಜಾನೆಗೆ ಕಳುಹಿಸಿದ್ದಾರೆ.",
               mr: "जिल्हा कृषी अधिकाऱ्यांनी पात्रता तपासणी पूर्ण करून तुकडी पीएफएमएसकडे पाठवली.",
-              bn: "জেলা কৃষি আধিকারিক যোগ্যতা যাচাই সম্পন্ন করে পিএফএমএস ট্রেজারিতে পাঠালেন।",
+              bn: "জেলা कृषि আধিকারিক योग्यता যাচাই সম্পন্ন করে পিএফএমএস ট্রেজারিতে পাঠালেন।",
               pa: "ਜ਼ਿਲ੍ਹਾ ਖੇਤੀਬਾੜੀ ਅਧਿਕਾਰੀ ਨੇ ਯੋਗਤਾ ਜਾਂਚ ਪੂਰੀ ਕਰਕੇ ਬੈਚ PFMS ਨੂੰ ਭੇਜਿਆ।",
             },
           });
-          await new Promise((r) => setTimeout(r, 2400));
+          await new Promise((r) => setTimeout(r, 2200));
           setTimeLapse(null);
-        } else if (nextStep === 4) {
+        } else if (nextStep >= 4) {
+          setDemoStatusText({
+            en: "Step 4/4: PFMS Treasury Mandate issuing ₹2,000 credit...",
+            hi: "चरण 4/4: पीएफएमएस ट्रेजरी द्वारा ₹2,000 बैंक खाते में ट्रांसफर आदेश जारी...",
+            te: "దశ 4/4: PFMS ట్రెజరీ ₹2,000 జమ ఆదేశాలు జారీ చేస్తోంది...",
+            ta: "படி 4/4: PFMS கருவூலம் ₹2,000 வரவு ஆணையை வெளியிடுகிறது...",
+            kn: "ಹಂತ 4/4: PFMS ಖಜಾನೆ ₹2,000 ಜಮಾ ಆದೇಶ ಹೊರಡಿಸುತ್ತಿದೆ...",
+            mr: "टप्पा 4/4: पीएफएमएस ट्रेझरीकडून ₹2,000 जमा आदेश जारी...",
+            bn: "ধাপ 4/4: পিএফএমএস ট্রেজারি ₹২,০০০ জমা নির্দেশ জারি করছে...",
+            pa: "ਪੜਾਅ 4/4: PFMS ਖਜ਼ਾਨਾ ₹2,000 ਕ੍ਰੈਡਿਟ ਆਦੇਸ਼ ਜਾਰੀ ਕਰ ਰਿਹਾ ਹੈ...",
+          });
+
           // ⏳ Time-Lapse Pop-up Card: 24 Hours Later (DBT Release)
           setTimeLapse({
             active: true,
@@ -886,7 +924,7 @@ export default function CasePage() {
               ta: "⏳ 24 மணி நேரத்திற்குப் பிறகு",
               kn: "⏳ 24 ಗಂಟೆಗಳ ನಂತರ",
               mr: "⏳ 24 तासांनंतर",
-              bn: "⏳ ২৪ ঘণ্টা পরে",
+              bn: "⏳ २४ ঘণ্টা পরে",
               pa: "⏳ 24 ਘੰਟਿਆਂ ਬਾਅਦ",
             },
             title: {
@@ -904,24 +942,21 @@ export default function CasePage() {
               hi: "केंद्रीय पीएफएमएस ने स्टेट बैंक गेटवे को ₹2,000 डीबीटी भुगतान आदेश जारी किया।",
               te: "కేంద్ర PFMS స్టేట్ బ్యాంక్ గేట్‌వేకు ₹2,000 DBT బదిలీ ఆదేశాలు జారీ చేసింది.",
               ta: "மத்திய PFMS ஸ்டேட் வங்கி நுழைவாயிலுக்கு ₹2,000 DBT கட்டண ஆணையை வழங்கியது.",
-              kn: "ಕೇಂದ್ರ PFMS ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಗೇಟ್‌ವೇಗೆ ₹2,000 DBT ಪಾವತಿ ಆದೇಶ ನೀಡಿದೆ.",
+              kn: "ಕೇಂದ್ರ PFMS ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಗೇಟ್‌ವೇಗೆ ₹2,000 DBT ਪಾವತಿ ಆದೇಶ ನೀಡಿದೆ.",
               mr: "केंद्रीय पीएफएमएसने स्टेट बँक गेटवेला ₹2,000 डीबीटी पेमेंट आदेश जारी केला.",
               bn: "কেন্দ্রীয় পিএফএমএস স্টেট ব্যাংক গেটওয়েতে ₹২,০০০ ডিবিটি পেমেন্ট নির্দেশ পাঠাল।",
               pa: "ਕੇਂਦਰੀ PFMS ਨੇ ਸਟੇਟ ਬੈਂਕ ਗੇਟਵੇ ਨੂੰ ₹2,000 DBT ਭੁਗਤਾਨ ਆਦੇਸ਼ ਜਾਰੀ ਕੀਤਾ।",
             },
           });
-          await new Promise((r) => setTimeout(r, 2400));
+          await new Promise((r) => setTimeout(r, 2200));
           setTimeLapse(null);
         }
 
-        if (typeof window !== "undefined") {
-          document.getElementById("baton-rail")?.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-
         const simRes = await fetch(`/api/cases/${id}/simulate-signal`, { method: "POST" });
-        const simJson = await simRes.json();
+        const simJson = (await simRes.json()) as { case?: CaseDTO };
         if (simJson.case) {
           setData(simJson.case);
+          currentCase = simJson.case;
 
           if (simJson.case.stateCategory === "resolved" || simJson.case.demo?.complete) {
             setHighlightSection("resolution");
@@ -933,30 +968,28 @@ export default function CasePage() {
               ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
               kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
               mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
-              bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ ক্রেডিট নিশ্চিত হয়েছে।",
+              bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ кредит নিশ্চিত হয়েছে।",
               pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
             });
-            if (typeof window !== "undefined") {
-              document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-
+            scrollToCard("resolution-card");
             setPushNotification(getWhatsAppAlert({ type: "resolved" }));
-
             await new Promise((r) => setTimeout(r, 3500));
             setAuto(false);
             isPlayingMagicRef.current = false;
             break;
           }
 
-          setPushNotification(getWhatsAppAlert({
-            type: "step_progress",
-            step: simJson.case.demo?.step ?? nextStep,
-            totalSteps,
-            caseTitle: t(simJson.case.title),
-          }));
+          setPushNotification(
+            getWhatsAppAlert({
+              type: "step_progress",
+              step: simJson.case.demo?.step ?? nextStep,
+              totalSteps,
+              caseTitle: t(simJson.case.title),
+            })
+          );
         }
 
-        await new Promise((r) => setTimeout(r, 2200));
+        await new Promise((r) => setTimeout(r, 1800));
       }
     } finally {
       setAuto(false);
