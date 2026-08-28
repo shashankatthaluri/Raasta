@@ -383,9 +383,21 @@ export function IntakeForm({ lang }: { lang: Lang }) {
             key={i}
             type="button"
             onClick={() => setMessage(sample)}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs text-stone-700 shadow-2xs transition hover:border-stone-400 hover:bg-stone-50 hover:text-stone-950 active:scale-[0.97] cursor-pointer"
+            className="group inline-flex items-center gap-2 rounded-xl border border-stone-200/90 bg-white px-3 py-1.5 text-xs text-stone-700 shadow-2xs transition hover:border-stone-400 hover:bg-stone-50 hover:text-stone-950 active:scale-[0.97] cursor-pointer"
           >
-            <span>💬</span>
+            <svg
+              className="h-3 w-3 text-stone-400 group-hover:text-stone-700 transition-colors shrink-0"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={1.75}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.02z"
+              />
+            </svg>
             <span>"{sample}"</span>
           </button>
         ))}
