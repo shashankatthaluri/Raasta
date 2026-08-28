@@ -1057,12 +1057,12 @@ export default function CasePage() {
         />
       )}
 
-      {/* Apple Dynamic Island / Floating Toast — Pinned to viewport, always visible without scrolling */}
+      {/* WhatsApp Message Delivered / Notification Pop — Bottom-Corner Toast */}
       {pushNotification && (
         <aside
           role="status"
           aria-live="polite"
-          className="fixed top-5 inset-x-0 mx-auto max-w-md z-50 px-4 pointer-events-none animate-in fade-in slide-in-from-top-4 duration-300 ease-out"
+          className="fixed bottom-6 right-4 sm:right-6 z-50 max-w-sm w-full pointer-events-none animate-in fade-in slide-in-from-bottom-5 duration-300 ease-out"
         >
           <div className="pointer-events-auto overflow-hidden rounded-2xl border border-stone-800/80 bg-stone-900/95 text-white p-3.5 sm:p-4 shadow-2xl backdrop-blur-xl transition-all duration-200 hover:scale-[1.01]">
             <div className="flex items-center justify-between gap-3">
