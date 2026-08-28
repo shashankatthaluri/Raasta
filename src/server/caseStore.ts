@@ -81,15 +81,19 @@ export async function getStoredCase(id: string): Promise<StoredCase | null> {
   }
 
   if (persistenceMode === "supabase") {
-    const snap = await loadCaseSnapshot(id);
-    if (snap) {
-      const stored: StoredCase = {
-        case: snap.c,
-        journeyId: snap.meta.journeyId,
-        step: snap.meta.journeyStep,
-      };
-      memory.set(id, stored);
-      return stored;
+    try {
+      const snap = await loadCaseSnapshot(id);
+      if (snap) {
+        const stored: StoredCase = {
+          case: snap.c,
+          journeyId: snap.meta.journeyId,
+          step: snap.meta.journeyStep,
+        };
+        memory.set(id, stored);
+        return stored;
+      }
+    } catch (err) {
+      console.error("Supabase loadCaseSnapshot error (falling back to memory):", err);
     }
   }
 
@@ -202,7 +206,11 @@ async function persist(stored: StoredCase): Promise<void> {
   memory.set(stored.case.id, stored);
   if (persistenceMode === "supabase") {
     const meta: CaseMeta = { journeyId: stored.journeyId, journeyStep: stored.step };
-    await saveCaseSnapshot(stored.case, meta);
+    try {
+      await saveCaseSnapshot(stored.case, meta);
+    } catch (err) {
+      console.error("Supabase saveCaseSnapshot error (falling back to memory):", err);
+    }
   }
 }
 

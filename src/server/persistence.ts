@@ -36,7 +36,14 @@ export const persistenceMode: "supabase" | "memory" = process.env.DATABASE_URL
   : "memory";
 
 const sql =
-  persistenceMode === "supabase" ? postgres(process.env.DATABASE_URL!, { max: 5 }) : null;
+  persistenceMode === "supabase"
+    ? postgres(process.env.DATABASE_URL!, {
+        max: 5,
+        prepare: false, // Required for Supabase transaction pooler on port 6543
+        connect_timeout: 10,
+        idle_timeout: 20,
+      })
+    : null;
 export const db = sql ? drizzle(sql, { schema }) : null;
 
 export interface CaseMeta {
