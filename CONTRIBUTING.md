@@ -6,29 +6,25 @@ Whether you're fixing a bug, adding support for a new Indian language, improving
 
 ---
 
-## 🏛️ Guiding Architectural Principles
+## 🏛️ Six Core Contribution Principles
 
-Before writing code, please keep our core tenets in mind:
+Before submitting code, please ensure your changes adhere to these six foundations:
 
-1. **Deterministic Truth vs. AI Explanation**:
-   - **Rules determine reality**: State transitions, evidence requirements, and "whose turn it is" are 100% deterministic TypeScript domain logic.
-   - **AI explains reality**: Sarvam AI and LLM models are purely assistive interfaces that explain state, translate to native dialects, and answer citizen queries. AI is never given the authority to mutate official case states.
+1. **Understand the Recovery Case Model**:
+   - Status is not just a label — it is an active case that connects cause, responsibility, and the single next recovery action.
+2. **Don't Invent Government Facts**:
+   - Every state transition, document requirement, and failure reason must match officially documented government operating procedures (SOPs).
+3. **Preserve Evidence Provenance**:
+   - Citizen self-report (`CITIZEN_REPORTED`) must never be conflated with official confirmation (`OFFICIAL`). The system remains honest about what has been submitted vs. what is officially confirmed.
+4. **Don't Introduce Unsupported Timelines or Remedies**:
+   - Never show arbitrary countdown timers or guaranteed SLAs (e.g. *"Resolved in 3 days"*) unless officially codified by government rules.
+5. **Keep Citizen Workload as the Primary Design Constraint**:
+   - Every flow must minimize citizen cognitive load. If the state is acting, tell the citizen clearly: *"You don't need to do anything right now."*
+6. **Add Tests for Behavioral Changes**:
+   - Any modification to journeys, state machines, or translations must include corresponding tests in `src/app/api/__tests__/` or `src/domain/__tests__/`.
 
-2. **Citizen-First Calm (Apple Restraint)**:
-   - Avoid cluttered dashboards, overwhelming tables, or bureaucratic jargon.
-   - Every case screen must answer the **5 Core Civic Questions** in exact hierarchy:
-     1. *What happened?*
-     2. *Why?*
-     3. *Whose turn is it?*
-     4. *What do I need to do?*
-     5. *What happens next?*
-
-3. **No False Certainties**:
-   - Never invent arbitrary deadlines or SLAs (e.g. "will be resolved in 7 days") unless officially codified by government Gazette or departmental rules.
-   - If the state is reviewing, tell the citizen clearly: *"You don't need to do anything right now."*
-
-4. **Language as an Entry Gate**:
-   - Language is access, not a settings dropdown. Always ensure first-class support for native Indian scripts (Devanagari, Telugu, Tamil, Kannada, Bengali, Marathi, Gurmukhi) and audio playback.
+> **Guiding Principle**:
+> *Contributions that make the system technically more sophisticated but increase citizen cognitive load are not automatically improvements.*
 
 ---
 
@@ -36,7 +32,7 @@ Before writing code, please keep our core tenets in mind:
 
 ### Prerequisites
 - **Node.js**: `v20.x` or higher
-- **Package Manager**: `npm` (v10+)
+- **npm**: `v10.x` or higher
 - **Git**
 
 ### Local Setup
@@ -49,8 +45,8 @@ cd Raasta
 # 2. Install dependencies
 npm install
 
-# 3. Setup environment variables
-cp .env.example .env.local  # (Optional: Add SARVAM_API_KEY / DATABASE_URL)
+# 3. Setup environment variables (Optional)
+cp .env.example .env.local
 
 # 4. Start local development server
 npm run dev
@@ -59,7 +55,7 @@ npm run dev
 npm test
 ```
 
-Visit [`http://localhost:3000`](http://localhost:3000) in your browser.
+Visit [`http://localhost:3000`](http://localhost:3000) (or `http://localhost:3998`) in your browser.
 
 ---
 
@@ -71,8 +67,8 @@ Visit [`http://localhost:3000`](http://localhost:3000) in your browser.
    ```
 2. **Coding Standards**:
    - Follow TypeScript strict type safety.
-   - Use Tailwind CSS v4 design tokens and Apple-grade spatial components.
-   - Ensure multi-lingual copy is updated in `src/lib/caseTranslations.ts` across all 8 supported languages.
+   - Use Tailwind CSS v4 design tokens and Apple-grade spatial restraint.
+   - Ensure multi-lingual copy is maintained across all 8 supported Indian languages in `src/lib/caseTranslations.ts`.
 3. **Running Verification**:
    ```bash
    # Run all Vitest unit & contract tests
@@ -87,7 +83,7 @@ Visit [`http://localhost:3000`](http://localhost:3000) in your browser.
 
 ---
 
-## 🌐 Adding a New Welfare Scheme
+## 🌐 Adding a New Welfare Scheme Adapter
 
 To add a new public welfare scheme (e.g. Ayushman Bharat or PM-Awas Yojana):
 1. Define the journey states in `src/domain/journeys.ts`.
