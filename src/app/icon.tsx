@@ -21,16 +21,25 @@ export default function Icon() {
         }}
       >
         <svg
-          width="20"
-          height="20"
+          width="22"
+          height="22"
           viewBox="0 0 24 24"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {/* Top Shirorekha Bar */}
           <path
-            d="M 4.5 4.5 H 13.5 C 17 4.5 19.5 7 19.5 10.5 C 19.5 14 17 16.5 13.5 16.5 H 8.5 L 18.5 24"
+            d="M 4 4.5 H 20"
             stroke="#ffffff"
-            strokeWidth="3.2"
+            strokeWidth="2.75"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* Devanagari 'र' (Ra) Bowl & Road Sweep */}
+          <path
+            d="M 8 4.5 C 13.8 4.5 16.5 7.2 16.5 10.5 C 16.5 13.8 13.8 15.8 8.5 15.8 L 17 21.5"
+            stroke="#ffffff"
+            strokeWidth="2.75"
             strokeLinecap="round"
             strokeLinejoin="round"
           />

@@ -3,15 +3,18 @@ import React from "react";
 interface RaastaLogoProps {
   className?: string;
   size?: "sm" | "md" | "lg" | "xl";
+  animated?: boolean;
 }
 
 /**
- * Raasta Ambigramic Vector Mark:
- * A seamless fusion of the Latin capital 'R' (with the left vertical spine removed)
- * and the Devanagari Hindi glyph 'र' (ra).
- * Symbolizes the open, unblocked road (रास्ता) to rightful entitlements.
+ * Raasta Devanagari 'र' (Ra) Vector Mark:
+ * An authentic, distinctive glyph representing 'र' (रास्ता / Raasta)
+ * with the signature horizontal Shirorekha top bar and dynamic road sweep.
+ *
+ * Starts as Latin 'R' and the left vertical spine sweeps to the top
+ * to settle into the Devanagari Hindi 'र'.
  */
-export function RaastaLogo({ className = "h-5 w-5", size }: RaastaLogoProps) {
+export function RaastaLogo({ className = "h-5 w-5", size, animated = true }: RaastaLogoProps) {
   let sizeClass = className;
   if (size === "sm") sizeClass = "h-4 w-4";
   else if (size === "md") sizeClass = "h-5 w-5";
@@ -23,16 +26,34 @@ export function RaastaLogo({ className = "h-5 w-5", size }: RaastaLogoProps) {
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className={sizeClass}
-      aria-label="Raasta Logo (R / र)"
+      className={`${sizeClass} overflow-visible`}
+      aria-label="Raasta Logo (र / Ra)"
     >
-      {/* Top Shirorekha / Upper 'R' & 'र' Loop and Dynamic Road Sweep */}
+      {/* Top Shirorekha Bar (Morphs smoothly from left spine to top bar) */}
       <path
-        d="M 4.5 4.5 H 13.5 C 17 4.5 19.5 7 19.5 10.5 C 19.5 14 17 16.5 13.5 16.5 H 8.5 L 18.5 24"
+        d="M 4 4.5 H 20"
         stroke="currentColor"
         strokeWidth="2.75"
         strokeLinecap="round"
         strokeLinejoin="round"
+        className={
+          animated
+            ? "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] origin-top-left"
+            : ""
+        }
+      />
+      {/* Devanagari 'र' Upper Bowl & Forward Road Sweep */}
+      <path
+        d="M 8 4.5 C 13.8 4.5 16.5 7.2 16.5 10.5 C 16.5 13.8 13.8 15.8 8.5 15.8 L 17 21.5"
+        stroke="currentColor"
+        strokeWidth="2.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={
+          animated
+            ? "transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]"
+            : ""
+        }
       />
     </svg>
   );
@@ -41,9 +62,11 @@ export function RaastaLogo({ className = "h-5 w-5", size }: RaastaLogoProps) {
 export function RaastaLogoEmblem({
   size = "md",
   className = "",
+  animated = true,
 }: {
   size?: "sm" | "md" | "lg" | "xl";
   className?: string;
+  animated?: boolean;
 }) {
   const containerSizes = {
     sm: "h-6 w-6 rounded-lg",
@@ -63,7 +86,7 @@ export function RaastaLogoEmblem({
     <div
       className={`flex items-center justify-center bg-stone-900 text-white shadow-2xs transition-all duration-200 ${containerSizes[size]} ${className}`}
     >
-      <RaastaLogo className={iconSizes[size]} />
+      <RaastaLogo className={iconSizes[size]} animated={animated} />
     </div>
   );
 }

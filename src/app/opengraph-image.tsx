@@ -28,24 +28,33 @@ export default function OpenGraphImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            width: 110,
-            height: 110,
-            borderRadius: 32,
-            background: "#292524",
-            border: "2px solid #44403c",
+            width: 120,
+            height: 120,
+            borderRadius: 36,
+            background: "#1c1917",
+            border: "2px solid #292524",
             marginBottom: 32,
           }}
         >
           <svg
-            width="65"
-            height="65"
+            width="72"
+            height="72"
             viewBox="0 0 24 24"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
+            {/* Top Shirorekha Bar */}
             <path
-              d="M 4.5 4.5 H 13.5 C 17 4.5 19.5 7 19.5 10.5 C 19.5 14 17 16.5 13.5 16.5 H 8.5 L 18.5 24"
-              stroke="#f5f5f4"
+              d="M 4 4.5 H 20"
+              stroke="#ffffff"
+              strokeWidth="2.75"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            {/* Devanagari 'र' (Ra) Bowl & Road Sweep */}
+            <path
+              d="M 8 4.5 C 13.8 4.5 16.5 7.2 16.5 10.5 C 16.5 13.8 13.8 15.8 8.5 15.8 L 17 21.5"
+              stroke="#ffffff"
               strokeWidth="2.75"
               strokeLinecap="round"
               strokeLinejoin="round"
