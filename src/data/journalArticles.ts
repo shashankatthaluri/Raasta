@@ -38,7 +38,11 @@ AI has a deliberately narrow role. It understands how citizens describe problems
 
 We are not building another chatbot or replacing PM-KISAN. We are building the connective layer around the systems that already exist—so the citizen doesn't have to be it.
 
-Raasta asks one simple question: What happens next?`,
+Raasta asks one simple question: What happens next?
+
+---
+
+*1,564 characters (with spaces) · 1,316 characters (without spaces) · 242 words*`,
   },
   {
     slug: "why-government-status-isnt-enough",
