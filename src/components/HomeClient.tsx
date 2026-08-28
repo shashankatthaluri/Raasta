@@ -446,9 +446,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   type IntroStage =
     | "empty"
-    | "logo_r"
-    | "logo_transforming"
-    | "logo_settled"
+    | "logo_only"
     | "lang_en"
     | "lang_hi"
     | "lang_te"
@@ -518,32 +516,27 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       setOffset({ x: dxFull, y: lockedY, xLogo: dxLogo, yLogo: lockedY });
     }
 
-    // Organic "R → Turn from Top & Drop → रा → Raasta" Signature Sequence:
-    // 1. Empty (0ms -> 250ms)
-    // 2. Pure, perfect geometric capital 'R' appears in center (250ms -> 1400ms)
-    const t0 = setTimeout(() => setIntroStage("logo_r"), 250);
-    // 3. The left straight line lifts from top, turns over loop, and drops straight to the right (1400ms -> 2400ms)
-    const t1 = setTimeout(() => setIntroStage("logo_transforming"), 1400);
-    // 4. Settles as Hindi 'रा' mark + quiet pause to register (2400ms -> 3300ms)
-    const t2 = setTimeout(() => setIntroStage("logo_settled"), 2400);
-    // 5. English wordmark 'Raasta' & tagline appear (3300ms -> 4600ms)
-    const t3 = setTimeout(() => setIntroStage("lang_en"), 3300);
-    // 6. Multilingual script loop:
-    const t4 = setTimeout(() => setIntroStage("lang_hi"), 4600); // Hindi: रास्ता
-    const t5 = setTimeout(() => setIntroStage("lang_te"), 5800); // Telugu: రాస్తా
-    const t6 = setTimeout(() => setIntroStage("lang_ta"), 7000); // Tamil: ராஸ்தா
-    const t7 = setTimeout(() => setIntroStage("lang_kn"), 8200); // Kannada: ರಾಸ್ತಾ
-    const t8 = setTimeout(() => setIntroStage("lang_mr"), 9400); // Marathi: रास्ता
-    const t9 = setTimeout(() => setIntroStage("lang_bn"), 10600); // Bengali: রাস্তা
-    const t10 = setTimeout(() => setIntroStage("lang_pa"), 11800); // Punjabi: ਰਾਸਤਾ
-    // 7. Final anchor in English (13000ms -> 14400ms)
-    const t11 = setTimeout(() => setIntroStage("lang_en_final"), 13000);
-    const t12 = setTimeout(() => setIntroStage("hold"), 14400);
-    // 8. Glides smoothly up to Top Header (15000ms -> 15800ms)
-    const t13 = setTimeout(() => setIntroStage("travel"), 15000);
-    const t14 = setTimeout(() => {
+    // Apple "Hello" Signature Organic Timing:
+    // 1. Logo reveals alone in center (200ms -> 950ms)
+    const t0 = setTimeout(() => setIntroStage("logo_only"), 200);
+    // 2. English: Raasta draws in with handwriting unmask & pauses (950ms -> 2250ms, hold 1.3s)
+    const t1 = setTimeout(() => setIntroStage("lang_en"), 950);
+    // 3. Multilingual handwriting stroke loop with poised pauses and optical vapor transitions:
+    const t2 = setTimeout(() => setIntroStage("lang_hi"), 2250); // Hindi: रास्ता
+    const t3 = setTimeout(() => setIntroStage("lang_te"), 3500); // Telugu: రాస్తా
+    const t4 = setTimeout(() => setIntroStage("lang_ta"), 4750); // Tamil: ராஸ்தா
+    const t5 = setTimeout(() => setIntroStage("lang_kn"), 6000); // Kannada: ರಾಸ್ತಾ
+    const t6 = setTimeout(() => setIntroStage("lang_mr"), 7250); // Marathi: रास्ता
+    const t7 = setTimeout(() => setIntroStage("lang_bn"), 8500); // Bengali: রাস্তা
+    const t8 = setTimeout(() => setIntroStage("lang_pa"), 9750); // Punjabi: ਰਾਸਤਾ
+    // 4. Final repeat of First Language (English) as the definitive anchor (11000ms -> 12500ms, hold 1.5s)
+    const t9 = setTimeout(() => setIntroStage("lang_en_final"), 11000);
+    const t10 = setTimeout(() => setIntroStage("hold"), 12500);
+    // 5. Glides smoothly up to Top Header (13150ms)
+    const t11 = setTimeout(() => setIntroStage("travel"), 13150);
+    const t12 = setTimeout(() => {
       setIntroStage("settled");
-    }, 15800);
+    }, 14000);
 
     return () => {
       clearTimeout(t0);
@@ -559,8 +552,6 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       clearTimeout(t10);
       clearTimeout(t11);
       clearTimeout(t12);
-      clearTimeout(t13);
-      clearTimeout(t14);
     };
   }, []);
 
@@ -575,9 +566,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   const isAtCenter =
     introStage === "empty" ||
-    introStage === "logo_r" ||
-    introStage === "logo_transforming" ||
-    introStage === "logo_settled" ||
+    introStage === "logo_only" ||
     introStage === "lang_en" ||
     introStage === "lang_hi" ||
     introStage === "lang_te" ||
@@ -658,12 +647,6 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     }
   }
 
-  const isTextUnrolled =
-    introStage !== "empty" &&
-    introStage !== "logo_r" &&
-    introStage !== "logo_transforming" &&
-    introStage !== "logo_settled";
-
   const isTaglineVisible =
     introStage === "lang_en" ||
     introStage === "lang_hi" ||
@@ -676,11 +659,11 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     introStage === "lang_en_final" ||
     introStage === "hold";
 
-  const isLogoOnly =
-    introStage === "empty" ||
-    introStage === "logo_r" ||
-    introStage === "logo_transforming" ||
-    introStage === "logo_settled";
+  const isTextUnrolled =
+    introStage !== "empty" &&
+    introStage !== "logo_only";
+
+  const isLogoOnly = introStage === "empty" || introStage === "logo_only";
   const transformStyle = offset
     ? isAtCenter
       ? isLogoOnly
@@ -727,16 +710,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               title="Choose Language"
               className="shrink-0 flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <RaastaLogoEmblem
-                size="md"
-                stage={
-                  introStage === "logo_r"
-                    ? "r"
-                    : introStage === "logo_transforming"
-                    ? "transforming"
-                    : "settled"
-                }
-              />
+              <RaastaLogoEmblem size="md" />
             </button>
 
             {/* Brand Text Column: In Center, renders 2 stacked rows (Wordmark + Tagline). In Header, renders 1 laser-straight aligned row */}

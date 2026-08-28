@@ -27,23 +27,23 @@ export default function Icon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Iconic 'र' Glyph */}
+          {/* Subtle Top Line (Shirorekha) - Compact & Balanced */}
+          <line
+            x1={6.8}
+            y1={4.5}
+            x2={17.2}
+            y2={4.5}
+            stroke="#ffffff"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+          />
+          {/* Devanagari 'र' Upper Loop & Forward Road Sweep */}
           <path
-            d="M 4.5 6 H 10 C 14 6 15.5 8 15.5 10.5 C 15.5 13 14 14.5 10 14.5 L 15.5 20.5"
+            d="M 8.5 4.5 C 13.8 4.5 16 7 16 9.8 C 16 12.5 13.8 14 8.5 14 L 16.5 20.5"
             stroke="#ffffff"
             strokeWidth="2.75"
             strokeLinecap="round"
             strokeLinejoin="round"
-          />
-          {/* Right Vertical Pillar ('ा') */}
-          <line
-            x1="19"
-            y1="6"
-            x2="19"
-            y2="20.5"
-            stroke="#ffffff"
-            strokeWidth="2.75"
-            strokeLinecap="round"
           />
         </svg>
       </div>
