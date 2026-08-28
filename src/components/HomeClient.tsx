@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CreateCase } from "@/components/CreateCase";
@@ -853,12 +854,18 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
             </div>
           </div>
 
-          {/* Header Controls (Language Switcher): Fades in when settled */}
+          {/* Header Controls (Journal Link + Language Switcher): Fades in when settled */}
           <div
-            className={`transition-opacity duration-500 ease-out ${
+            className={`flex items-center gap-2.5 transition-opacity duration-500 ease-out ${
               introStage === "settled" && hasSelectedLang ? "opacity-100" : "opacity-0 pointer-events-none"
             }`}
           >
+            <Link
+              href="/journal"
+              className="text-xs font-semibold text-stone-700 hover:text-stone-950 px-2.5 py-1 rounded-full border border-stone-200 bg-white shadow-2xs transition hover:bg-stone-100 active:scale-95"
+            >
+              📖 Journal
+            </Link>
             <LanguageSwitcher
               lang={lang}
               onChange={(l) => {

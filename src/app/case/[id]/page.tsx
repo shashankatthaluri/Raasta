@@ -1061,6 +1061,12 @@ export default function CasePage() {
                   : cp.statusWaiting}
               </span>
             </span>
+            <Link
+              href="/journal"
+              className="hidden sm:inline-flex text-xs font-semibold text-stone-600 hover:text-stone-950 px-2.5 py-1 rounded-full border border-stone-200 bg-stone-50 shadow-2xs transition hover:bg-stone-100 active:scale-95"
+            >
+              📖 Journal
+            </Link>
             <LanguageSwitcher lang={lang} onChange={setLanguage} />
           </div>
         </div>
