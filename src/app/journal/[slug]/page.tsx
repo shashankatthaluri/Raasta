@@ -14,8 +14,16 @@ export default function JournalArticlePage() {
     notFound();
   }
 
-  // Split markdown content into readable blocks
-  const paragraphs = article.content.split("\n\n");
+  // Parse markdown into clean blocks
+  const rawSections = article.content.split(/\n{2,}/);
+
+  const formatInline = (text: string) => {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong class="font-bold text-stone-950">$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em class="text-stone-900">$1</em>')
+      .replace(/`([^`]+)`/g, '<code class="rounded bg-stone-200/70 px-1 py-0.5 font-mono text-xs font-semibold text-stone-900">$1</code>')
+      .replace(/\n/g, "<br />");
+  };
 
   return (
     <main className="min-h-screen bg-stone-50 text-stone-900 selection:bg-amber-100 selection:text-amber-900">
@@ -67,64 +75,122 @@ export default function JournalArticlePage() {
 
         {/* Prose Body */}
         <div className="mt-8 space-y-5 text-base leading-relaxed text-stone-800">
-          {paragraphs.map((p, idx) => {
-            const trimmed = p.trim();
-
-            if (trimmed.startsWith("## ")) {
-              return (
-                <h2 key={idx} className="pt-6 pb-2 text-2xl font-bold tracking-tight text-stone-950 border-t border-stone-200/60 first:border-0 first:pt-0">
-                  {trimmed.replace("## ", "")}
-                </h2>
-              );
-            }
-
-            if (trimmed.startsWith("### ")) {
-              return (
-                <h3 key={idx} className="pt-4 pb-1 text-lg font-bold tracking-tight text-stone-900">
-                  {trimmed.replace("### ", "")}
-                </h3>
-              );
-            }
-
-            if (trimmed.startsWith("# ")) {
-              return (
-                <h2 key={idx} className="py-4 text-2xl font-extrabold tracking-tight text-amber-950 bg-amber-50/60 p-4 rounded-xl border border-amber-200/60">
-                  {trimmed.replace("# ", "")}
-                </h2>
-              );
-            }
+          {rawSections.map((block, idx) => {
+            const trimmed = block.trim();
 
             if (trimmed === "---") {
               return <hr key={idx} className="my-8 border-stone-200" />;
             }
 
-            if (trimmed.startsWith("> ")) {
+            // Flowchart / Architecture Formula
+            if (trimmed.startsWith("$$") && trimmed.endsWith("$$")) {
+              const cleanFormula = trimmed
+                .replace(/^\$\$\s*/, "")
+                .replace(/\s*\$\$$/, "")
+                .replace(/\\text{/g, "")
+                .replace(/}/g, "")
+                .replace(/\\longrightarrow/g, " → ")
+                .replace(/\\rightarrow/g, " → ");
+
               return (
-                <blockquote key={idx} className="rounded-xl border-l-4 border-amber-600 bg-stone-100/70 p-4 text-stone-900 font-medium italic">
-                  {trimmed.replace(/^>\s*/gm, "")}
-                </blockquote>
+                <div key={idx} className="my-6 rounded-2xl border border-stone-200 bg-stone-100/90 p-4 text-center font-mono text-xs font-semibold text-stone-800 overflow-x-auto">
+                  {cleanFormula}
+                </div>
               );
             }
 
+            // Headings
+            if (trimmed.startsWith("# ")) {
+              const text = trimmed.replace(/^#s+/, "").replace(/\*\*/g, "");
+              return (
+                <h1 key={idx} className="pt-6 pb-2 text-2xl font-extrabold tracking-tight text-stone-950">
+                  {text}
+                </h1>
+              );
+            }
+
+            if (trimmed.startsWith("## ")) {
+              const lines = trimmed.split("\n");
+              return (
+                <div key={idx} className="pt-6 pb-2 space-y-1">
+                  {lines.map((line, li) => {
+                    if (line.startsWith("## ")) {
+                      return (
+                        <h2 key={li} className="text-xl sm:text-2xl font-bold tracking-tight text-stone-950 border-t border-stone-200/60 pt-4 first:border-0 first:pt-0">
+                          {line.replace(/^##s+/, "").replace(/\*\*/g, "")}
+                        </h2>
+                      );
+                    }
+                    if (line.startsWith("### ")) {
+                      return (
+                        <h3 key={li} className="text-base sm:text-lg font-semibold tracking-tight text-amber-900">
+                          {line.replace(/^###s+/, "").replace(/\*\*/g, "")}
+                        </h3>
+                      );
+                    }
+                    return <p key={li} dangerouslySetInnerHTML={{ __html: formatInline(line) }} />;
+                  })}
+                </div>
+              );
+            }
+
+            if (trimmed.startsWith("### ")) {
+              const text = trimmed.replace(/^###s+/, "").replace(/\*\*/g, "");
+              return (
+                <h3 key={idx} className="pt-4 pb-1 text-lg font-bold tracking-tight text-stone-900">
+                  {text}
+                </h3>
+              );
+            }
+
+            if (trimmed.startsWith("#### ")) {
+              const text = trimmed.replace(/^####s+/, "").replace(/\*\*/g, "");
+              return (
+                <h4 key={idx} className="pt-3 text-base font-semibold text-stone-900">
+                  {text}
+                </h4>
+              );
+            }
+
+            // Blockquotes
+            if (trimmed.startsWith("> ")) {
+              const quoteContent = trimmed
+                .split("\n")
+                .map((line) => line.replace(/^>\s*/, ""))
+                .join("<br />");
+
+              return (
+                <blockquote
+                  key={idx}
+                  className="rounded-xl border-l-4 border-amber-600 bg-stone-100/70 p-4 text-stone-900 font-medium italic"
+                  dangerouslySetInnerHTML={{ __html: formatInline(quoteContent) }}
+                />
+              );
+            }
+
+            // Unordered List
             if (trimmed.startsWith("* ") || trimmed.startsWith("- ")) {
-              const items = trimmed.split("\n").map((line) => line.replace(/^[*\-]\s*/, ""));
+              const items = trimmed.split("\n").filter((l) => l.startsWith("* ") || l.startsWith("- "));
               return (
                 <ul key={idx} className="list-disc pl-5 space-y-1.5 text-stone-700">
                   {items.map((item, i) => (
-                    <li key={i} dangerouslySetInnerHTML={{ __html: item.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\*(.*?)\*/g, '<em>$1</em>') }} />
+                    <li
+                      key={i}
+                      dangerouslySetInnerHTML={{
+                        __html: formatInline(item.replace(/^[*-]\s*/, "")),
+                      }}
+                    />
                   ))}
                 </ul>
               );
             }
 
+            // Standard Paragraph
             return (
               <p
                 key={idx}
                 dangerouslySetInnerHTML={{
-                  __html: trimmed
-                    .replace(/\*\*(.*?)\*\*/g, '<strong className="font-bold text-stone-950">$1</strong>')
-                    .replace(/\*(.*?)\*/g, '<em className="text-stone-900">$1</em>')
-                    .replace(/`([^`]+)`/g, '<code className="rounded bg-stone-200/70 px-1 py-0.5 font-mono text-xs font-semibold text-stone-900">$1</code>'),
+                  __html: formatInline(trimmed),
                 }}
               />
             );
