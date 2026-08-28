@@ -19,33 +19,31 @@ export function TimeLapseModal({ active, daysText, title, description, lang }: T
     return val[lang] ?? val.en ?? "";
   };
 
+  // Apple-style: no page blur, no dark overlay. A subtle floating pill banner
+  // anchored near the bottom — like time-skip captions in documentaries.
   return (
-    <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="relative max-w-sm w-full rounded-3xl border border-stone-800 bg-stone-900/95 p-6 text-white shadow-2xl text-center animate-in zoom-in-95 duration-300">
-        {/* Animated Calendar/Clock Beacon */}
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-inner">
-          <svg className="h-6 w-6 text-amber-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+    <div className="pointer-events-none fixed bottom-8 inset-x-0 z-[150] flex items-end justify-center px-4 animate-in slide-in-from-bottom-2 fade-in duration-500">
+      <div className="flex items-center gap-3 rounded-2xl border border-stone-200/80 bg-white/92 px-5 py-3.5 shadow-lg shadow-stone-900/8 backdrop-blur-md">
+
+        {/* Slim pulsing clock icon */}
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/70">
+          <svg className="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
           </svg>
         </div>
 
-        {/* Days Badge */}
-        <span className="mt-3.5 inline-block rounded-full bg-amber-400/20 px-3 py-1 font-mono text-xs font-bold text-amber-300 border border-amber-400/30 uppercase tracking-wide">
-          {t(daysText)}
-        </span>
+        {/* Text */}
+        <div className="flex flex-col leading-tight">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-stone-400">
+            {t(daysText)}
+          </span>
+          <span className="text-sm font-semibold text-stone-900">
+            {t(title)}
+          </span>
+        </div>
 
-        {/* Title */}
-        <h3 className="mt-2.5 text-base font-bold text-stone-100">
-          {t(title)}
-        </h3>
-
-        {/* Description */}
-        <p className="mt-1.5 text-xs text-stone-400 leading-relaxed">
-          {t(description)}
-        </p>
-
-        {/* Realistic Time-Lapse Progress Track */}
-        <div className="mt-5 overflow-hidden rounded-full bg-stone-800 h-1.5">
+        {/* Thin progress bar at the bottom edge of the pill */}
+        <div className="ml-3 h-0.5 w-20 overflow-hidden rounded-full bg-stone-100">
           <div className="h-full bg-gradient-to-r from-amber-400 to-emerald-400 animate-[timeLapseFill_2200ms_ease-in-out_forwards]" />
         </div>
       </div>
