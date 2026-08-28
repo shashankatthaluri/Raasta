@@ -616,7 +616,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     if (introStage === "travel" || (introStage === "settled" && !hasSelectedLang)) {
       // If user is actively hovering over a tile, pause the auto-cycle so it stays static
       if (hoveredLang !== null) return;
-      const t = setInterval(() => setLangPromptIndex((i) => (i + 1) % PROMPTS.length), 3200);
+      const t = setInterval(() => setLangPromptIndex((i) => (i + 1) % PROMPTS.length), 2200);
       return () => clearInterval(t);
     }
   }, [introStage, hasSelectedLang, hoveredLang]);
