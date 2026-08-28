@@ -27,19 +27,19 @@ export default function AppleIcon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Straight Top Line, U-Turn, Straight Return Line & Diagonal Line */}
+          {/* Iconic 'र' Glyph */}
           <path
-            d="M 5.5 5 H 11.5 C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13 H 5.5 M 10 13 L 15.8 20.5"
+            d="M 4.5 6 H 10 C 14 6 15.5 8 15.5 10.5 C 15.5 13 14 14.5 10 14.5 L 15.5 20.5"
             stroke="#ffffff"
             strokeWidth="2.75"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Vertical Straight Line with Optical Gap */}
+          {/* Right Vertical Pillar ('ा') */}
           <line
-            x1="20"
-            y1="5"
-            x2="20"
+            x1="19"
+            y1="6"
+            x2="19"
             y2="20.5"
             stroke="#ffffff"
             strokeWidth="2.75"

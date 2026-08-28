@@ -72,9 +72,9 @@ export async function getStoredCase(id: string): Promise<StoredCase | null> {
   const cached = memory.get(id);
   if (cached) return cached;
 
-  // Check if any stored case in memory matches registrationNumber
+  // Check if any stored case in memory matches registrationNumber or ID
   for (const stored of memory.values()) {
-    if (stored.case.registrationNumber === id) {
+    if (stored.case.registrationNumber === id || stored.case.id === id) {
       memory.set(id, stored);
       return stored;
     }
@@ -107,7 +107,7 @@ export async function getStoredCase(id: string): Promise<StoredCase | null> {
     const c = createCase({
       id,
       problemType: "PAYMENT_MISSING",
-      registrationNumber: /^\d{11}$/.test(id) ? id : "10203040506",
+      registrationNumber: id,
       isDemo: true,
     });
     const adapter = new MockGovernmentAdapter(journeyId, id, 0);

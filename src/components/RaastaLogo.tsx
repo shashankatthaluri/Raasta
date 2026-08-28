@@ -7,13 +7,11 @@ interface RaastaLogoProps {
 }
 
 /**
- * Raasta Brand Mark:
- * Geometric precision:
- * - Straight top line
- * - Smooth U-turn
- * - Straight return line
- * - Perfect diagonal line
- * - With calibrated space: the straight line vertically standing on the right (forming 'रा' after traveling from the left 'R' position).
+ * Raasta Apple-Grade Mark:
+ * 1. Initial State: The iconic Raasta 'र' glyph sits centered with serene poise.
+ * 2. Transformation: The glyph glides smoothly to the left with Apple spring easing,
+ *    while the vertical straight pillar ('ा') reveals on the right with calibrated optical space.
+ * 3. Settles in harmony as the iconic 'रा' (Raasta) identity.
  */
 export function RaastaLogo({
   className = "h-5 w-5",
@@ -26,54 +24,54 @@ export function RaastaLogo({
   else if (size === "lg") sizeClass = "h-8 w-8";
   else if (size === "xl") sizeClass = "h-12 w-12";
 
+  const isCentered = stage === "r";
+
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`${sizeClass} overflow-visible`}
-      aria-label="Raasta Logo (R → Turn & Drop → रा)"
+      aria-label="Raasta Logo (र → Shift & Reveal → रा)"
     >
       {/* 
-        The Core Shape:
-        1. Straight top line: M 5.5 5 H 11.5
-        2. U-turn: C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13
-        3. Straight return line: H 5.5
-        4. Perfect diagonal line: M 10 13 L 15.8 20.5
-      */}
-      <path
-        d="M 5.5 5 H 11.5 C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13 H 5.5 M 10 13 L 15.8 20.5"
-        stroke="currentColor"
-        strokeWidth="2.75"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-
-      {/* 
-        The Vertical Straight Line:
-        - stage 'r': Attached straight on the left at x = 5.5 (forming perfect Latin 'R').
-        - stage 'transforming': Lifts from top, takes a turn over the head, and drops on the right.
-        - stage 'settled': Stands vertically straight on the right at x = 20 with calibrated space (forming 'रा').
+        The Iconic Raasta 'र' Glyph:
+        Starts centered in the tile, then glides left with Apple fluid spring physics
       */}
       <g
-        className={
-          stage === "transforming"
-            ? "animate-spine-turn-drop"
-            : stage === "settled"
-            ? "translate-x-[14.5px]"
-            : "translate-x-0"
-        }
+        className="transition-transform duration-800 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{
+          transform: isCentered ? "translate3d(1.5px, 0, 0)" : "translate3d(-2px, 0, 0)",
+        }}
       >
-        <line
-          x1={5.5}
-          y1={5}
-          x2={5.5}
-          y2={20.5}
+        <path
+          d="M 6.5 6 H 12 C 16 6 17.5 8 17.5 10.5 C 17.5 13 16 14.5 12 14.5 L 17.5 20.5"
           stroke="currentColor"
           strokeWidth="2.75"
           strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </g>
+
+      {/* 
+        The Right Vertical Pillar ('ा'):
+        Reveals smoothly into place on the right with calibrated optical space
+      */}
+      <line
+        x1={19}
+        y1={6}
+        x2={19}
+        y2={20.5}
+        stroke="currentColor"
+        strokeWidth="2.75"
+        strokeLinecap="round"
+        className="transition-all duration-800 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        style={{
+          opacity: isCentered ? 0 : 1,
+          transform: isCentered ? "scaleY(0.4) translate3d(-3px, 0, 0)" : "scaleY(1) translate3d(0, 0, 0)",
+          transformOrigin: "center center",
+        }}
+      />
     </svg>
   );
 }

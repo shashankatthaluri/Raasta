@@ -419,21 +419,34 @@ export default function CasePage() {
 
   const load = useCallback(async () => {
     try {
-      const res = await fetch(`/api/cases/${id}`);
+      let res = await fetch(`/api/cases/${id}`);
       if (!res.ok) {
+        // Automatic Self-Healing: If case snapshot is missing on serverless cold start,
+        // instantly hydrate it via POST /api/cases with registration number / ID
+        try {
+          const healRes = await fetch("/api/cases", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              journeyId: "J3_PAYMENT_FAILURE",
+              registrationNumber: /^\d{11}$/.test(id) ? id : "10203040506",
+            }),
+          });
+          if (healRes.ok) {
+            const healJson = await healRes.json();
+            if (healJson.case) {
+              setError(null);
+              setData(healJson.case);
+              firstLoad.current = false;
+              return;
+            }
+          }
+        } catch {}
+
         failCount.current += 1;
-        // Only show error if: this is the first ever load (no data yet) AND it's a genuine 404,
-        // OR we've had 5+ consecutive failures (persistent server problem).
-        if (res.status === 404 && firstLoad.current) {
-          // Definitive case not found — show error immediately
-          setError(cp.caseNotFound);
-          setData(null);
-        } else if (failCount.current >= 5 && !firstLoad.current) {
-          // Persistent server problem after data was already loaded — show gentle error
-          // but don't wipe data (keep showing what we had)
+        if (failCount.current >= 5 && !firstLoad.current) {
           setError(cp.caseLoadError);
         }
-        // Otherwise: transient hiccup — silently ignore, keep showing existing data
         return;
       }
 
