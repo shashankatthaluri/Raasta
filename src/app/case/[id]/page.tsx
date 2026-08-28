@@ -611,25 +611,12 @@ export default function CasePage() {
               : `₹2,000 PM-KISAN successfully credited to your State Bank of India account (UTR: DEMO-UTR-2026-0001). Case settled.`,
           });
 
-          await new Promise((r) => setTimeout(r, 4500));
+          await new Promise((r) => setTimeout(r, 3500));
 
-          // Auto-return to the initial Solution Page (Step 1/4) so the page is ready and actionable again
-          try {
-            const resetRes = await fetch(`/api/cases/${id}/reset`, { method: "POST" });
-            if (resetRes.ok) {
-              const resetJson = await resetRes.json();
-              if (resetJson.case) setData(resetJson.case);
-            }
-          } catch {}
-
-          setShowConfetti(false);
           setAuto(false);
           setHighlightSection(null);
           setDemoStatusText(null);
           isPlayingMagicRef.current = false;
-          if (typeof window !== "undefined") {
-            window.scrollTo({ top: 0, behavior: "smooth" });
-          }
           break;
         }
 
