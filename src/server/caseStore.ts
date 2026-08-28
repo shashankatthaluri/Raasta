@@ -99,11 +99,15 @@ export async function getStoredCase(id: string): Promise<StoredCase | null> {
 
   // If an 11-digit registration number is accessed directly in URL
   if (/^\d{11}$/.test(id)) {
-    const journeyId = "J3_PAYMENT_FAILURE";
+    const journeyId = id.includes("EKYC")
+      ? "J1_FARMER_EKYC"
+      : id.includes("LAND")
+      ? "J2_GOVT_VERIFICATION"
+      : "J3_PAYMENT_FAILURE";
     const c = createCase({
       id,
       problemType: "PAYMENT_MISSING",
-      registrationNumber: id,
+      registrationNumber: /^\d{11}$/.test(id) ? id : "10203040506",
       isDemo: true,
     });
     const adapter = new MockGovernmentAdapter(journeyId, id, 0);

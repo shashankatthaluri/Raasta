@@ -859,7 +859,7 @@ export default function CasePage() {
     return o[lang] ?? (lang === "hi" ? o.hi : o.en) ?? o.en ?? "";
   };
 
-  if (error) {
+  if (error && !data) {
     return (
       <main className="mx-auto max-w-2xl px-6 py-10">
         <div className="flex items-center justify-between gap-3 border-b border-stone-100 pb-4">
