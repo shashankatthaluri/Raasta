@@ -545,6 +545,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
     const isReduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (isReduced) {
+      if (stored) setHasSelectedLang(true);
       setIntroStage("settled");
       return;
     }
@@ -587,8 +588,12 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     const t10 = setTimeout(() => setIntroStage("hold"), 12500);
     // 6. Glides smoothly up to Top Header (13150ms)
     const t11 = setTimeout(() => setIntroStage("travel"), 13150);
-    // 7. Settled & App Screen Opens (14000ms)
-    const t12 = setTimeout(() => setIntroStage("settled"), 14000);
+    const t12 = setTimeout(() => {
+      setIntroStage("settled");
+      if (stored) {
+        setHasSelectedLang(true);
+      }
+    }, 14000);
 
     return () => {
       clearTimeout(t0);
@@ -746,6 +751,18 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   return (
     <div className="relative min-h-screen bg-stone-50 text-stone-900 overflow-x-hidden">
+      {/* Click anywhere during intro to skip directly */}
+      {isAtCenter && (
+        <div
+          onClick={() => {
+            const stored = getStoredLanguage();
+            setIntroStage("settled");
+            if (stored) setHasSelectedLang(true);
+          }}
+          className="fixed inset-0 z-20 cursor-pointer"
+          title="Click to skip intro"
+        />
+      )}
       {/* ========================================================================= */}
       {/* MAIN CONTAINER                                                            */}
       {/* ========================================================================= */}
