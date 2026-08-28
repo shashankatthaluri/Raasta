@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-const SARVAM_API_KEY = "sk_nb2y1ys3_U4fbrbbiepo9ILqJIMhhyj5M";
+const SARVAM_API_KEY = process.env.SARVAM_API_KEY || "";
 const AUDIO_DIR = path.resolve("./public/audio");
 
 if (!fs.existsSync(AUDIO_DIR)) {

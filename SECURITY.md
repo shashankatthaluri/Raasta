@@ -19,9 +19,9 @@ Raasta is built as a **citizen-first public service recovery layer**. Protecting
 
 If you discover a security vulnerability or potential privacy issue within the Raasta codebase, please do **NOT** open a public GitHub issue.
 
-Instead, please report it privately via email:
-- **Email**: `shashankatthaluri@gmail.com`
-- **Subject**: `[SECURITY] Vulnerability Report in Raasta`
+Instead, please report it privately:
+1. **GitHub Security Advisory (Recommended)**: Open a private advisory under the [Security tab](https://github.com/shashankatthaluri/Raasta/security/advisories/new).
+2. **Email**: Send details directly to `shashankatthaluri@gmail.com` with subject `[SECURITY] Vulnerability Report in Raasta`.
 
 Please include:
 - A description of the issue and potential impact.
