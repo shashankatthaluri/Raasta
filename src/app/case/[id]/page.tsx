@@ -613,12 +613,21 @@ export default function CasePage() {
     }
   }, [id]);
 
+  function scrollToCard(elemId: string) {
+    if (typeof window === "undefined") return;
+    const el = document.getElementById(elemId);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }
+
   async function moveCursorToElement(elemId: string, label?: string) {
     if (typeof window === "undefined") return;
     const el = document.getElementById(elemId);
     if (!el) return;
+    // Frame the changing section/card fully in the center of the screen
     el.scrollIntoView({ behavior: "smooth", block: "center" });
-    await new Promise((r) => setTimeout(r, 450));
+    await new Promise((r) => setTimeout(r, 550)); // Allow smooth scroll to settle
     const rect = el.getBoundingClientRect();
     setCursor({
       visible: true,
@@ -740,6 +749,7 @@ export default function CasePage() {
         // 2. If Citizen Action required (e.g. e-KYC or Grievance)
         if (currentCase.yourAction.required && currentCase.yourAction.action) {
           setHighlightSection("action");
+          scrollToCard("action-container");
           setDemoStatusText({
             en: `Step ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: Performing citizen requirement on portal...`,
             hi: `चरण ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4}: पोर्टल पर नागरिक प्रक्रिया पूरी की जा रही है...`,
@@ -810,6 +820,7 @@ export default function CasePage() {
         // 3. Inject next official government signal
         if (!isPlayingMagicRef.current) return;
         setHighlightSection("baton");
+        scrollToCard("baton-rail");
         const currentStep = currentCase.demo?.step ?? 1;
         const totalSteps = currentCase.demo?.totalSteps ?? 4;
         const nextStep = Math.min(totalSteps, currentStep + 1);
@@ -1689,7 +1700,11 @@ export default function CasePage() {
       {!resolved && !isSubscribed && (
         <aside
           id="whatsapp-subscription-card"
-          className="mt-4 rounded-2xl border border-stone-200/70 bg-stone-50/70 p-4 transition-all duration-300"
+          className={`mt-4 rounded-2xl border border-stone-200/70 bg-stone-50/70 p-4 transition-all duration-700 ${
+            highlightSection === "whatsapp"
+              ? "ring-2 ring-stone-900 shadow-md bg-stone-100/90 ring-offset-2 ring-offset-stone-50"
+              : ""
+          }`}
         >
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
