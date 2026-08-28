@@ -8,10 +8,12 @@ interface RaastaLogoProps {
 
 /**
  * Raasta Brand Mark:
- * 1. Begins as a 100% proper, geometric Latin capital 'R' (Left vertical straight spine + clean upper bowl + diagonal leg).
- * 2. The straight vertical line lifts from the top, takes an elegant smooth turn across the loop,
- *    and with a calibrated optical gap, drops down on the right into a straight vertical pillar (aa-matra).
- * 3. The left structure stands as the Devanagari 'र', forming the iconic 'रा' (Raasta).
+ * Geometric precision:
+ * - Straight top line
+ * - Smooth U-turn
+ * - Straight return line
+ * - Perfect diagonal line
+ * - With calibrated space: the straight line vertically standing on the right (forming 'रा' after traveling from the left 'R' position).
  */
 export function RaastaLogo({
   className = "h-5 w-5",
@@ -33,12 +35,14 @@ export function RaastaLogo({
       aria-label="Raasta Logo (R → Turn & Drop → रा)"
     >
       {/* 
-        The Core Glyph:
-        In Latin 'R' mode (with left spine attached), this forms the upper loop and diagonal leg.
-        When the spine moves to the right, this stands alone as the Devanagari 'र'.
+        The Core Shape:
+        1. Straight top line: M 5.5 5 H 11.5
+        2. U-turn: C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13
+        3. Straight return line: H 5.5
+        4. Perfect diagonal line: M 10 13 L 15.8 20.5
       */}
       <path
-        d="M 5.5 4.5 H 11 C 14.8 4.5 16.5 6.8 16.5 9.5 C 16.5 12.2 14.8 13.5 11 13.5 H 5.5 M 10.5 13.5 L 16 20.5"
+        d="M 5.5 5 H 11.5 C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13 H 5.5 M 10 13 L 15.8 20.5"
         stroke="currentColor"
         strokeWidth="2.75"
         strokeLinecap="round"
@@ -46,23 +50,23 @@ export function RaastaLogo({
       />
 
       {/* 
-        The Moving Straight Spine:
-        - stage 'r': Solid vertical line on the left at x = 5.5 (forming perfect 'R').
-        - stage 'transforming': Lifts up, turns across the top header, and drops down on the right at x = 19.5.
-        - stage 'settled': Locked in place on the right at x = 19.5 (forming 'रा').
+        The Vertical Straight Line:
+        - stage 'r': Attached straight on the left at x = 5.5 (forming perfect Latin 'R').
+        - stage 'transforming': Lifts from top, takes a turn over the head, and drops on the right.
+        - stage 'settled': Stands vertically straight on the right at x = 20 with calibrated space (forming 'रा').
       */}
       <g
         className={
           stage === "transforming"
             ? "animate-spine-turn-drop"
             : stage === "settled"
-            ? "translate-x-[14px]"
+            ? "translate-x-[14.5px]"
             : "translate-x-0"
         }
       >
         <line
           x1={5.5}
-          y1={4.5}
+          y1={5}
           x2={5.5}
           y2={20.5}
           stroke="currentColor"

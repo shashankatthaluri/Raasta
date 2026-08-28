@@ -27,22 +27,22 @@ export default function Icon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Devanagari 'र' Upper Loop & Road Sweep */}
+          {/* Straight Top Line, U-Turn, Straight Return Line & Diagonal Line */}
           <path
-            d="M 6 4.5 C 13 4.5 15.5 7.2 15.5 10.5 C 15.5 13.8 13 15.5 6.5 15.5 L 14.5 20.5"
+            d="M 5.5 5 H 11.5 C 15.2 5 16.5 7 16.5 9 C 16.5 11 15.2 13 11.5 13 H 5.5 M 10 13 L 15.8 20.5"
             stroke="#ffffff"
-            strokeWidth="2.8"
+            strokeWidth="2.75"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Devanagari 'ा' Vertical Pillar (Aa-Matra) */}
+          {/* Vertical Straight Line with Optical Gap */}
           <line
-            x1="19.2"
-            y1="4.5"
-            x2="19.2"
+            x1="20"
+            y1="5"
+            x2="20"
             y2="20.5"
             stroke="#ffffff"
-            strokeWidth="2.8"
+            strokeWidth="2.75"
             strokeLinecap="round"
           />
         </svg>
