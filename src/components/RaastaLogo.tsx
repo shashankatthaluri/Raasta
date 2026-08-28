@@ -8,9 +8,10 @@ interface RaastaLogoProps {
 
 /**
  * Raasta Brand Mark:
- * Starts as Latin capital 'R', then the left vertical stroke
- * glides smoothly across to the right, evolving into the Devanagari 'रा' (Raa - for Raasta)
- * with the left 'र' curve & diagonal road sweep and the right 'ा' vertical pillar.
+ * 1. Begins as a 100% proper, geometric Latin capital 'R' (Left vertical straight spine + clean upper bowl + diagonal leg).
+ * 2. The straight vertical line lifts from the top, takes an elegant smooth turn across the loop,
+ *    and with a calibrated optical gap, drops down on the right into a straight vertical pillar (aa-matra).
+ * 3. The left structure stands as the Devanagari 'र', forming the iconic 'रा' (Raasta).
  */
 export function RaastaLogo({
   className = "h-5 w-5",
@@ -23,39 +24,52 @@ export function RaastaLogo({
   else if (size === "lg") sizeClass = "h-8 w-8";
   else if (size === "xl") sizeClass = "h-12 w-12";
 
-  // In 'r' mode, the stroke is on the left (x = 5.5).
-  // In 'settled' mode, it has moved to the right (x = 18.5) to form the Devanagari 'रा' matra.
-  const isLeft = stage === "r";
-
   return (
     <svg
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`${sizeClass} overflow-visible`}
-      aria-label="Raasta Logo (R → रा)"
+      aria-label="Raasta Logo (R → Turn & Drop → रा)"
     >
-      {/* Devanagari 'र' / Upper Loop & Sweeping Road Leg */}
+      {/* 
+        The Core Glyph:
+        In Latin 'R' mode (with left spine attached), this forms the upper loop and diagonal leg.
+        When the spine moves to the right, this stands alone as the Devanagari 'र'.
+      */}
       <path
-        d="M 6 4.5 C 13 4.5 15.5 7.2 15.5 10.5 C 15.5 13.8 13 15.5 6.5 15.5 L 14.5 20.5"
+        d="M 5.5 4.5 H 11 C 14.8 4.5 16.5 6.8 16.5 9.5 C 16.5 12.2 14.8 13.5 11 13.5 H 5.5 M 10.5 13.5 L 16 20.5"
         stroke="currentColor"
         strokeWidth="2.75"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
 
-      {/* The Evolving Vertical Stroke:
-          Translates from x=5.5 (forming English 'R') to x=18.5 (forming Hindi 'रा') */}
-      <line
-        x1={isLeft ? 5.5 : 18.5}
-        y1={4.5}
-        x2={isLeft ? 5.5 : 18.5}
-        y2={20.5}
-        stroke="currentColor"
-        strokeWidth="2.75"
-        strokeLinecap="round"
-        className="transition-all duration-1000 ease-[cubic-bezier(0.25,1,0.5,1)]"
-      />
+      {/* 
+        The Moving Straight Spine:
+        - stage 'r': Solid vertical line on the left at x = 5.5 (forming perfect 'R').
+        - stage 'transforming': Lifts up, turns across the top header, and drops down on the right at x = 19.5.
+        - stage 'settled': Locked in place on the right at x = 19.5 (forming 'रा').
+      */}
+      <g
+        className={
+          stage === "transforming"
+            ? "animate-spine-turn-drop"
+            : stage === "settled"
+            ? "translate-x-[14px]"
+            : "translate-x-0"
+        }
+      >
+        <line
+          x1={5.5}
+          y1={4.5}
+          x2={5.5}
+          y2={20.5}
+          stroke="currentColor"
+          strokeWidth="2.75"
+          strokeLinecap="round"
+        />
+      </g>
     </svg>
   );
 }

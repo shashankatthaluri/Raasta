@@ -518,32 +518,32 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       setOffset({ x: dxFull, y: lockedY, xLogo: dxLogo, yLogo: lockedY });
     }
 
-    // Organic "R → Transformation → रा → Raasta" Signature Sequence:
+    // Organic "R → Turn from Top & Drop → रा → Raasta" Signature Sequence:
     // 1. Empty (0ms -> 250ms)
-    // 2. Beautiful capital 'R' appears in center (250ms -> 1200ms)
+    // 2. Pure, perfect geometric capital 'R' appears in center (250ms -> 1400ms)
     const t0 = setTimeout(() => setIntroStage("logo_r"), 250);
-    // 3. The left stroke glides slowly and horizontally to the right (1200ms -> 2200ms)
-    const t1 = setTimeout(() => setIntroStage("logo_transforming"), 1200);
-    // 4. Settles as Hindi 'रा' mark + quiet pause to register (2200ms -> 3000ms)
-    const t2 = setTimeout(() => setIntroStage("logo_settled"), 2200);
-    // 5. English wordmark 'Raasta' & tagline appear (3000ms -> 4300ms)
-    const t3 = setTimeout(() => setIntroStage("lang_en"), 3000);
+    // 3. The left straight line lifts from top, turns over loop, and drops straight to the right (1400ms -> 2400ms)
+    const t1 = setTimeout(() => setIntroStage("logo_transforming"), 1400);
+    // 4. Settles as Hindi 'रा' mark + quiet pause to register (2400ms -> 3300ms)
+    const t2 = setTimeout(() => setIntroStage("logo_settled"), 2400);
+    // 5. English wordmark 'Raasta' & tagline appear (3300ms -> 4600ms)
+    const t3 = setTimeout(() => setIntroStage("lang_en"), 3300);
     // 6. Multilingual script loop:
-    const t4 = setTimeout(() => setIntroStage("lang_hi"), 4300); // Hindi: रास्ता
-    const t5 = setTimeout(() => setIntroStage("lang_te"), 5500); // Telugu: రాస్తా
-    const t6 = setTimeout(() => setIntroStage("lang_ta"), 6700); // Tamil: ராஸ்தா
-    const t7 = setTimeout(() => setIntroStage("lang_kn"), 7900); // Kannada: ರಾಸ್ತಾ
-    const t8 = setTimeout(() => setIntroStage("lang_mr"), 9100); // Marathi: रास्ता
-    const t9 = setTimeout(() => setIntroStage("lang_bn"), 10300); // Bengali: রাস্তা
-    const t10 = setTimeout(() => setIntroStage("lang_pa"), 11500); // Punjabi: ਰਾਸਤਾ
-    // 7. Final anchor in English (12700ms -> 14100ms)
-    const t11 = setTimeout(() => setIntroStage("lang_en_final"), 12700);
-    const t12 = setTimeout(() => setIntroStage("hold"), 14100);
-    // 8. Glides smoothly up to Top Header (14700ms -> 15500ms)
-    const t13 = setTimeout(() => setIntroStage("travel"), 14700);
+    const t4 = setTimeout(() => setIntroStage("lang_hi"), 4600); // Hindi: रास्ता
+    const t5 = setTimeout(() => setIntroStage("lang_te"), 5800); // Telugu: రాస్తా
+    const t6 = setTimeout(() => setIntroStage("lang_ta"), 7000); // Tamil: ராஸ்தா
+    const t7 = setTimeout(() => setIntroStage("lang_kn"), 8200); // Kannada: ರಾಸ್ತಾ
+    const t8 = setTimeout(() => setIntroStage("lang_mr"), 9400); // Marathi: रास्ता
+    const t9 = setTimeout(() => setIntroStage("lang_bn"), 10600); // Bengali: রাস্তা
+    const t10 = setTimeout(() => setIntroStage("lang_pa"), 11800); // Punjabi: ਰਾਸਤਾ
+    // 7. Final anchor in English (13000ms -> 14400ms)
+    const t11 = setTimeout(() => setIntroStage("lang_en_final"), 13000);
+    const t12 = setTimeout(() => setIntroStage("hold"), 14400);
+    // 8. Glides smoothly up to Top Header (15000ms -> 15800ms)
+    const t13 = setTimeout(() => setIntroStage("travel"), 15000);
     const t14 = setTimeout(() => {
       setIntroStage("settled");
-    }, 15500);
+    }, 15800);
 
     return () => {
       clearTimeout(t0);
