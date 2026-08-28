@@ -170,9 +170,8 @@ export default function CasePage() {
   }
 
   /**
-   * Plays preloaded high-fidelity Sarvam Bulbul audio instantly
-   * with a natural ~650ms "AI thinking" transition.
-   * Falls back to /api/sarvam/explain if static file is unavailable.
+   * Speaks the exact case summary currently visible on screen.
+   * Matches the user's active language and current case state with 100% precision.
    */
   async function speakCaseSummary(caseData: {
     title: string;
@@ -190,40 +189,55 @@ export default function CasePage() {
 
     setIsSpeechLoading(true);
 
-    const journeyId =
-      caseData.journeyId ||
-      data?.demo?.journeyId ||
-      (caseData.actionRequired ? "J1_FARMER_EKYC" : "J2_GOVT_VERIFICATION");
+    // Build the exact spoken text corresponding to what is on the screen right now
+    const textPieces = [
+      caseData.title,
+      caseData.why,
+      caseData.actionRequired
+        ? caseData.action
+          ? (lang === "hi" ? `आपकी कार्रवाई: ${caseData.action}` : `Your action: ${caseData.action}`)
+          : ""
+        : lang === "hi"
+        ? "वर्तमान में आपकी ओर से किसी कार्रवाई की आवश्यकता नहीं है — सिस्टम प्रोसेस कर रहा है।"
+        : "No action required from you right now — the system is processing your case.",
+    ].filter(Boolean);
 
-    // 1. Try playing preloaded Sarvam audio asset
-    const staticUrl = `/audio/${journeyId}_${lang}.wav`;
+    const fullSpokenText = textPieces.join(". ");
 
-    try {
-      // Natural 650ms "AI analyzing" delay for perceived intelligence
-      await new Promise((resolve) => setTimeout(resolve, 650));
+    // 1. Try Browser Native SpeechSynthesis (Instant, 100% exact text match, zero server lag)
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(fullSpokenText);
+        
+        const langMap: Record<string, string> = {
+          en: "en-IN",
+          hi: "hi-IN",
+          te: "te-IN",
+          ta: "ta-IN",
+          kn: "kn-IN",
+          mr: "mr-IN",
+          bn: "bn-IN",
+          pa: "pa-IN",
+        };
+        utterance.lang = langMap[lang] || "en-IN";
+        utterance.rate = 0.95;
 
-      const audio = new Audio(staticUrl);
-      audioRef.current = audio;
+        utterance.onstart = () => {
+          setIsSpeechLoading(false);
+          setIsSpeaking(true);
+        };
+        utterance.onend = () => stopAudio();
+        utterance.onerror = () => stopAudio();
 
-      const loaded = await new Promise<boolean>((resolve) => {
-        audio.oncanplaythrough = () => resolve(true);
-        audio.onerror = () => resolve(false);
-        setTimeout(() => resolve(false), 1500);
-      });
-
-      if (loaded) {
-        audio.onended = () => stopAudio();
-        audio.onerror = () => stopAudio();
-        setIsSpeechLoading(false);
-        setIsSpeaking(true);
-        await audio.play();
+        window.speechSynthesis.speak(utterance);
         return;
+      } catch (err) {
+        console.warn("[speechSynthesis] Native speech fallback", err);
       }
-    } catch {
-      // Static playback failed or aborted, proceed to dynamic fallback
     }
 
-    // 2. Dynamic Fallback: Call /api/sarvam/explain
+    // 2. Try Dynamic Server TTS API if available
     try {
       const res = await fetch("/api/sarvam/explain", {
         method: "POST",
@@ -239,38 +253,33 @@ export default function CasePage() {
         }),
       });
 
-      if (!res.ok) {
-        setIsSpeechLoading(false);
-        return;
+      if (res.ok) {
+        const json = (await res.json()) as { audio?: string };
+        if (json.audio) {
+          const byteCharacters = atob(json.audio);
+          const byteArray = new Uint8Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteArray[i] = byteCharacters.charCodeAt(i);
+          }
+          const blob = new Blob([byteArray], { type: "audio/wav" });
+          const url = URL.createObjectURL(blob);
+
+          const audio = new Audio(url);
+          audioRef.current = audio;
+          audio.onended = () => { stopAudio(); URL.revokeObjectURL(url); };
+          audio.onerror = () => { stopAudio(); URL.revokeObjectURL(url); };
+
+          setIsSpeechLoading(false);
+          setIsSpeaking(true);
+          void audio.play();
+          return;
+        }
       }
-
-      const json = (await res.json()) as { audio?: string };
-      if (!json.audio) {
-        setIsSpeechLoading(false);
-        return;
-      }
-
-      // Decode base64 WAV and play
-      const byteCharacters = atob(json.audio);
-      const byteArray = new Uint8Array(byteCharacters.length);
-      for (let i = 0; i < byteCharacters.length; i++) {
-        byteArray[i] = byteCharacters.charCodeAt(i);
-      }
-      const blob = new Blob([byteArray], { type: "audio/wav" });
-      const url = URL.createObjectURL(blob);
-
-      const audio = new Audio(url);
-      audioRef.current = audio;
-      audio.onended = () => { stopAudio(); URL.revokeObjectURL(url); };
-      audio.onerror = () => { stopAudio(); URL.revokeObjectURL(url); };
-
-      setIsSpeechLoading(false);
-      setIsSpeaking(true);
-      void audio.play();
     } catch (err) {
-      console.error("[speakCaseSummary]", err);
-      setIsSpeechLoading(false);
+      console.error("[speakCaseSummary] Server TTS fallback error", err);
     }
+
+    setIsSpeechLoading(false);
   }
 
   // Legacy fallback wrapper (kept for any remaining toggleAudio calls)
@@ -851,8 +860,10 @@ export default function CasePage() {
         </div>
 
         <div className="mt-12 rounded-3xl border border-stone-200/80 bg-white p-8 text-center shadow-xs">
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-stone-100 text-stone-600">
-            <span className="text-xl">🔍</span>
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-stone-100 text-stone-600 border border-stone-200">
+            <svg className="h-6 w-6 text-stone-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+            </svg>
           </div>
           <h1 className="mt-4 text-xl font-bold tracking-tight text-stone-900 sm:text-2xl">{error}</h1>
           <p className="mt-2 text-sm text-stone-500">{cp.caseLoadError}</p>
