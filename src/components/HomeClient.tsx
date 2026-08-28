@@ -690,10 +690,19 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
   }, [activeCycleLang, introStage, hasSelectedLang]);
 
   const handleSelectLanguage = (selectedLang: Lang) => {
+    haptic("medium");
     setStoredLanguage(selectedLang);
     setLang(selectedLang);
     setHasSelectedLang(true);
   };
+
+  /** Haptic feedback via Vibration API — gracefully ignored if unsupported */
+  function haptic(strength: "light" | "medium" | "heavy" = "light") {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      const durations: Record<string, number> = { light: 8, medium: 18, heavy: 35 };
+      try { navigator.vibrate(durations[strength] ?? 8); } catch { /* ignore */ }
+    }
+  }
 
   const t = COPY[lang];
 
@@ -755,6 +764,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       {isAtCenter && (
         <div
           onClick={() => {
+            haptic("light");
             const stored = getStoredLanguage();
             setIntroStage("settled");
             if (stored) setHasSelectedLang(true);
@@ -792,11 +802,20 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
             <button
               type="button"
               onClick={() => {
-                setHasSelectedLang(false);
-                setIntroStage("empty");
-                setTimeout(() => setIntroStage("logo_only"), 100);
+                haptic("light");
+                if (isAtCenter) {
+                  // During intro: skip it — go straight to correct destination
+                  const stored = getStoredLanguage();
+                  setIntroStage("settled");
+                  if (stored) setHasSelectedLang(true);
+                } else {
+                  // After settled: replay intro and choose language
+                  setHasSelectedLang(false);
+                  setIntroStage("empty");
+                  setTimeout(() => setIntroStage("logo_only"), 100);
+                }
               }}
-              title="Replay Raasta Intro & Choose Language"
+              title={isAtCenter ? "Skip intro" : "Replay Raasta Intro & Choose Language"}
               className="shrink-0 flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 cursor-pointer"
             >
               <RaastaLogoEmblem size="md" />
@@ -996,6 +1015,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
+                    haptic("medium");
                     void check();
                   }}
                   className="mt-3 flex flex-col gap-3 sm:flex-row"
@@ -1013,6 +1033,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                   <button
                     type="submit"
                     disabled={busy || regNumber.trim().length !== 11}
+                    onClick={() => haptic("medium")}
                     className="rounded-2xl bg-stone-900 px-7 py-3.5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-stone-800 active:scale-[0.98] focus:outline-none disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {busy ? t.checking : t.checkButton}

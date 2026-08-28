@@ -165,8 +165,19 @@ export default function CasePage() {
       audioRef.current.src = "";
       audioRef.current = null;
     }
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
     setIsSpeaking(false);
     setIsSpeechLoading(false);
+  }
+
+  /** Haptic feedback via Vibration API — silently ignored on unsupported devices */
+  function haptic(strength: "light" | "medium" | "heavy" = "light") {
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      const ms: Record<string, number> = { light: 8, medium: 18, heavy: 35 };
+      try { navigator.vibrate(ms[strength] ?? 8); } catch { /* noop */ }
+    }
   }
 
   /**
@@ -1132,6 +1143,7 @@ export default function CasePage() {
             <button
               type="button"
               onClick={() => {
+                haptic("light");
                 const reqDocs = data.yourAction?.action?.card?.requirements
                   ? data.yourAction.action.card.requirements
                       .map((r) => t(r as unknown as Record<string, string>))
