@@ -23,8 +23,10 @@ export function TimeLapseModal({ active, daysText, title, description, lang }: T
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-stone-950/60 backdrop-blur-sm animate-in fade-in duration-300">
       <div className="relative max-w-sm w-full rounded-3xl border border-stone-800 bg-stone-900/95 p-6 text-white shadow-2xl text-center animate-in zoom-in-95 duration-300">
         {/* Animated Calendar/Clock Beacon */}
-        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30">
-          <span className="text-2xl animate-pulse">⏳</span>
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 shadow-inner">
+          <svg className="h-6 w-6 text-amber-400 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+          </svg>
         </div>
 
         {/* Days Badge */}

@@ -1358,40 +1358,113 @@ export default function CasePage() {
               : ""
           }`}
         >
-          <div className="flex items-center justify-between">
-            <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
-              {cp.responsibilityBaton}
-            </p>
-            <span className="text-xs font-medium text-stone-500">
-              {cp.activeOwnerLabel} <strong className="text-stone-900">{t(data.nextActorLabel)}</strong>
-            </span>
-          </div>
+          {(() => {
+            const JOURNEY_CHAINS: Record<string, Record<Lang, string[]>> = {
+              J1_FARMER_EKYC: {
+                en: ["e-KYC biometric", "State verification", "Payment processing", "₹2,000 credited"],
+                hi: ["ई-केवाईसी बायोमेट्रिक", "राज्य सत्यापन", "भुगतान प्रोसेस", "₹2,000 जमा"],
+                te: ["ఇ-కెవైసి బయోమెట్రిక్", "రాష్ట్ర ధృవీకరణ", "చెల్లింపు ప్రక్రియ", "₹2,000 జమ"],
+                ta: ["இ-கேஒய்சி பயோமெட்ரிக்", "மாநில சரிபார்ப்பு", "கட்டண செயலாக்கம்", "₹2,000 வரவு"],
+                kn: ["ಇ-ಕೆವೈಸಿ ಬಯೋಮೆಟ್ರಿಕ್", "ರಾಜ್ಯ ಪರಿಶೀಲನೆ", "ಪಾವತಿ ಪ್ರಕ್ರಿಯೆ", "₹2,000 ಜಮೆ"],
+                mr: ["ई-केवायसी बायोमेट्रिक", "राज्य पडताळणी", "पेमेंट प्रक्रिया", "₹2,000 जमा"],
+                bn: ["ই-কেওয়াইসি বায়োমেট্রিক", "রাজ্য যাচাইকরণ", "পেমেন্ট প্রক্রিয়া", "₹2,000 জমা"],
+                pa: ["ਈ-ਕੇਵਾਈਸੀ ਬਾਇਓਮੈਟ੍ਰਿਕ", "ਰਾਜ ਤਸਦੀਕ", "ਭੁਗਤਾਨ ਪ੍ਰਕਿਰਿਆ", "₹2,000 ਜਮ੍ਹਾ"],
+              },
+              J2_GOVT_VERIFICATION: {
+                en: ["State land verification", "Payment reprocessing", "Payment processing", "₹2,000 credited"],
+                hi: ["राज्य भूमि सत्यापन", "पुनः प्रोसेस", "भुगतान प्रोसेस", "₹2,000 जमा"],
+                te: ["రాష్ట్ర భూ రికార్డు ధృవీకరణ", "పునః ప్రక్రియ", "చెల్లింపు ప్రక్రియ", "₹2,000 జమ"],
+                ta: ["மாநில நில சரிபார்ப்பு", "மீண்டும் செயலாக்கம்", "கட்டண செயலாக்கம்", "₹2,000 வரவு"],
+                kn: ["ರಾಜ್ಯ ಭೂ ಪರಿಶೀಲನೆ", "ಮರು ಪ್ರಕ್ರಿಯೆ", "ಪಾವತಿ ಪ್ರಕ್ರಿಯೆ", "₹2,000 ಜಮೆ"],
+                mr: ["राज्य जमीन पडताळणी", "पुन्हा प्रक्रिया", "पेमेंट प्रक्रिया", "₹2,000 जमा"],
+                bn: ["রাজ্য জমি যাচাইকরণ", "পুনঃপ্রক্রিয়াকরণ", "পেমেন্ট প্রক্রিয়া", "₹2,000 জমা"],
+                pa: ["ਰਾਜ ਜ਼ਮੀਨ ਤਸਦੀਕ", "ਦੁਬਾਰਾ ਪ੍ਰਕਿਰਿਆ", "ਭੁਗਤਾਨ ਪ੍ਰਕਿਰਿਆ", "₹2,000 ਜਮ੍ਹਾ"],
+              },
+              J3_PAYMENT_FAILURE: {
+                en: ["Banking network check", "State verification", "Payment reprocessing", "₹2,000 credited"],
+                hi: ["बैंकिंग नेटवर्क जाँच", "राज्य सत्यापन", "पुनः प्रोसेस", "₹2,000 जमा"],
+                te: ["బ్యాంకింగ్ నెట్‌వర్క్ తనిఖీ", "రాష్ట్ర ధృవీకరణ", "పునః ప్రక్రియ", "₹2,000 జమ"],
+                ta: ["வங்கி நெட்வொர்க் சரிபார்ப்பு", "மாநில சரிபார்ப்பு", "மீண்டும் செயலாக்கம்", "₹2,000 வரவு"],
+                kn: ["ಬ್ಯಾಂಕಿಂಗ್ ನೆಟ್‌ವರ್ಕ್ ಪರಿಶೀಲನೆ", "ರಾಜ್ಯ ಪರಿಶೀಲನೆ", "ಮರು ಪ್ರಕ್ರಿಯೆ", "₹2,000 ಜಮೆ"],
+                mr: ["बँकिंग नेटवर्क तपासणी", "राज्य पडताळणी", "पुन्हा प्रक्रिया", "₹2,000 जमा"],
+                bn: ["ব্যাঙ্কিং নেটওয়ার্ক পরীক্ষা", "রাজ্য যাচাইকরণ", "পুনঃপ্রক্রিয়াকরণ", "₹2,000 জমা"],
+                pa: ["ਬੈਂਕਿੰਗ ਨੈੱਟਵਰਕ ਜਾਂਚ", "ਰਾਜ ਤਸਦੀਕ", "ਦੁਬਾਰਾ ਪ੍ਰਕਿਰਿਆ", "ਭੁਗਤਾਨ ਪ੍ਰਕਿਰਿਆ", "₹2,000 ਜਮ੍ਹਾ"],
+              },
+              J4_NO_ACTION: {
+                en: ["Record lookup", "Payment processing", "Bank crediting", "₹2,000 credited"],
+                hi: ["रिकॉर्ड जाँच", "भुगतान प्रोसेस", "बैंक क्रेडिट", "₹2,000 जमा"],
+                te: ["రికార్డు తనిఖీ", "చెల్లింపు ప్రక్రియ", "బ్యాంక్ క్రెడిట్", "₹2,000 జమ"],
+                ta: ["பதிவு சரிபார்ப்பு", "கட்டண செயலாக்கம்", "வங்கி வரவு", "₹2,000 வரவு"],
+                kn: ["ದಾಖಲೆ ಪರಿಶೀಲನೆ", "ಪಾವತಿ ಪ್ರಕ್ರಿಯೆ", "ಬ್ಯಾಂಕ್ ಜಮೆ", "₹2,000 ಜಮೆ"],
+                mr: ["नोंद तपासणी", "पेमेंट प्रक्रिया", "बँक जमा", "₹2,000 जमा"],
+                bn: ["রেকর্ড পরীক্ষা", "পেমেন্ট প্রক্রিয়া", "ব্যাঙ্ক জমা", "₹2,000 জমা"],
+                pa: ["ਰਿਕਾਰਡ ਜਾਂਚ", "ਭੁਗਤਾਨ ਪ੍ਰਕਿਰਿਆ", "ਬੈਂਕ ਜਮ੍ਹਾ", "₹2,000 ਜਮ੍ਹਾ"],
+              },
+            };
 
-          {/* Connected Baton Timeline Rail */}
-          {data.chain && data.chain.en && data.chain.en.length > 0 && (
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              {(((data.chain as Record<string, string[]>)[lang] ??
-                (lang === "hi" ? data.chain.hi : data.chain.en) ??
-                data.chain.en) || []).map((step, i, arr) => {
-                const isCurrent = i === 0 && !resolved;
-                return (
-                  <span key={`${step}-${i}`} className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
-                        isCurrent
-                          ? "bg-stone-900 text-white shadow-xs"
-                          : "border border-stone-200/80 bg-stone-50 text-stone-600"
-                      }`}
-                    >
-                      {isCurrent && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />}
-                      <span>{step}</span>
+            const jId = data.demo?.journeyId || "J3_PAYMENT_FAILURE";
+            const fullSteps = JOURNEY_CHAINS[jId]?.[lang] || (data.chain as any)?.[lang] || (data.chain as any)?.en || [];
+            const activeStepIdx = resolved ? fullSteps.length - 1 : (data.demo?.step ?? 0);
+
+            return (
+              <>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs font-bold uppercase tracking-wider text-stone-400">
+                      {cp.responsibilityBaton}
+                    </p>
+                    <span className="font-mono text-[10px] font-semibold text-stone-400 bg-stone-100 px-2 py-0.5 rounded-full border border-stone-200">
+                      {resolved
+                        ? (lang === "hi" ? "पूर्ण" : "Completed")
+                        : (lang === "hi" ? `चरण ${Math.min(activeStepIdx + 1, fullSteps.length)}/${fullSteps.length}` : `Step ${Math.min(activeStepIdx + 1, fullSteps.length)}/${fullSteps.length}`)}
                     </span>
-                    {i < arr.length - 1 && <span className="text-stone-300">→</span>}
+                  </div>
+                  <span className="text-xs font-medium text-stone-500">
+                    {cp.activeOwnerLabel} <strong className="text-stone-900">{t(data.nextActorLabel)}</strong>
                   </span>
-                );
-              })}
-            </div>
-          )}
+                </div>
+
+                {/* Connected Baton Timeline Rail with Green Completed & Amber Active Dots */}
+                {fullSteps.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
+                    {fullSteps.map((step: string, i: number, arr: string[]) => {
+                      const isCompleted = resolved || i < activeStepIdx;
+                      const isCurrent = !resolved && i === activeStepIdx;
+                      const isUpcoming = !resolved && i > activeStepIdx;
+
+                      return (
+                        <span key={`${step}-${i}`} className="flex items-center gap-2">
+                          <span
+                            className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-medium transition ${
+                              isCompleted
+                                ? "border border-emerald-300/80 bg-emerald-50/80 text-emerald-950 font-semibold shadow-2xs"
+                                : isCurrent
+                                ? "bg-stone-900 text-white shadow-xs font-semibold"
+                                : "border border-stone-200/70 bg-stone-50/70 text-stone-400"
+                            }`}
+                          >
+                            {isCompleted ? (
+                              <span className="flex h-2 w-2 items-center justify-center rounded-full bg-emerald-500" />
+                            ) : isCurrent ? (
+                              <span className="flex h-2 w-2 items-center justify-center rounded-full bg-amber-400 animate-pulse ring-2 ring-amber-400/40" />
+                            ) : (
+                              <span className="flex h-1.5 w-1.5 items-center justify-center rounded-full bg-stone-300" />
+                            )}
+                            <span>{step}</span>
+                          </span>
+                          {i < arr.length - 1 && (
+                            <span className={isCompleted ? "text-emerald-500 font-bold" : "text-stone-300"}>
+                              →
+                            </span>
+                          )}
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            );
+          })()}
         </div>
 
         {/* 3. Action Container: What do I need to do? */}
