@@ -42,7 +42,7 @@ Raasta asks one simple question: What happens next?
 
 ---
 
-*1,564 characters (with spaces) · 1,316 characters (without spaces) · 242 words*`,
+*242 words*`,
   },
   {
     slug: "why-government-status-isnt-enough",
