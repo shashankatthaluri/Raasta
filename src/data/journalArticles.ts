@@ -671,126 +671,106 @@ That distinction is central to Raasta.`
       { title: "Apple Human Interface Guidelines on Typography & Sensory Motion", type: "DESIGN_DECISION" },
       { title: "Sarvam AI Multilingual Speech Architecture", type: "RAASTA_SYNTHESIS" },
     ],
-    content: `When software is built for urban tech consumers, design goals are familiar:
-Maximize daily active time.
-Add notifications.
-Keep users trapped in conversational chat loops.
-Call external cloud APIs continuously.
+    content: `When building software for civic infrastructure and rural citizens, conventional consumer UX guidelines often lead teams astray.
 
-When you design for an Indian farmer whose PM-KISAN installment has stopped, those rules completely invert:
-**Every extra tap is a point of abandonment.**
-**Every nested box is cognitive friction.**
-**Every cloud API latency spinner is distrust.**
+In consumer apps, success is measured in daily engagement, notification clicks, and endless chat loops.
 
-Here are the deliberate product engineering and UI/UX decisions we made while building Raasta—and the exact technical rationale behind each.
+In civic recovery systems, success is the exact opposite: **minimizing human anxiety, eliminating unnecessary travel, and giving citizens immediate physical readiness.**
+
+Here is an honest field guide to the engineering and design decisions we made while building Raasta—and the practical lessons learned for anyone building for the next billion users.
 
 ---
 
-## 1. The Strict 11-Digit Strategy: Dignity Without Invasive Credential Gating
+## 1. Why Language is Front-and-Center, Not Hidden in a Corner Dropdown
 
-The first instinct in government fintech is often: *"Ask for Aadhaar number, then send an OTP."*
+In standard web design, language selectors are tucked into the top-right corner as a tiny 12px globe icon.
 
-We deliberately rejected that approach.
+For rural and non-English-first citizens, this is an immediate barrier.
 
-In rural India, citizens are rightfully terrified of OTP scams, fake KYC portals, and phishing attacks. Demanding an Aadhaar OTP before a farmer can even see why their payment is stuck creates immediate anxiety and causes an 80% drop-off.
+If a farmer in Warangal or Gorakhpur lands on a page showing English text with a hidden corner dropdown, their first thought is: *"This portal is not meant for me."* They close the tab within three seconds.
 
-Instead, PM-KISAN uses an official **11-digit Registration Number** (e.g. '98765432101').
-
-We implemented strict UI/UX constraints around this:
-* **Strict 11-Digit Guard:** The *“Check my PM-KISAN”* button remains visibly disabled with 'opacity-40 cursor-not-allowed' until exactly 11 numeric digits are typed.
-* **Zero Partial Submissions:** Preventing incomplete queries eliminates confusing server errors or empty search states.
-* **Public Docket Philosophy:** An 11-digit identifier treats the status as a public recovery docket—giving the citizen full diagnosis and guidance without demanding invasive personal credentials.
+**What we learned:**
+* Language is not a secondary setting; it is the **entry gate of trust**.
+* By placing the language selection as a prominent, welcoming card right after the intro, the citizen chooses their mother tongue (*Telugu, Hindi, Tamil, Kannada, Marathi, Bengali, Punjabi, English*) before encountering a single complex form.
+* Once selected, the language switcher docks smoothly into the top bar, staying out of the way for the rest of the recovery journey.
 
 ---
 
-## 2. Deterministic Pre-Rendered Audio vs. Continuous Cloud TTS Calls
+## 2. The 11-Digit Input Strategy: Safe Public Dockets Over Invasive Credential Gating
 
-Many AI prototypes call a remote Generative Text-to-Speech API every single time a user clicks *“Listen”*.
+The default instinct when building government prototypes is to ask for an Aadhaar number and trigger an OTP.
 
-In a production civic application, this is a fatal flaw:
-* **The 3-Second Cloud Latency:** Hitting a cloud TTS endpoint in rural areas with spotty 2G/3G connectivity adds 2 to 4 seconds of silence. To an anxious farmer, silence feels like a broken system.
-* **API Outages & Rate Limits:** If a cloud provider encounters rate limiting or downtime, the farmer gets no explanation.
-* **Network Cost:** Streaming live audio chunks repeatedly consumes unnecessary mobile data.
+In practice, this creates two massive problems:
+1. **Fear of Scams:** Farmers are frequently targeted by phishing attacks and fake KYC portals. Asking for OTPs immediately triggers suspicion.
+2. **Access Drop-off:** If a family member is checking a status on behalf of an elderly parent, they often don't have immediate access to the linked SIM card.
 
-**Our Product Engineering Solution:**
-We pre-synthesized and bundled high-fidelity bilingual audio binaries for all official case states directly on the client across 8 Indian languages (*Telugu, Hindi, Tamil, Kannada, Marathi, Bengali, Punjabi, English*). 
-
-When a citizen taps *“🔊 Listen (Audio)”*, playback begins in **0 milliseconds** with zero network round-trip. If a dynamic custom statement is recorded, it seamlessly falls back to fast local synthesis. 
-
-Reliability is not an afterthought; it is built into the audio pipeline.
+**Our Approach:**
+PM-KISAN uses an official **11-digit Registration Number** (e.g. '98765432101').
+* We strictly enforce the 11-digit format: the check button remains disabled with 'opacity-40 cursor-not-allowed' until all 11 digits are present, preventing partial server requests.
+* By treating the identifier as a public recovery docket, any valid 11-digit number allows citizens, evaluators, and field workers to test and understand realistic state transitions (Payment Failure, Land Seeding Discrepancy, e-KYC Pending) without risking private data or requiring invasive credentials.
 
 ---
 
-## 3. No Chatbot Bubbles: Audio-First Structured Cards
+## 3. Why Audio is One-Time & Cached, Not Continuous Generative Cloud Calls
 
-The default reaction to modern LLMs is: *“Put a chat bubble in the bottom-right corner.”*
+Many AI voice prototypes stream audio by making continuous remote cloud API calls every time a user interacts.
 
-We banned conversational chatbots.
+In rural field conditions, this breaks down rapidly:
+* **The 3-Second Latency Gap:** Spotty 2G/3G connectivity turns cloud TTS into 3 to 4 seconds of dead silence, making the application feel frozen.
+* **Acoustic Chaos:** At a crowded Common Service Center or Tehsil office, auto-playing continuous audio causes confusion and privacy concerns.
+* **Unbounded Cloud Costs:** Repeated API calls for identical state explanations quickly become financially unsustainable.
 
-A farmer standing at a Common Service Center in rural Warangal or Gorakhpur does not want to type back-and-forth with a chatbot asking: *“Hello! How may I assist your query today?”*
-
-They need three concrete answers in their mother tongue in under 10 seconds:
-1. *What is wrong?*
-2. *Whose turn is it (mine or the government's)?*
-3. *What exact sentence do I say at the counter?*
-
-Instead of an endless conversational scroll, Raasta delivers structured, high-contrast status dockets with stationary, anchored voice controls that never jump or reposition across language changes.
-
----
-
-## 4. The Physical Counter Pass: Bridging Digital Screens to Physical Desks
-
-The fatal flaw of modern civic technology is assuming the journey finishes on a smartphone screen.
-
-It doesn’t.
-
-If an e-KYC biometric failure or land-seeding discrepancy occurs, the citizen must physically walk to a CSC Kendra, Tehsil office, or bank branch.
-
-Standing before an overworked operator, citizens struggle to recall technical error codes like *“NPCI mapper inactive”*. The operator asks *“What is the problem?”*, the citizen says *“My money didn’t come”*, and the operator turns them away without resolution.
-
-We designed the **Physical Counter Pass**:
-* **Verbatim Spoken Script:** A single, precise sentence the citizen reads aloud or plays from their phone (*“Please check my Aadhaar biometric seeding on the NPCI mapper”*).
-* **Substantiated Document Checklist:** Only the 2 specific documents required for *this exact failure state*—eliminating the anxiety of carrying a giant folder of irrelevant papers.
-
-The digital interface exists to make the physical human interaction succeed.
+**The Engineering Solution:**
+* **Pre-Rendered Deterministic Audio:** We pre-synthesized high-fidelity audio explanations for official government states directly on the client across all 8 supported Indian languages.
+* **Instant 0ms Playback:** When a citizen taps *“🔊 Listen (Audio)”*, playback begins immediately without a server round-trip.
+* **On-Demand Control:** Audio is triggered strictly when the citizen requests it, giving them complete privacy and control in public environments.
 
 ---
 
-## 5. The Virtual Cursor & Time-Lapse Modals in Demo Mode
+## 4. Protecting Speech-to-Text from Misuse & Hallucination
 
-In software demos, clicking a button that instantly resolves a case in 50 milliseconds feels like a parlor trick.
+Allowing open microphone input into an AI backend creates serious vulnerability risks: background farm noise, runaway token costs, and prompt injection attempts.
 
-Citizens and evaluators know government bureaucracies do not verify land records in 50 milliseconds.
-
-When orchestrating the autonomous recovery demonstration:
-* **The Translucent Virtual Pointer:** Glides smoothly across the screen with visible hover states and tactile click ripples, showing exactly what action is being triggered.
-* **Realistic Government Time-Lapse:** Between steps, Raasta shows interstitial time-lapse modals (*“⏳ 3 Days Later: Biometric log synchronized with State Nodal Directorate”*).
-
-This builds authentic trust: Raasta does not pretend government processing is instantaneous. It proves that Raasta maintains memory across the actual days the process takes.
+To solve this, we implemented a layered guard:
+* **Audio Chunk Duration & Silence Truncation:** Voice recordings are limited to concise 15-second windows with automatic silence detection, preventing accidental background streaming.
+* **Intent-Only Classification:** The audio is transcribed and passed strictly through a scoped classification layer that maps what the citizen said to structured civic categories (e.g. 'PAYMENT_MISSING', 'EKYC_PENDING').
+* **Deterministic Guardrails:** The AI is never allowed to invent case states, create fake government dates, or alter official records. It only translates citizen voice into structured intent.
 
 ---
 
-## 6. Progressive Grapheme Morphing vs. Distracting Header Motion
+## 5. Why We Built the "Magic Demo" Button
 
-During the initial application reveal, the wordmark (**'Raasta · What happens next'**) writes itself out letter-by-letter across 8 Indic scripts (*Telugu, Hindi, Tamil, Kannada, Marathi, Bengali, Punjabi, English*). 
+Civic recovery processes in real life take days or weeks. A land record verification takes 3 days; an NPCI bank mapper sync takes 48 hours.
 
-Rather than standard block-blur crossfades, we used 'Intl.Segmenter' grapheme slicing so complex Indic conjuncts (like 'రా', 'స్తా', 'स्ता') rewrite progressively from left to right.
+When presenting to evaluators, judges, or training village field workers, you cannot ask someone to wait 14 days to observe how the software manages state transitions.
 
-Critically, once the brand docks in the top header, **all progressive animations stop**:
-* **In the center:** It celebrates the linguistic breadth of Indian citizens.
-* **In the settled header:** It remains completely calm and static so it never steals focus from the recovery docket.
+**The Purpose of the Magic Button:**
+* **Autonomous Demonstration:** It simulates a full 4-step recovery journey in 30 seconds.
+* **Virtual Cursor & Time-Lapse Modals:** Instead of an instant, fake 50ms transition, a translucent virtual pointer glides to each action, and interstitial calendar cards appear (*“⏳ 3 Days Later: Biometric log synchronized with State Nodal”*).
+* **Teaching the Lifecycle:** It visually proves *how software carries state and memory across time*, turning an abstract architecture into something tangible and easy to evaluate.
 
 ---
 
-## Good Engineering is Removing Anxiety
+## 6. Physical Counter Readiness: "Where to Go" and "Documents to Carry"
 
-At its core, Raasta’s UI/UX is not about visual decoration for design competitions.
+A digital diagnosis is completely useless if a citizen travels 15 kilometers to a government office only to be sent home because they were missing a photocopy.
 
-It is about civic dignity.
+Civic software must bridge the gap between digital screens and physical counters:
+* **Exact Destination Guidance:** Raasta explicitly tells the citizen whether their next step is at a **Bank Branch**, a **Common Service Center (CSC)**, or their **State Agriculture Nodal Office**.
+* **Substantiated 2-Document Checklist:** Rather than displaying a terrifying list of 10 generic documents, Raasta calculates the *minimum substantiated papers* needed for that specific failure code (e.g. just Aadhaar + Bank Passbook for NPCI seeding).
+* **Verbatim Spoken Script:** A single sentence the citizen can read aloud or play at the desk (*“Please check my Aadhaar biometric seeding on the NPCI mapper”*), preventing miscommunication with busy counter operators.
 
-When a citizen opens Raasta, they should feel that the software is calm, certain, and respectful of their intelligence and their time.
+---
 
-**Not a portal to get lost in. A clear path forward.**`
+## What We Learned as Builders
+
+Building for public digital infrastructure is not about demonstrating technological complexity.
+
+It is about **exercising restraint**.
+
+The hardest part of the engineering wasn't adding more AI or more features. It was removing unnecessary steps, pre-rendering audio so it works with zero latency, and designing software that respects the citizen's time and dignity.
+
+If you are building public technology, we hope these lessons help you build systems that genuinely serve people.`
   },
   {
     slug: "what-if-services-were-designed-around-recovery",
