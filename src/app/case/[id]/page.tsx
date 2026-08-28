@@ -176,8 +176,8 @@ export default function CasePage() {
   }
 
   /**
-   * Speaks the exact case summary currently visible on screen.
-   * Matches the user's active language and current case state with 100% precision.
+   * Speaks the case summary using studio-grade Sarvam AI Indic voice.
+   * Matches the active language and case state with natural pronunciation.
    */
   async function speakCaseSummary(caseData: {
     title: string;
@@ -195,55 +195,46 @@ export default function CasePage() {
 
     setIsSpeechLoading(true);
 
-    // Build the exact spoken text corresponding to what is on the screen right now
-    const textPieces = [
-      caseData.title,
-      caseData.why,
-      caseData.actionRequired
-        ? caseData.action
-          ? (lang === "hi" ? `आपकी कार्रवाई: ${caseData.action}` : `Your action: ${caseData.action}`)
-          : ""
-        : lang === "hi"
-        ? "वर्तमान में आपकी ओर से किसी कार्रवाई की आवश्यकता नहीं है — सिस्टम प्रोसेस कर रहा है।"
-        : "No action required from you right now — the system is processing your case.",
-    ].filter(Boolean);
+    const isCaseResolved = resolved || data?.stateCategory === "resolved" || data?.currentState === "PAYMENT_CREDITED";
+    const jId = isCaseResolved
+      ? "J4_NO_ACTION"
+      : caseData.journeyId ||
+        data?.demo?.journeyId ||
+        (data?.yourAction?.required
+          ? data?.problemType === "PAYMENT_FAILURE" || (data?.currentState && (data.currentState.includes("NPCI") || data.currentState.includes("AADHAAR")))
+            ? "J3_PAYMENT_FAILURE"
+            : "J1_FARMER_EKYC"
+          : "J2_GOVT_VERIFICATION");
 
-    const fullSpokenText = textPieces.join(". ");
+    const audioUrl = `/audio/${jId}_${lang}.wav`;
 
-    // 1. Try Browser Native SpeechSynthesis (Instant, 100% exact text match, zero server lag)
-    if (typeof window !== "undefined" && "speechSynthesis" in window) {
-      try {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(fullSpokenText);
-        
-        const langMap: Record<string, string> = {
-          en: "en-IN",
-          hi: "hi-IN",
-          te: "te-IN",
-          ta: "ta-IN",
-          kn: "kn-IN",
-          mr: "mr-IN",
-          bn: "bn-IN",
-          pa: "pa-IN",
-        };
-        utterance.lang = langMap[lang] || "en-IN";
-        utterance.rate = 0.95;
+    // 1. Primary: High-fidelity Sarvam AI pre-rendered Indic audio for the journey & language
+    try {
+      const audio = new Audio(audioUrl);
+      audioRef.current = audio;
 
-        utterance.onstart = () => {
+      const playResult = await new Promise<boolean>((resolve) => {
+        audio.oncanplaythrough = () => {
           setIsSpeechLoading(false);
           setIsSpeaking(true);
+          audio.play().then(() => resolve(true)).catch(() => resolve(false));
         };
-        utterance.onend = () => stopAudio();
-        utterance.onerror = () => stopAudio();
+        audio.onended = () => {
+          stopAudio();
+        };
+        audio.onerror = () => {
+          resolve(false);
+        };
+        // Safety timeout if audio loading stalls
+        setTimeout(() => resolve(false), 2500);
+      });
 
-        window.speechSynthesis.speak(utterance);
-        return;
-      } catch (err) {
-        console.warn("[speechSynthesis] Native speech fallback", err);
-      }
+      if (playResult) return;
+    } catch (audioErr) {
+      console.warn(`[Audio] Pre-recorded audio ${audioUrl} failed, trying dynamic TTS`, audioErr);
     }
 
-    // 2. Try Dynamic Server TTS API if available
+    // 2. Fallback: Dynamic Sarvam AI Bulbul v3 neural voice
     try {
       const res = await fetch("/api/sarvam/explain", {
         method: "POST",
@@ -277,7 +268,7 @@ export default function CasePage() {
 
           setIsSpeechLoading(false);
           setIsSpeaking(true);
-          void audio.play();
+          await audio.play();
           return;
         }
       }
