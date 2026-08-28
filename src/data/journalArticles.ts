@@ -395,7 +395,7 @@ That's good UX.`
     sources: [
       { title: "OpenAI GPT-4o-mini Classification Layer", type: "RAASTA_SYNTHESIS" },
       { title: "Deterministic Finite State Machine (engine.ts)", type: "DESIGN_DECISION" },
-      { title: "Government of India AI & Public Digital Goods Safety Framework", type: "OFFICIAL" },
+      { title: "AI classification + deterministic state engine separation", type: "DESIGN_DECISION" },
     ],
     content: `A citizen won't always describe a government problem in structured administrative terms.
 
@@ -532,7 +532,7 @@ We realized that in public service troubleshooting, asking for OTPs right away c
 **What we decided:**
 PM-KISAN uses an 11-digit Registration Number. We treat this as a **public recovery docket**.
 
-Any valid 11-digit pattern lets the citizen or field worker diagnose the case, understand the evidence, and see the recovery path—without collecting private passwords or triggering unnecessary verification hurdles.
+For our prototype, we use the registration number as the starting point for the recovery case rather than asking for passwords, Aadhaar numbers, or OTPs.
 
 ---
 
@@ -556,7 +556,7 @@ They need three things:
 
 ## 4. Making long-running processes observable
 
-In real life, government recovery doesn't happen in 100 milliseconds. An e-KYC biometric synchronization can take 3 days; an NPCI bank mapper update can take 48 hours.
+In real life, government recovery doesn't happen in 100 milliseconds. Government recovery processes can take days or weeks.
 
 When demonstrating the product lifecycle, jumping straight to a "Resolved" screen felt misleading. It hid the reality of how cases actually move through government systems.
 
