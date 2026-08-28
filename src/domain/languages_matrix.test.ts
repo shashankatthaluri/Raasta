@@ -21,10 +21,10 @@ describe("Full 8-Language Matrix Verification Across All Scenarios", () => {
       for (const journey of JOURNEYS) {
         it(`renders journey ${journey.id} with full native translations in ${lang} from start to resolution`, async () => {
           const c = await createDemoCase({ journeyId: journey.id });
-          let stored = await getStoredCase(c.id);
+          const stored = await getStoredCase(c.id);
           expect(stored).toBeDefined();
-          let demo = demoInfoFor(stored!);
-          let dto = toCaseDTO(stored!.case, demo);
+          const demo = demoInfoFor(stored!);
+          const dto = toCaseDTO(stored!.case, demo);
 
           // 1. Initial State Checks
           const initialTitle = dto.title[lang];

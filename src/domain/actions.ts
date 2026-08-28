@@ -1,5 +1,4 @@
-import type { CitizenAction, CitizenActionId } from "./types";
-import type { Lang } from "@/lib/i18n";
+import type { CitizenActionId } from "./types";
 
 export const ACTION_CATALOG: Record<CitizenActionId, any> = {
   COMPLETE_EKYC: {

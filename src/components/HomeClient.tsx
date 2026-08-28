@@ -5,15 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { CreateCase } from "@/components/CreateCase";
 import { IntakeForm } from "@/components/IntakeForm";
-import { LanguageGate } from "@/components/LanguageGate";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { RaastaLogoEmblem } from "@/components/RaastaLogo";
 import {
   BuildingBankIcon,
   AlertCircleIcon,
-  RupeeIcon,
-  PauseIcon,
-  HelpCircleIcon,
   SettingsIcon,
 } from "@/components/Icons";
 import { getStoredLanguage, setStoredLanguage, SUPPORTED_LANGUAGES, type Lang } from "@/lib/i18n";
@@ -30,9 +26,6 @@ import { getStoredLanguage, setStoredLanguage, SUPPORTED_LANGUAGES, type Lang } 
  * Data boundary: the check uses the existing SIMULATED government adapter.
  * No live KYS integration, no live beneficiary data.
  */
-
-const DEMO_REG_NUMBER = "10203040506"; // 11 digits, mirroring the official KYS format
-
 const PROMPTS: ReadonlyArray<{ code: Lang; text: string }> = [
   { code: "en", text: "Choose your language" },
   { code: "hi", text: "अपनी भाषा चुनें" },
@@ -42,55 +35,6 @@ const PROMPTS: ReadonlyArray<{ code: Lang; text: string }> = [
   { code: "mr", text: "तुमची भाषा निवडा" },
   { code: "bn", text: "আপনার ভাষা নির্বাচন করুন" },
   { code: "pa", text: "ਆਪਣੀ ਭਾਸ਼ਾ ਚੁਣੋ" },
-];
-
-const QUICK_OPTIONS: ReadonlyArray<{
-  journeyId: string;
-  label: Record<Lang, string>;
-  icon: React.ComponentType<{ className?: string }>;
-}> = [
-  {
-    journeyId: "J3_PAYMENT_FAILURE",
-    label: {
-      en: "My payment did not come",
-      hi: "मेरा पैसा नहीं आया",
-      te: "నా చెల్లింపు రాలేదు",
-      ta: "என் பணம் வரவில்லை",
-      kn: "ನನ್ನ ಪಾವತಿ ಬರಲಿಲ್ಲ",
-      mr: "माझे पैसे आले नाहीत",
-      bn: "আমার টাকা আসেনি",
-      pa: "ਮੇਰਾ ਪੈਸਾ ਨਹੀਂ ਆਇਆ",
-    },
-    icon: RupeeIcon,
-  },
-  {
-    journeyId: "J1_FARMER_EKYC",
-    label: {
-      en: "My installment is stopped",
-      hi: "मेरी किश्त रुक गई है",
-      te: "నా చెల్లింపు ఆగిపోయింది",
-      ta: "என் தவணை நிறுத்தப்பட்டது",
-      kn: "ನನ್ನ ಕಂತು ನಿಂತಿದೆ",
-      mr: "माझा हप्ता थांबला आहे",
-      bn: "আমার কিস্তি বন্ধ হয়ে গেছে",
-      pa: "ਮੇਰੀ ਕਿਸ਼ਤ ਰੁਕ ਗਈ ਹੈ",
-    },
-    icon: PauseIcon,
-  },
-  {
-    journeyId: "J2_GOVT_VERIFICATION",
-    label: {
-      en: "Other problem",
-      hi: "अन्य समस्या",
-      te: "ఇతర సమస్య",
-      ta: "மற்ற பிரச்சினை",
-      kn: "ಇತರ ಸಮಸ್ಯೆ",
-      mr: "इतर अडचण",
-      bn: "অন্যান্য সমস্যা",
-      pa: "ਹੋਰ ਸਮੱਸਿਆ",
-    },
-    icon: HelpCircleIcon,
-  },
 ];
 
 const JOURNEY_CARDS: ReadonlyArray<{
@@ -520,16 +464,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
   const [hasSelectedLang, setHasSelectedLang] = useState<boolean>(false);
   const [hoveredLang, setHoveredLang] = useState<Lang | null>(null);
   const brandRef = useRef<HTMLDivElement>(null);
-  const gridContainerRef = useRef<HTMLDivElement>(null);
-  const tileRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const [offset, setOffset] = useState<{ x: number; y: number; xLogo: number; yLogo: number } | null>(null);
-  const [pillStyle, setPillStyle] = useState<{
-    top: number;
-    left: number;
-    width: number;
-    height: number;
-    opacity: number;
-  } | null>(null);
 
   useEffect(() => {
     const isFromCase = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "case";
@@ -655,39 +590,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     ? (hoveredLang ?? PROMPTS[langPromptIndex % PROMPTS.length].code)
     : lang;
 
-  // Apple-grade physical glide calculation for moving selection pill
-  useEffect(() => {
-    if (introStage !== "settled" || hasSelectedLang) return;
 
-    const updatePill = () => {
-      const activeIdx = SUPPORTED_LANGUAGES.findIndex((l) => l.code === activeCycleLang);
-      const activeEl = tileRefs.current[activeIdx];
-      const gridEl = gridContainerRef.current;
-
-      if (activeEl && gridEl) {
-        const gridRect = gridEl.getBoundingClientRect();
-        const elRect = activeEl.getBoundingClientRect();
-
-        setPillStyle({
-          left: elRect.left - gridRect.left,
-          top: elRect.top - gridRect.top,
-          width: elRect.width,
-          height: elRect.height,
-          opacity: 1,
-        });
-      }
-    };
-
-    // Run immediately and on next RAF for layout stability
-    updatePill();
-    const raf = requestAnimationFrame(updatePill);
-    window.addEventListener("resize", updatePill);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener("resize", updatePill);
-    };
-  }, [activeCycleLang, introStage, hasSelectedLang]);
 
   const handleSelectLanguage = (selectedLang: Lang) => {
     haptic("medium");
@@ -760,19 +663,6 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   return (
     <div className="relative min-h-screen bg-stone-50 text-stone-900 overflow-x-hidden">
-      {/* Click anywhere during intro to skip directly */}
-      {isAtCenter && (
-        <div
-          onClick={() => {
-            haptic("light");
-            const stored = getStoredLanguage();
-            setIntroStage("settled");
-            if (stored) setHasSelectedLang(true);
-          }}
-          className="fixed inset-0 z-20 cursor-pointer"
-          title="Click to skip intro"
-        />
-      )}
       {/* ========================================================================= */}
       {/* MAIN CONTAINER                                                            */}
       {/* ========================================================================= */}
@@ -803,19 +693,11 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               type="button"
               onClick={() => {
                 haptic("light");
-                if (isAtCenter) {
-                  // During intro: skip it — go straight to correct destination
-                  const stored = getStoredLanguage();
-                  setIntroStage("settled");
-                  if (stored) setHasSelectedLang(true);
-                } else {
-                  // After settled: replay intro and choose language
-                  setHasSelectedLang(false);
-                  setIntroStage("empty");
-                  setTimeout(() => setIntroStage("logo_only"), 100);
-                }
+                setHasSelectedLang(false);
+                setIntroStage("empty");
+                setTimeout(() => setIntroStage("logo_only"), 100);
               }}
-              title={isAtCenter ? "Skip intro" : "Replay Raasta Intro & Choose Language"}
+              title="Replay Raasta Intro & Choose Language"
               className="shrink-0 flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 cursor-pointer"
             >
               <RaastaLogoEmblem size="md" />

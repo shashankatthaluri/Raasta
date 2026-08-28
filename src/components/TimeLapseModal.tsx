@@ -11,7 +11,7 @@ interface TimeLapseModalProps {
   lang: Lang;
 }
 
-export function TimeLapseModal({ active, daysText, title, description, lang }: TimeLapseModalProps) {
+export function TimeLapseModal({ active, daysText, title, lang }: TimeLapseModalProps) {
   if (!active) return null;
 
   const t = (val: Record<Lang, string> | string) => {

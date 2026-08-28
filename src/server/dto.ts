@@ -1,4 +1,4 @@
-import { calculateCitizenAction, caseSummary, compileGrievanceDraft } from "@/domain/engine";
+import { calculateCitizenAction, compileGrievanceDraft } from "@/domain/engine";
 import { STATE_CATALOG } from "@/domain/states";
 import type { Actor, CaseStateId, CitizenCase, SubstantiatedRequirement } from "@/domain/types";
 import type { DemoInfo } from "./caseStore";
@@ -191,7 +191,6 @@ export interface CaseDTO {
 
 export function toCaseDTO(c: CitizenCase, demo: DemoInfo | null = null): CaseDTO {
   const def = STATE_CATALOG[c.currentState];
-  const s = caseSummary(c);
   const decision = calculateCitizenAction(c);
   const grievanceDraft = compileGrievanceDraft(c);
 

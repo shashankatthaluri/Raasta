@@ -9,6 +9,7 @@ import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { Confetti } from "@/components/Confetti";
 import { VirtualCursor } from "@/components/VirtualCursor";
 import { TimeLapseModal } from "@/components/TimeLapseModal";
+import { RaastaLogoEmblem } from "@/components/RaastaLogo";
 import {
   ArrowLeftIcon,
   SpeakerIcon,
@@ -26,12 +27,6 @@ import { getStoredLanguage, setStoredLanguage, type Lang } from "@/lib/i18n";
 import { CASE_PAGE_COPY } from "@/lib/caseTranslations";
 import type { CaseDTO } from "@/server/dto";
 
-const COLOR_DOT: Record<string, string> = {
-  green: "bg-green-600",
-  amber: "bg-amber-600",
-  red: "bg-red-600",
-  neutral: "bg-stone-400",
-};
 
 const SOURCE_BADGE: Record<string, { label: Record<Lang, string>; cls: string }> = {
   OFFICIAL: {
@@ -293,12 +288,6 @@ export default function CasePage() {
     setIsSpeechLoading(false);
   }
 
-  // Legacy fallback wrapper (kept for any remaining toggleAudio calls)
-  function toggleAudio(textToSpeak: string) {
-    if (isSpeaking || isSpeechLoading) { stopAudio(); return; }
-    void speakCaseSummary({ title: textToSpeak, why: "", action: "", actionRequired: false });
-  }
-
   const prevState = useRef<string | null>(null);
   const firstLoad = useRef(true);
   const mounted = useRef(true);
@@ -369,6 +358,7 @@ export default function CasePage() {
         // If data is already loaded, silently ignore transient network errors
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, lang, phoneInput]);
 
   useEffect(() => {
@@ -377,25 +367,12 @@ export default function CasePage() {
     firstLoad.current = true;
     setLang((localStorage.getItem("raasta_lang") as Lang) ?? "en");
     load();
-    // Poll every 8s — case state doesn't change faster than that,
-    // and aggressive 2s polling causes Vercel cold-starts that trigger false errors.
     const t = setInterval(load, 8000);
     return () => {
       mounted.current = false;
       clearInterval(t);
     };
   }, [load]);
-
-  const simulate = useCallback(async () => {
-    if (busy) return;
-    setBusy(true);
-    try {
-      await fetch(`/api/cases/${id}/simulate-signal`, { method: "POST" });
-      await load();
-    } finally {
-      setBusy(false);
-    }
-  }, [id, load, busy]);
 
   async function doAction(actionId: string) {
     if (busy) return;
@@ -1236,13 +1213,11 @@ export default function CasePage() {
                       .webkitSpeechRecognition;
                   if (SpeechRecognition) {
                     try {
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       const recognition = new (SpeechRecognition as any)();
                       recognition.lang = cp.locale;
                       recognition.continuous = true;
                       recognition.interimResults = true;
                       let silenceTimer: NodeJS.Timeout | null = null;
-                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       recognition.onresult = (e: any) => {
                         let live = "";
                         for (let i = 0; i < e.results.length; i++) {
@@ -1471,7 +1446,6 @@ export default function CasePage() {
                     {fullSteps.map((step: string, i: number, arr: string[]) => {
                       const isCompleted = resolved || i < activeStepIdx;
                       const isCurrent = !resolved && i === activeStepIdx;
-                      const isUpcoming = !resolved && i > activeStepIdx;
 
                       return (
                         <span key={`${step}-${i}`} className="flex items-center gap-2">

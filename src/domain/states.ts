@@ -1,4 +1,4 @@
-import type { CaseStateDef, CaseStateId, ColorSemantic, Actor, CitizenActionId } from "./types";
+import type { CaseStateId, ColorSemantic, Actor, CitizenActionId } from "./types";
 import type { Lang } from "@/lib/i18n";
 
 export interface I18nText {
