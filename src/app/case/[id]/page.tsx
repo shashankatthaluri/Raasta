@@ -13,6 +13,7 @@ import { RaastaLogoEmblem } from "@/components/RaastaLogo";
 import {
   ArrowLeftIcon,
   SpeakerIcon,
+  VoiceWaveIcon,
   StopIcon,
   MicIcon,
   ScaleIcon,
@@ -1143,7 +1144,7 @@ export default function CasePage() {
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                 </svg>
               ) : (
-                <SpeakerIcon className="h-3.5 w-3.5" />
+                <VoiceWaveIcon className="h-3.5 w-3.5" />
               )}
               <span>
                 {isSpeaking

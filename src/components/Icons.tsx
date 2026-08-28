@@ -20,6 +20,29 @@ export function SpeakerIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+export function ReadAloudIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+    </svg>
+  );
+}
+
+export function VoiceWaveIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 10v4" />
+      <path d="M7 6v12" />
+      <path d="M11 3v18" />
+      <path d="M15 6v12" />
+      <path d="M19 8v8" />
+      <path d="M22 11v2" />
+    </svg>
+  );
+}
+
 export function StopIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="currentColor">
