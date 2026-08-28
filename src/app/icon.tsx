@@ -27,21 +27,23 @@ export default function Icon() {
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
-          {/* Top Shirorekha Bar */}
+          {/* Devanagari 'र' Upper Loop & Road Sweep */}
           <path
-            d="M 3.5 4.5 H 20.5"
+            d="M 6 4.5 C 13 4.5 15.5 7.2 15.5 10.5 C 15.5 13.8 13 15.5 6.5 15.5 L 14.5 20.5"
             stroke="#ffffff"
-            strokeWidth="3.2"
+            strokeWidth="2.8"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          {/* Devanagari 'र' (Ra) Bowl & Road Sweep */}
-          <path
-            d="M 7.5 4.5 C 14.5 4.5 17.5 7.5 17.5 11 C 17.5 14.5 14.5 16.5 8 16.5 L 17.5 21.5"
+          {/* Devanagari 'ा' Vertical Pillar (Aa-Matra) */}
+          <line
+            x1="19.2"
+            y1="4.5"
+            x2="19.2"
+            y2="20.5"
             stroke="#ffffff"
-            strokeWidth="3.2"
+            strokeWidth="2.8"
             strokeLinecap="round"
-            strokeLinejoin="round"
           />
         </svg>
       </div>

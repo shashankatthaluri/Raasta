@@ -446,7 +446,9 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   type IntroStage =
     | "empty"
-    | "logo_only"
+    | "logo_r"
+    | "logo_transforming"
+    | "logo_settled"
     | "lang_en"
     | "lang_hi"
     | "lang_te"
@@ -516,28 +518,32 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       setOffset({ x: dxFull, y: lockedY, xLogo: dxLogo, yLogo: lockedY });
     }
 
-    // Apple "Hello" Signature Organic Timing:
-    // 1. Logo reveals alone in center (150ms)
-    const t0 = setTimeout(() => setIntroStage("logo_only"), 150);
-    // 2. English: Raasta draws in with handwriting unmask & pauses (900ms -> 2200ms, hold 1.3s)
-    const t1 = setTimeout(() => setIntroStage("lang_en"), 900);
-    // 3. Multilingual handwriting stroke loop with poised pauses and optical vapor transitions:
-    const t2 = setTimeout(() => setIntroStage("lang_hi"), 2200); // Hindi: रास्ता (draw -> hold 1.25s)
-    const t3 = setTimeout(() => setIntroStage("lang_te"), 3450); // Telugu: రాస్తా (draw -> hold 1.25s)
-    const t4 = setTimeout(() => setIntroStage("lang_ta"), 4700); // Tamil: ராஸ்தா (draw -> hold 1.25s)
-    const t5 = setTimeout(() => setIntroStage("lang_kn"), 5950); // Kannada: ರಾಸ್ತಾ (draw -> hold 1.25s)
-    const t6 = setTimeout(() => setIntroStage("lang_mr"), 7200); // Marathi: रास्ता (draw -> hold 1.25s)
-    const t7 = setTimeout(() => setIntroStage("lang_bn"), 8450); // Bengali: রাস্তা (draw -> hold 1.25s)
-    const t8 = setTimeout(() => setIntroStage("lang_pa"), 9700); // Punjabi: ਰਾਸਤਾ (draw -> hold 1.25s)
-    // 4. Final repeat of First Language (English) as the definitive anchor (10950ms -> 12500ms, hold 1.55s)
-    const t9 = setTimeout(() => setIntroStage("lang_en_final"), 10950); // English: Raasta
-    // 5. Confident Hold in English (12500ms -> 13150ms)
-    const t10 = setTimeout(() => setIntroStage("hold"), 12500);
-    // 6. Glides smoothly up to Top Header (13150ms)
-    const t11 = setTimeout(() => setIntroStage("travel"), 13150);
-    const t12 = setTimeout(() => {
+    // Organic "R → Transformation → रा → Raasta" Signature Sequence:
+    // 1. Empty (0ms -> 250ms)
+    // 2. Beautiful capital 'R' appears in center (250ms -> 1200ms)
+    const t0 = setTimeout(() => setIntroStage("logo_r"), 250);
+    // 3. The left stroke glides slowly and horizontally to the right (1200ms -> 2200ms)
+    const t1 = setTimeout(() => setIntroStage("logo_transforming"), 1200);
+    // 4. Settles as Hindi 'रा' mark + quiet pause to register (2200ms -> 3000ms)
+    const t2 = setTimeout(() => setIntroStage("logo_settled"), 2200);
+    // 5. English wordmark 'Raasta' & tagline appear (3000ms -> 4300ms)
+    const t3 = setTimeout(() => setIntroStage("lang_en"), 3000);
+    // 6. Multilingual script loop:
+    const t4 = setTimeout(() => setIntroStage("lang_hi"), 4300); // Hindi: रास्ता
+    const t5 = setTimeout(() => setIntroStage("lang_te"), 5500); // Telugu: రాస్తా
+    const t6 = setTimeout(() => setIntroStage("lang_ta"), 6700); // Tamil: ராஸ்தா
+    const t7 = setTimeout(() => setIntroStage("lang_kn"), 7900); // Kannada: ರಾಸ್ತಾ
+    const t8 = setTimeout(() => setIntroStage("lang_mr"), 9100); // Marathi: रास्ता
+    const t9 = setTimeout(() => setIntroStage("lang_bn"), 10300); // Bengali: রাস্তা
+    const t10 = setTimeout(() => setIntroStage("lang_pa"), 11500); // Punjabi: ਰਾਸਤਾ
+    // 7. Final anchor in English (12700ms -> 14100ms)
+    const t11 = setTimeout(() => setIntroStage("lang_en_final"), 12700);
+    const t12 = setTimeout(() => setIntroStage("hold"), 14100);
+    // 8. Glides smoothly up to Top Header (14700ms -> 15500ms)
+    const t13 = setTimeout(() => setIntroStage("travel"), 14700);
+    const t14 = setTimeout(() => {
       setIntroStage("settled");
-    }, 14000);
+    }, 15500);
 
     return () => {
       clearTimeout(t0);
@@ -553,6 +559,8 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
       clearTimeout(t10);
       clearTimeout(t11);
       clearTimeout(t12);
+      clearTimeout(t13);
+      clearTimeout(t14);
     };
   }, []);
 
@@ -567,7 +575,9 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   const isAtCenter =
     introStage === "empty" ||
-    introStage === "logo_only" ||
+    introStage === "logo_r" ||
+    introStage === "logo_transforming" ||
+    introStage === "logo_settled" ||
     introStage === "lang_en" ||
     introStage === "lang_hi" ||
     introStage === "lang_te" ||
@@ -650,7 +660,9 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
 
   const isTextUnrolled =
     introStage !== "empty" &&
-    introStage !== "logo_only";
+    introStage !== "logo_r" &&
+    introStage !== "logo_transforming" &&
+    introStage !== "logo_settled";
 
   const isTaglineVisible =
     introStage === "lang_en" ||
@@ -664,7 +676,11 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     introStage === "lang_en_final" ||
     introStage === "hold";
 
-  const isLogoOnly = introStage === "empty" || introStage === "logo_only";
+  const isLogoOnly =
+    introStage === "empty" ||
+    introStage === "logo_r" ||
+    introStage === "logo_transforming" ||
+    introStage === "logo_settled";
   const transformStyle = offset
     ? isAtCenter
       ? isLogoOnly
@@ -711,7 +727,16 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               title="Choose Language"
               className="shrink-0 flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 cursor-pointer"
             >
-              <RaastaLogoEmblem size="md" />
+              <RaastaLogoEmblem
+                size="md"
+                stage={
+                  introStage === "logo_r"
+                    ? "r"
+                    : introStage === "logo_transforming"
+                    ? "transforming"
+                    : "settled"
+                }
+              />
             </button>
 
             {/* Brand Text Column: In Center, renders 2 stacked rows (Wordmark + Tagline). In Header, renders 1 laser-straight aligned row */}
