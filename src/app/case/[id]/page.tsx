@@ -291,18 +291,38 @@ export default function CasePage() {
   const prevState = useRef<string | null>(null);
   const firstLoad = useRef(true);
   const mounted = useRef(true);
+  // Track consecutive failures — only show error after 3 in a row
+  const failCount = useRef(0);
 
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/cases/${id}`);
       if (!res.ok) {
-        setError(cp.caseNotFound);
-        setData(null);
+        failCount.current += 1;
+        // Only show error if: this is the first ever load (no data yet) AND it's a genuine 404,
+        // OR we've had 5+ consecutive failures (persistent server problem).
+        if (res.status === 404 && firstLoad.current) {
+          // Definitive case not found — show error immediately
+          setError(cp.caseNotFound);
+          setData(null);
+        } else if (failCount.current >= 5 && !firstLoad.current) {
+          // Persistent server problem after data was already loaded — show gentle error
+          // but don't wipe data (keep showing what we had)
+          setError(cp.caseLoadError);
+        }
+        // Otherwise: transient hiccup — silently ignore, keep showing existing data
         return;
       }
+
+      // Success — reset failure counter
+      failCount.current = 0;
+
       const json = (await res.json()) as { case: CaseDTO };
       const next = json.case;
       if (!mounted.current) return;
+
+      // Clear any stale error now that we have fresh data
+      setError(null);
 
       if (firstLoad.current) {
         firstLoad.current = false;
@@ -329,17 +349,26 @@ export default function CasePage() {
       prevState.current = next.currentState;
       setData(next);
     } catch {
+      // Network-level failure (fetch itself threw) — treat same as non-ok response
       if (mounted.current) {
-        setError(cp.caseLoadError);
+        failCount.current += 1;
+        if (failCount.current >= 5 && !firstLoad.current) {
+          setError(cp.caseLoadError);
+        }
+        // If data is already loaded, silently ignore transient network errors
       }
     }
   }, [id, lang, phoneInput]);
 
   useEffect(() => {
     mounted.current = true;
+    failCount.current = 0;
+    firstLoad.current = true;
     setLang((localStorage.getItem("raasta_lang") as Lang) ?? "en");
     load();
-    const t = setInterval(load, 2000);
+    // Poll every 8s — case state doesn't change faster than that,
+    // and aggressive 2s polling causes Vercel cold-starts that trigger false errors.
+    const t = setInterval(load, 8000);
     return () => {
       mounted.current = false;
       clearInterval(t);
