@@ -12,6 +12,35 @@ export interface JournalArticle {
 
 export const JOURNAL_ARTICLES: JournalArticle[] = [
   {
+    slug: "project-summary",
+    number: "00",
+    title: "Project Summary",
+    subtitle: "Government systems can tell a citizen what happened. The harder question is often: what happens next?",
+    readTime: "2 min read",
+    date: "August 2026",
+    category: "Overview",
+    sources: [
+      { title: "Raasta Citizen Recovery Architecture", type: "DESIGN_DECISION" },
+      { title: "PM-KISAN Operational Guidelines (Ministry of Agriculture)", url: "https://pmkisan.gov.in/", type: "OFFICIAL" },
+      { title: "Direct Benefit Transfer (DBT) Bharat Framework", url: "https://dbtbharat.gov.in/", type: "OFFICIAL" },
+    ],
+    content: `Government systems can tell a citizen what happened. The harder question is often: what happens next?
+
+Raasta is a citizen recovery layer for public services. We started with PM-KISAN to explore what happens when a payment fails, verification is incomplete, or a citizen has to move between systems such as the portal, bank, CSC and state administration.
+
+Today, the citizen often has to become the coordinator: understand the status, figure out who is responsible, decide whether to wait or act, find the right office, remember what happened earlier, and start explaining the same problem again.
+
+Raasta turns that coordination into a persistent recovery case. It explains what happened and why, shows whose turn it is, gives the citizen the smallest action actually required, and keeps the case context as responsibility moves between actors.
+
+The product is built around three ideas: Recovery Case, Responsibility Baton, and Minimum Human Action.
+
+AI has a deliberately narrow role. It understands how citizens describe problems in natural language; deterministic rules and verified evidence determine the case state. If a citizen disagrees with an official record, Raasta preserves both sides instead of deciding who is right. When escalation is appropriate, it can compile the verified case history into a reviewable grievance draft.
+
+We are not building another chatbot or replacing PM-KISAN. We are building the connective layer around the systems that already exist—so the citizen doesn't have to be it.
+
+Raasta asks one simple question: What happens next?`,
+  },
+  {
     slug: "why-government-status-isnt-enough",
     number: "01",
     title: "Why Government Status Isn't Enough",
