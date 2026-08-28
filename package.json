@@ -1,7 +1,24 @@
 {
   "name": "raasta",
-  "version": "0.1.0",
-  "private": true,
+  "version": "1.0.0",
+  "description": "The open-source citizen recovery layer for public welfare services in India.",
+  "license": "MIT",
+  "author": "Shashank Atthaluri <shashankatthaluri@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shashankatthaluri/Raasta.git"
+  },
+  "keywords": [
+    "civic-tech",
+    "public-digital-infrastructure",
+    "india",
+    "pm-kisan",
+    "dbt",
+    "citizen-recovery",
+    "nextjs",
+    "typescript",
+    "sarvam-ai"
+  ],
   "scripts": {
     "dev": "next dev -p 3998 --turbopack",
     "build": "next build --turbopack",
