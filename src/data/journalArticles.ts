@@ -694,10 +694,10 @@ We deliberately rejected that approach.
 
 In rural India, citizens are rightfully terrified of OTP scams, fake KYC portals, and phishing attacks. Demanding an Aadhaar OTP before a farmer can even see why their payment is stuck creates immediate anxiety and causes an 80% drop-off.
 
-Instead, PM-KISAN uses an official **11-digit Registration Number** (e.g. `98765432101`).
+Instead, PM-KISAN uses an official **11-digit Registration Number** (e.g. '98765432101').
 
 We implemented strict UI/UX constraints around this:
-* **Strict 11-Digit Guard:** The *“Check my PM-KISAN”* button remains visibly disabled with `opacity-40 cursor-not-allowed` until exactly 11 numeric digits are typed.
+* **Strict 11-Digit Guard:** The *“Check my PM-KISAN”* button remains visibly disabled with 'opacity-40 cursor-not-allowed' until exactly 11 numeric digits are typed.
 * **Zero Partial Submissions:** Preventing incomplete queries eliminates confusing server errors or empty search states.
 * **Public Docket Philosophy:** An 11-digit identifier treats the status as a public recovery docket—giving the citizen full diagnosis and guidance without demanding invasive personal credentials.
 
@@ -774,7 +774,7 @@ This builds authentic trust: Raasta does not pretend government processing is in
 
 During the initial application reveal, the wordmark (**'Raasta · What happens next'**) writes itself out letter-by-letter across 8 Indic scripts (*Telugu, Hindi, Tamil, Kannada, Marathi, Bengali, Punjabi, English*). 
 
-Rather than standard block-blur crossfades, we used `Intl.Segmenter` grapheme slicing so complex Indic conjuncts (like `రా`, `స్తా`, `स्ता`) rewrite progressively from left to right.
+Rather than standard block-blur crossfades, we used 'Intl.Segmenter' grapheme slicing so complex Indic conjuncts (like 'రా', 'స్తా', 'स्ता') rewrite progressively from left to right.
 
 Critically, once the brand docks in the top header, **all progressive animations stop**:
 * **In the center:** It celebrates the linguistic breadth of Indian citizens.
