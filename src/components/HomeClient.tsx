@@ -467,12 +467,23 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
   const [offset, setOffset] = useState<{ x: number; y: number; xLogo: number; yLogo: number } | null>(null);
 
   useEffect(() => {
-    const isFromCase = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("from") === "case";
+    const searchParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+    const isReplay = searchParams?.get("replay") === "1";
+    const isChoose = searchParams?.get("choose") === "1";
     const stored = getStoredLanguage();
+
     if (stored) {
       setLang(stored);
     }
-    if (isFromCase && stored) {
+
+    if (isChoose) {
+      setHasSelectedLang(false);
+      setIntroStage("settled");
+      return;
+    }
+
+    // Returning user with chosen language: show main dashboard directly (no repeated intro or language prompt)
+    if (stored && !isReplay) {
       setHasSelectedLang(true);
       setIntroStage("settled");
       return;
