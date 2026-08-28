@@ -13,7 +13,6 @@ import { RaastaLogoEmblem } from "@/components/RaastaLogo";
 import {
   ArrowLeftIcon,
   SpeakingOutIcon,
-  StopIcon,
   MicIcon,
   ScaleIcon,
   SparklesIcon,
@@ -285,6 +284,138 @@ export default function CasePage() {
   // Track consecutive failures — only show error after 3 in a row
   const failCount = useRef(0);
 
+  const t = useCallback((o: string | Record<string, string> | null | undefined) => {
+    if (!o) return "";
+    if (typeof o === "string") return o;
+    return o[lang] ?? (lang === "hi" ? o.hi : o.en) ?? o.en ?? "";
+  }, [lang]);
+
+  /** Generates native 8-language WhatsApp alert title and body */
+  const getWhatsAppAlert = useCallback((payload: {
+    type: "status_update" | "action_recorded" | "welcome" | "resolved" | "step_progress" | "prompt_phone" | "subscribed";
+    caseId?: string;
+    phone?: string;
+    caseTitle?: string;
+    step?: number;
+    totalSteps?: number;
+    actionRequired?: boolean;
+  }) => {
+    const num = payload.phone || phoneInput.trim() || "98765 43210";
+    const titleText = payload.caseTitle || (data ? t(data.title) : "");
+    const caseId = payload.caseId || data?.id || "";
+
+    const headers: Record<Lang, string> = {
+      en: `WhatsApp Alert · +91 ${num}`,
+      hi: `व्हाट्सएप अलर्ट · +91 ${num}`,
+      te: `WhatsApp అలర్ట్ · +91 ${num}`,
+      ta: `WhatsApp எச்சரிக்கை · +91 ${num}`,
+      kn: `WhatsApp ಎಚ್ಚರಿಕೆ · +91 ${num}`,
+      mr: `WhatsApp सूचना · +91 ${num}`,
+      bn: `WhatsApp সতর্কতা · +91 ${num}`,
+      pa: `WhatsApp ਅਲਰਟ · +91 ${num}`,
+    };
+
+    if (payload.type === "resolved") {
+      const resolvedBodies: Record<Lang, string> = {
+        en: `₹2,000 PM-KISAN successfully credited to your State Bank of India account (UTR: DEMO-UTR-2026-0001). Case settled.`,
+        hi: `₹2,000 पीएम-किसान आपके स्टेट बैंक खाते में जमा कर दिए गए हैं (UTR: DEMO-UTR-2026-0001)। केस पूरा हुआ।`,
+        te: `₹2,000 PM-KISAN మీ స్టేట్ బ్యాంక్ ఖాతాలో జమ చేయబడింది (UTR: DEMO-UTR-2026-0001). కేసు పరిష్కారమైంది.`,
+        ta: `₹2,000 PM-KISAN உங்கள் ஸ்டேட் பாங்க் கணக்கில் வரவு வைக்கப்பட்டது (UTR: DEMO-UTR-2026-0001). வழக்கு தீர்க்கப்பட்டது.`,
+        kn: `₹2,000 PM-KISAN ನಿಮ್ಮ ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ಜಮೆಯಾಗಿದೆ (UTR: DEMO-UTR-2026-0001). ಪ್ರಕರಣ ಪರಿಹಾರವಾಗಿದೆ.`,
+        mr: `₹2,000 PM-KISAN आपल्या स्टेट बँक खात्यात जमा झाले (UTR: DEMO-UTR-2026-0001). केस निकाली निघाली.`,
+        bn: `₹২,০০০ PM-KISAN আপনার স্টেট ব্যাঙ্ক অ্যাকাউন্টে জমা হয়েছে (UTR: DEMO-UTR-2026-0001)। কেস সম্পন্ন।`,
+        pa: `₹2,000 PM-KISAN ਤੁਹਾਡੇ ਸਟੇਟ ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ਜਮ੍ਹਾਂ ਹੋ ਗਏ ਹਨ (UTR: DEMO-UTR-2026-0001)। ਕੇਸ ਪੂਰਾ ਹੋਇਆ।`,
+      };
+      return {
+        title: headers[lang] || headers.en,
+        body: resolvedBodies[lang] || resolvedBodies.en,
+        type: "update" as const,
+      };
+    }
+
+    if (payload.type === "action_recorded") {
+      const actionBodies: Record<Lang, string> = {
+        en: `Action recorded: Requirement submitted. Awaiting central verification.`,
+        hi: `नागरिक कार्रवाई दर्ज: औपचारिकता पूरी। केंद्रीय सत्यापन की प्रतीक्षा है।`,
+        te: `చర్య నమోదైంది: ప్రక్రియ పూర్తయింది. కేంద్ర ధృవీకరణ కోసం వేచి ఉంది.`,
+        ta: `நடவடிக்கை பதிவானது: சமர்ப்பிக்கப்பட்டது. அரசு சரிபார்ப்பு நிலுவையில் உள்ளது.`,
+        kn: `ಕ್ರಮ ದಾಖಲಾಗಿದೆ: ಸಲ್ಲಿಕೆಯಾಗಿದೆ. ಕೇಂದ್ರ ಪರಿಶೀಲನೆ ಬಾಕಿ ಇದೆ.`,
+        mr: `कृती नोंदवली: आवश्यकता पूर्ण. केंद्रीय पडताळणीची प्रतीक्षा आहे.`,
+        bn: `পদক্ষেপ রেকর্ড হয়েছে: জমা সম্পন্ন। কেন্দ্রীয় যাচাইকরণের অপেক্ষায়।`,
+        pa: `ਕਾਰਵਾਈ ਦਰਜ: ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ। ਕੇਂਦਰੀ ਤਸਦੀਕ ਦੀ ਉਡੀਕ ਹੈ।`,
+      };
+      return {
+        title: headers[lang] || headers.en,
+        body: actionBodies[lang] || actionBodies.en,
+        type: "update" as const,
+      };
+    }
+
+    if (payload.type === "welcome") {
+      const welcomeBodies: Record<Lang, string> = {
+        en: `Case #${caseId}: Live recovery tracking connected. Initial state check dispatching to WhatsApp.`,
+        hi: `केस #${caseId}: लाइव रिकवरी ट्रैकिंग शुरू। सरकारी सिग्नल्स का पहला अपडेट भेजा जा रहा है।`,
+        te: `కేసు #${caseId}: లైవ్ రికవరీ ట్రాకింగ్ ప్రారంభమైంది. ప్రభుత్వ సిగ్నల్స్ తనిఖీ జరుగుతోంది.`,
+        ta: `வழக்கு #${caseId}: நேரலை கண்காணிப்பு இணைக்கப்பட்டது. அரசு சமிக்ஞைகள் பெறப்படுகின்றன.`,
+        kn: `ಪ್ರಕರಣ #${caseId}: ಲೈವ್ ಟ್ರ್ಯಾಕಿಂಗ್ ಪ್ರಾರಂಭವಾಗಿದೆ. ಸರ್ಕಾರಿ ಸಂಕೇತಗಳ ಪರಿಶೀಲನೆ ನಡೆಯುತ್ತಿದೆ.`,
+        mr: `केस #${caseId}: लाइव्ह ट्रॅकिंग सुरू झाले. सरकारी सिग्नल तपासले जात आहेत.`,
+        bn: `কেস #${caseId}: লাইভ ট্র্যাকিং সংযুক্ত হয়েছে। সরকারি সংকেত যাচাই চলছে।`,
+        pa: `ਕੇਸ #${caseId}: ਲਾਈਵ ਟਰੈਕਿੰਗ ਸ਼ੁਰੂ ਹੋ ਗਈ। ਸਰਕਾਰੀ ਸਿਗਨਲਾਂ ਦੀ ਜਾਂਚ ਜਾਰੀ ਹੈ।`,
+      };
+      return {
+        title: headers[lang] || headers.en,
+        body: welcomeBodies[lang] || welcomeBodies.en,
+        type: "subscribed" as const,
+      };
+    }
+
+    if (payload.type === "step_progress") {
+      const stepText: Record<Lang, string> = {
+        en: `Step ${payload.step ?? 1}/${payload.totalSteps ?? 4}: Official Signal Received · ${titleText}`,
+        hi: `चरण ${payload.step ?? 1}/${payload.totalSteps ?? 4}: सरकारी सिग्नल प्राप्त · ${titleText}`,
+        te: `దశ ${payload.step ?? 1}/${payload.totalSteps ?? 4}: అధికారిక సిగ్నల్ వచ్చింది · ${titleText}`,
+        ta: `படி ${payload.step ?? 1}/${payload.totalSteps ?? 4}: அரசு சமிக்ஞை பெறப்பட்டது · ${titleText}`,
+        kn: `ಹಂತ ${payload.step ?? 1}/${payload.totalSteps ?? 4}: ಅಧಿಕೃತ ಸಂಕೇತ ಸ್ವೀಕರಿಸಲಾಗಿದೆ · ${titleText}`,
+        mr: `टप्पा ${payload.step ?? 1}/${payload.totalSteps ?? 4}: अधिकृत सिग्नल प्राप्त · ${titleText}`,
+        bn: `ধাপ ${payload.step ?? 1}/${payload.totalSteps ?? 4}: অফিসিয়াল সংকেত প্রাপ্ত · ${titleText}`,
+        pa: `ਪੜਾਅ ${payload.step ?? 1}/${payload.totalSteps ?? 4}: ਅਧਿਕਾਰਤ ਸਿਗਨਲ ਪ੍ਰਾਪਤ · ${titleText}`,
+      };
+      return {
+        title: headers[lang] || headers.en,
+        body: stepText[lang] || stepText.en,
+        type: "update" as const,
+      };
+    }
+
+    const casePrefix: Record<Lang, string> = {
+      en: `Case #${caseId}: `,
+      hi: `केस #${caseId}: `,
+      te: `కేసు #${caseId}: `,
+      ta: `வழக்கு #${caseId}: `,
+      kn: `ಪ್ರಕರಣ #${caseId}: `,
+      mr: `केस #${caseId}: `,
+      bn: `কেস #${caseId}: `,
+      pa: `ਕੇਸ #${caseId}: `,
+    };
+
+    const statusNote: Record<Lang, string> = {
+      en: payload.actionRequired ? "Action required from you." : "No action required from you — system is processing.",
+      hi: payload.actionRequired ? "आपकी कार्रवाई आवश्यक है।" : "कोई कदम उठाने की आवश्यकता नहीं है — सिस्टम प्रोसेस कर रहा है।",
+      te: payload.actionRequired ? "మీ చర్య అవసరం." : "మీరు ఏమీ చేయనవసరం లేదు — సిస్టమ్ ప్రాసెస్ చేస్తోంది.",
+      ta: payload.actionRequired ? "உங்கள் நடவடிக்கை தேவை." : "நீங்கள் எதுவும் செய்ய வேண்டியதில்லை — அரசு பரிசீலிக்கிறது.",
+      kn: payload.actionRequired ? "ನಿಮ್ಮ ಕ್ರಮ ಅಗತ್ಯವಿದೆ." : "ನೀವು ಏನೂ ಮಾಡಬೇಕಾಗಿಲ್ಲ — ಪ್ರಕ್ರಿಯೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ.",
+      mr: payload.actionRequired ? "आपली कृती आवश्यक आहे." : "आपल्याकडून कृतीची आवश्यकता नाही — सिस्टीम प्रक्रिया करत आहे.",
+      bn: payload.actionRequired ? "আপনার পদক্ষেপ প্রয়োজন।" : "আপনার কিছু করার প্রয়োজন নেই — সিস্টেম প্রক্রিয়া করছে।",
+      pa: payload.actionRequired ? "ਤੁਹਾਡੀ ਕਾਰਵਾਈ ਲੋੜੀਂਦੀ ਹੈ।" : "ਤੁਹਾਨੂੰ ਕੁਝ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ — ਸਿਸਟਮ ਪ੍ਰਕਿਰਿਆ ਕਰ ਰਿਹਾ ਹੈ।",
+    };
+
+    return {
+      title: headers[lang] || headers.en,
+      body: `${casePrefix[lang] || casePrefix.en}${titleText}. ${statusNote[lang] || statusNote.en}`,
+      type: "update" as const,
+    };
+  }, [data, lang, phoneInput, t]);
+
   const load = useCallback(async () => {
     try {
       const res = await fetch(`/api/cases/${id}`);
@@ -327,15 +458,13 @@ export default function CasePage() {
           en: `Status updated: ${next.title.en}`,
           hi: `स्थिति अपडेट हुई: ${next.title.hi}`,
         });
-        const targetPhone = phoneInput || "98765 43210";
-        setPushNotification({
-          title: lang === "hi" 
-            ? `व्हाट्सएप अलर्ट · +91 ${targetPhone}` 
-            : `WhatsApp Alert · +91 ${targetPhone}`,
-          body: lang === "hi" 
-            ? `केस #${next.id}: ${next.title.hi}। ${next.yourAction.required ? "आपकी कार्रवाई आवश्यक है।" : "कोई कदम उठाने की आवश्यकता नहीं है — सिस्टम प्रोसेस कर रहा है।"}`
-            : `Case #${next.id}: ${next.title.en}. ${next.yourAction.required ? "Action required from you." : "No action required from you — system is processing."}`,
+        const notif = getWhatsAppAlert({
+          type: next.stateCategory === "resolved" ? "resolved" : "status_update",
+          caseId: next.id,
+          caseTitle: t(next.title),
+          actionRequired: next.yourAction.required,
         });
+        setPushNotification(notif);
       }
       prevState.current = next.currentState;
       setData(next);
@@ -350,7 +479,7 @@ export default function CasePage() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id, lang, phoneInput]);
+  }, [id, lang, phoneInput, getWhatsAppAlert]);
 
   useEffect(() => {
     mounted.current = true;
@@ -376,19 +505,11 @@ export default function CasePage() {
       });
       const phone = phoneInput.trim();
       if (isSubscribed && phone) {
-        setPushNotification({
-          title: lang === "hi" ? `व्हाट्सएप अपडेट · +91 ${phone}` : `WhatsApp Update · +91 ${phone}`,
-          body: lang === "hi" 
-            ? "आपकी कार्रवाई दर्ज हो गई है। आधिकारिक पुष्टि की प्रतीक्षा की जा रही है।"
-            : "Your action was recorded. Waiting for official central confirmation.",
-          type: "update",
-        });
+        setPushNotification(getWhatsAppAlert({ type: "action_recorded", phone }));
       } else {
         setPushNotification({
-          title: lang === "hi" ? "कार्रवाई दर्ज · व्हाट्सएप अलर्ट सक्रिय करें" : "Action Recorded · Enable WhatsApp Alerts",
-          body: lang === "hi" 
-            ? "आपकी कार्रवाई दर्ज हो गई है। जब अगला सरकारी सिग्नल आए तो व्हाट्सएप पर तुरंत अपडेट पाने के लिए नंबर दर्ज करें:"
-            : "Your action was recorded. Enter your number below to get live WhatsApp notifications when the next official signal arrives:",
+          title: cp.actionRecordedToastTitle,
+          body: cp.actionRecordedToastBody,
           type: "prompt_phone",
         });
       }
@@ -554,14 +675,7 @@ export default function CasePage() {
         setCursor((prev) => ({ ...prev, visible: false }));
 
         // Deliver instant WhatsApp Welcome Alert
-        setPushNotification({
-          title: lang === "hi" 
-            ? "📱 व्हाट्सएप अलर्ट सक्रिय (+91 98765 43210)" 
-            : "📱 WhatsApp Alerts Connected (+91 98765 43210)",
-          body: lang === "hi"
-            ? `केस #${data?.id || ""}: लाइव ट्रैकिंग शुरू हो गई है। सरकारी सिग्नल्स का पहला अपडेट भेजा जा रहा है।`
-            : `Case #${data?.id || ""}: Live recovery tracking connected. Initial state check dispatching to WhatsApp.`,
-        });
+        setPushNotification(getWhatsAppAlert({ type: "welcome" }));
 
         await new Promise((r) => setTimeout(r, 1800));
       }
@@ -593,14 +707,7 @@ export default function CasePage() {
             document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
           }
 
-          setPushNotification({
-            title: lang === "hi"
-              ? "🎉 व्हाट्सएप अंतिम सूचना (4/4 समाधान)"
-              : "🎉 WhatsApp Final Alert (4/4 Resolved)",
-            body: lang === "hi"
-              ? `₹2,000 पीएम-किसान आपके स्टेट बैंक खाते में जमा कर दिए गए हैं (UTR: DEMO-UTR-2026-0001)। केस पूरा हुआ।`
-              : `₹2,000 PM-KISAN successfully credited to your State Bank of India account (UTR: DEMO-UTR-2026-0001). Case settled.`,
-          });
+          setPushNotification(getWhatsAppAlert({ type: "resolved" }));
 
           await new Promise((r) => setTimeout(r, 3500));
 
@@ -670,14 +777,7 @@ export default function CasePage() {
           setTimeLapse(null);
 
           // Dispatch citizen action WhatsApp notification
-          setPushNotification({
-            title: lang === "hi"
-              ? `📱 व्हाट्सएप अपडेट (3 दिन बाद · चरण ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4})`
-              : `📱 WhatsApp Update (3 Days Later · Step ${currentCase.demo?.step ?? 1}/${currentCase.demo?.totalSteps ?? 4})`,
-            body: lang === "hi"
-              ? `✅ नागरिक कार्रवाई दर्ज: बायोमेट्रिक ई-केवाईसी पूर्ण। सरकारी पोर्टल पर पुष्टि दर्ज।`
-              : `✅ Action recorded: Requirement submitted. Awaiting central nodal confirmation.`,
-          });
+          setPushNotification(getWhatsAppAlert({ type: "action_recorded" }));
 
           await new Promise((r) => setTimeout(r, 1600));
         }
@@ -785,14 +885,7 @@ export default function CasePage() {
               document.getElementById("resolution-card")?.scrollIntoView({ behavior: "smooth", block: "center" });
             }
 
-            setPushNotification({
-              title: lang === "hi"
-                ? "🎉 व्हाट्सएप अंतिम सूचना (4/4 समाधान)"
-                : "🎉 WhatsApp Final Alert (4/4 Resolved)",
-              body: lang === "hi"
-                ? `₹2,000 पीएम-किसान आपके स्टेट बैंक खाते में जमा कर दिए गए हैं (UTR: DEMO-UTR-2026-0001)। केस पूरा हुआ।`
-                : `₹2,000 PM-KISAN successfully credited to your State Bank of India account (UTR: DEMO-UTR-2026-0001). Case settled.`,
-            });
+            setPushNotification(getWhatsAppAlert({ type: "resolved" }));
 
             await new Promise((r) => setTimeout(r, 3500));
             setAuto(false);
@@ -800,14 +893,12 @@ export default function CasePage() {
             break;
           }
 
-          setPushNotification({
-            title: lang === "hi"
-              ? `📱 व्हाट्सएप अपडेट (चरण ${simJson.case.demo?.step ?? nextStep}/${totalSteps})`
-              : `📱 WhatsApp Update (Step ${simJson.case.demo?.step ?? nextStep}/${totalSteps})`,
-            body: lang === "hi"
-              ? `सरकारी सिग्नल प्राप्त: ${simJson.case.title.hi}। अगला चरण प्रोसेस हो रहा है।`
-              : `Official Signal Received: ${simJson.case.title.en}. Next stage processing.`,
-          });
+          setPushNotification(getWhatsAppAlert({
+            type: "step_progress",
+            step: simJson.case.demo?.step ?? nextStep,
+            totalSteps,
+            caseTitle: t(simJson.case.title),
+          }));
         }
 
         await new Promise((r) => setTimeout(r, 2200));
@@ -818,7 +909,7 @@ export default function CasePage() {
       setCursor({ visible: false, x: 0, y: 0, clicking: false, label: null });
       setTimeLapse(null);
     }
-  }, [auto, isSubscribed, id, lang, data?.id]);
+  }, [auto, isSubscribed, id, lang, data?.id, getWhatsAppAlert, t]);
 
   useEffect(() => {
     if (!changed) return;
@@ -830,12 +921,6 @@ export default function CasePage() {
     setLang(l);
     setStoredLanguage(l);
   }
-
-  const t = (o: string | Record<string, string> | null | undefined) => {
-    if (!o) return "";
-    if (typeof o === "string") return o;
-    return o[lang] ?? (lang === "hi" ? o.hi : o.en) ?? o.en ?? "";
-  };
 
   if (error && !data) {
     return (
