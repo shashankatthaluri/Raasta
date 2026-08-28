@@ -525,9 +525,6 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
     const t11 = setTimeout(() => setIntroStage("travel"), 13150);
     const t12 = setTimeout(() => {
       setIntroStage("settled");
-      if (stored) {
-        setHasSelectedLang(true);
-      }
     }, 14000);
 
     return () => {
@@ -694,10 +691,9 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
               onClick={() => {
                 haptic("light");
                 setHasSelectedLang(false);
-                setIntroStage("empty");
-                setTimeout(() => setIntroStage("logo_only"), 100);
+                setIntroStage("settled");
               }}
-              title="Replay Raasta Intro & Choose Language"
+              title="Choose Language"
               className="shrink-0 flex items-center justify-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-105 active:scale-95 cursor-pointer"
             >
               <RaastaLogoEmblem size="md" />
