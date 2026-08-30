@@ -742,8 +742,8 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                           key={l.code}
                           className={`col-start-1 row-start-1 leading-none select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                             isActive
-                              ? "opacity-100 scale-100 blur-0"
-                              : "opacity-0 scale-95 blur-[2px] pointer-events-none"
+                              ? "opacity-100 scale-100"
+                              : "opacity-0 scale-95 pointer-events-none"
                           }`}
                         >
                           {DEMO_BADGES[l.code]}
@@ -772,8 +772,8 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                           key={l.code}
                           className={`col-start-1 row-start-1 text-[10.5px] font-medium tracking-tight text-stone-500 whitespace-nowrap leading-normal select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                             isActive
-                              ? "opacity-100 blur-0"
-                              : "opacity-0 blur-[2px] pointer-events-none"
+                              ? "opacity-100"
+                              : "opacity-0 pointer-events-none"
                           }`}
                         >
                           {TAGLINES[l.code]}
@@ -807,7 +807,7 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
         {/* ========================================================================= */}
         {introStage === "settled" && !hasSelectedLang && (
           <section className="flex min-h-[65vh] flex-col items-center justify-center text-center animate-in fade-in slide-in-from-bottom-4 duration-600 ease-out">
-            <div className="apple-card w-full max-w-xl rounded-3xl p-6 sm:p-8 border border-stone-200/80 bg-white/95 shadow-xl backdrop-blur-md">
+            <div className="apple-card w-full max-w-xl rounded-3xl p-6 sm:p-8 border border-stone-200/80 bg-white shadow-xl">
               {/* Rotating Prompt with generous line-height and no overflow clipping */}
               <div
                 aria-label="Choose your language"
@@ -820,8 +820,8 @@ export function HomeClient({ initialLang }: { initialLang: Lang | null }) {
                       key={p.code}
                       className={`col-start-1 row-start-1 text-2xl sm:text-3xl font-bold tracking-tight text-stone-900 leading-normal select-none transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${
                         isActive
-                          ? "opacity-100 translate-y-0 scale-100 blur-0"
-                          : "opacity-0 translate-y-2 scale-[0.98] blur-[3px] pointer-events-none"
+                          ? "opacity-100 translate-y-0 scale-100"
+                          : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
                       }`}
                     >
                       {p.text}

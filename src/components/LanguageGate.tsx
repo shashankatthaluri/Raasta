@@ -41,7 +41,7 @@ export function LanguageGate({ onSelect }: { onSelect: (lang: Lang) => void }) {
   return (
     <main className="mx-auto flex min-h-[100dvh] w-full max-w-2xl flex-col items-center justify-center px-6 py-14 text-center">
       {/* Official Top Seal Pill */}
-      <div className="inline-flex items-center gap-2 rounded-full border border-stone-200/90 bg-white/80 px-3.5 py-1 text-xs font-semibold tracking-wide text-stone-600 shadow-2xs backdrop-blur-md">
+      <div className="inline-flex items-center gap-2 rounded-full border border-stone-200/90 bg-white px-3.5 py-1 text-xs font-semibold tracking-wide text-stone-600 shadow-2xs">
         <span className="h-2 w-2 rounded-full bg-amber-500" />
         <span>Raasta · रास्ता</span>
       </div>

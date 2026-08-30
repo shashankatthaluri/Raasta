@@ -85,15 +85,10 @@ body {
   0% {
     opacity: 0;
     transform: translateY(3px) scale(0.92);
-    filter: blur(3px);
-  }
-  60% {
-    filter: blur(0.5px);
   }
   100% {
     opacity: 1;
     transform: translateY(0px) scale(1);
-    filter: blur(0px);
   }
 }
 
@@ -101,12 +96,10 @@ body {
   0% {
     opacity: 1;
     transform: translateY(0px) scale(1);
-    filter: blur(0px);
   }
   100% {
     opacity: 0;
     transform: translateY(-3px) scale(0.94);
-    filter: blur(3px);
   }
 }
 
