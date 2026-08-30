@@ -25,6 +25,7 @@ import {
 } from "@/components/Icons";
 import { getStoredLanguage, setStoredLanguage, type Lang } from "@/lib/i18n";
 import { CASE_PAGE_COPY } from "@/lib/caseTranslations";
+import { MAGIC_DEMO_COPY } from "@/lib/magicDemoCopy";
 import type { CaseDTO } from "@/server/dto";
 
 
@@ -419,7 +420,7 @@ export default function CasePage() {
 
   const load = useCallback(async () => {
     try {
-      let res = await fetch(`/api/cases/${id}`);
+      const res = await fetch(`/api/cases/${id}`);
       if (!res.ok) {
         // Automatic Self-Healing: If case snapshot is missing on serverless cold start,
         // instantly hydrate it via POST /api/cases with registration number / ID
@@ -704,14 +705,14 @@ export default function CasePage() {
         setHighlightSection("whatsapp");
         scrollToCard("whatsapp-subscription-card");
         setDemoStatusText({
-          en: "Step 1/4: Connecting citizen phone (+91 98765 43210) to live recovery daemon...",
-          hi: "चरण 1/4: नागरिक के फोन (+91 98765 43210) को लाइव रिकवरी एजेंट से जोड़ा जा रहा है...",
-          te: "దశ 1/4: పౌరుడి ఫోన్ (+91 98765 43210) ను లైవ్ రికవరీ ఏజెంట్‌తో కనెక్ట్ చేస్తోంది...",
-          ta: "படி 1/4: குடிமகன் தொலைபேசி (+91 98765 43210) நேரலை மீட்பு அமைப்பில் இணைக்கப்படுகிறது...",
-          kn: "ಹಂತ 1/4: ನಾಗರಿಕರ ಫೋನ್ (+91 98765 43210) ಅನ್ನು ಲೈವ್ ರಿಕವರಿ ಏಜೆಂಟ್‌ಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
-          mr: "टप्पा 1/4: नागरिकाचा फोन (+91 98765 43210) थेट रिकव्हरी एजंटशी जोडला जात आहे...",
-          bn: "ধাপ 1/4: নাগরিকের ফোন (+91 98765 43210) লাইভ রিকভারি এজেন্টের সাথে সংযুক্ত হচ্ছে...",
-          pa: "ਪੜਾਅ 1/4: ਨਾਗਰਿਕ ਦਾ ਫ਼ੋਨ (+91 98765 43210) ਲਾਈਵ ਰਿਕਵਰੀ ਏਜੰਟ ਨਾਲ ਜੋੜਿਆ ਜਾ ਰਿਹਾ ਹੈ...",
+          en: "Connecting citizen phone (+91 98765 43210) to live recovery daemon...",
+          hi: "नागरिक के फोन (+91 98765 43210) को लाइव रिकवरी एजेंट से जोड़ा जा रहा है...",
+          te: "పౌరుడి ఫోన్ (+91 98765 43210) ను లైవ్ రికవరీ ఏజెంట్‌తో కనెక్ట్ చేస్తోంది...",
+          ta: "குடிமகன் தொலைபேசி (+91 98765 43210) நேரலை மீட்பு அமைப்பில் இணைக்கப்படுகிறது...",
+          kn: "ನಾಗರಿಕರ ಫೋನ್ (+91 98765 43210) ಅನ್ನು ಲೈವ್ ರಿಕವರಿ ಏಜೆಂಟ್‌ಗೆ ಸಂಪರ್ಕಿಸಲಾಗುತ್ತಿದೆ...",
+          mr: "नागरिकाचा फोन (+91 98765 43210) थेट रिकव्हरी एजंटशी जोडला जात आहे...",
+          bn: "নাগরিকের ফোন (+91 98765 43210) লাইভ রিকভারি এজেন্টের সাথে সংযুক্ত হচ্ছে...",
+          pa: "ਨਾਗਰਿਕ ਦਾ ਫ਼ੋਨ (+91 98765 43210) ਲਾਈਵ ਰਿਕਵਰੀ ਏਜੰਟ ਨਾਲ ਜੋੜਿਆ ਜਾ ਰਿਹਾ ਹੈ...",
         });
 
         // 1. Move virtual cursor to WhatsApp input
@@ -740,8 +741,11 @@ export default function CasePage() {
       // -----------------------------------------------------------------
       // MULTI-STEP PROGRESSION LOOP WITH VIRTUAL CURSOR & TIME-LAPSE
       // -----------------------------------------------------------------
+      const journeyId = currentCase?.demo?.journeyId || "J1_FARMER_EKYC";
+      const totalSteps = currentCase?.demo?.totalSteps || (journeyId === "J2_GOVT_VERIFICATION" ? 5 : journeyId === "J4_NO_ACTION_WAIT" ? 2 : 4);
       let loopCount = 0;
-      while (isPlayingMagicRef.current && loopCount < 8) {
+
+      while (isPlayingMagicRef.current && loopCount < 10) {
         loopCount++;
 
         // Fetch freshest case snapshot
@@ -751,20 +755,29 @@ export default function CasePage() {
         currentCase = checkJson.case;
         setData(currentCase);
 
-        // If Citizen Action required (e.g. e-KYC or Grievance)
+        // Check if already resolved
+        if (currentCase.stateCategory === "resolved" || currentCase.demo?.complete) {
+          setHighlightSection("resolution");
+          setShowConfetti(true);
+          setCursor((prev) => ({ ...prev, visible: false }));
+          const finalCopy = MAGIC_DEMO_COPY[journeyId]?.[totalSteps] || MAGIC_DEMO_COPY.J1_FARMER_EKYC[4];
+          setDemoStatusText(finalCopy.status);
+          scrollToCard("resolution-card");
+          setPushNotification(getWhatsAppAlert({ type: "resolved" }));
+          await new Promise((r) => setTimeout(r, 3500));
+          setAuto(false)
+          setHighlightSection(null);
+          setDemoStatusText(null);
+          isPlayingMagicRef.current = false;
+          break;
+        }
+
+        // If Citizen Action required (e.g. e-KYC or Dispute)
         if (currentCase.yourAction.required && currentCase.yourAction.action) {
           setHighlightSection("action");
           scrollToCard("action-container");
-          setDemoStatusText({
-            en: "Step 1/4: Performing citizen requirement on portal...",
-            hi: "चरण 1/4: पोर्टल पर नागरिक प्रक्रिया पूरी की जा रही है...",
-            te: "దశ 1/4: పోర్టల్‌లో పౌర అవసరాన్ని పూర్తి చేస్తోంది...",
-            ta: "படி 1/4: போர்ட்டலில் குடிமகன் தேவையை நிறைவேற்றுகிறது...",
-            kn: "ಹಂತ 1/4: ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನಾಗರಿಕ ಪ್ರಕ್ರಿಯೆ ಪೂರ್ಣಗೊಳಿಸಲಾಗುತ್ತಿದೆ...",
-            mr: "टप्पा 1/4: पोर्टलवर नागरिक प्रक्रिया पूर्ण केली जात आहे...",
-            bn: "ধাপ 1/4: পোর্টালে नागरिक प्रक्रिया সম্পন্ন হচ্ছে...",
-            pa: "ਪੜਾਅ 1/4: ਪੋਰਟਲ 'ਤੇ ਨਾਗਰਿਕ ਪ੍ਰਕਿਰਿਆ ਪੂਰੀ ਕੀਤੀ ਜਾ ਰਹੀ ਹੈ...",
-          });
+          const actionCopy = MAGIC_DEMO_COPY[journeyId]?.[1] || MAGIC_DEMO_COPY.J1_FARMER_EKYC[1];
+          setDemoStatusText(actionCopy.status);
 
           // Move cursor directly to the action button with visible click wave
           await moveCursorToElement("action-btn", "Clicking 'I Completed This Step'...");
@@ -778,72 +791,21 @@ export default function CasePage() {
           });
           setCursor((prev) => ({ ...prev, visible: false }));
 
-          // ⏳ Time-Lapse Pop-up Card: 3 Days Later (Biometric Sync)
-          setTimeLapse({
-            active: true,
-            daysText: {
-              en: "⏳ 3 Days Later",
-              hi: "⏳ 3 दिन बाद",
-              te: "⏳ 3 రోజుల తర్వాత",
-              ta: "⏳ 3 நாட்களுக்குப் பிறகு",
-              kn: "⏳ 3 ದಿನಗಳ ನಂತರ",
-              mr: "⏳ 3 दिवसांनंतर",
-              bn: "⏳ ৩ দিন পরে",
-              pa: "⏳ 3 ਦਿਨਾਂ ਬਾਅਦ",
-            },
-            title: {
-              en: "Biometric e-KYC Sync & Verification",
-              hi: "बायोमेट्रिक ई-केवाईसी सिंक और सत्यापन",
-              te: "బయోమెట్రిక్ ఇ-కెవైసి సింక్ & ధృవీకరణ",
-              ta: "பயோமெட்ரிக் இ-கேஒய்சி சரிபார்ப்பு",
-              kn: "ಬಯೋಮೆಟ್ರಿಕ್ ಇ-ಕೆವೈಸಿ ಪರಿಶೀಲನೆ",
-              mr: "बायोमेट्रिक ई-केवायसी पडताळणी",
-              bn: "বায়োমেট্রিক ই-কেওয়াইসি যাচাইকরণ",
-              pa: "ਬਾਇਓਮੈਟ੍ਰਿਕ ਈ-ਕੇਵਾਈਸੀ ਤਸਦੀਕ",
-            },
-            description: {
-              en: "CSC operator biometric log synced with UIDAI and Central PM-KISAN Portal.",
-              hi: "सीएससी बायोमेट्रिक रिकॉर्ड यूआईडीएआई एवं पीएम-किसान केंद्रीय पोर्टल पर सत्यापित।",
-              te: "CSC కేంద్రం బయోమెట్రిక్ రికార్డు UIDAI మరియు PM-KISAN పోర్టల్లో ధృవీకరించబడింది.",
-              ta: "CSC பயோமெட்ரிக் பதிவு UIDAI மற்றும் PM-KISAN போர்ட்டலில் சரிபார்க்கப்பட்டது.",
-              kn: "CSC ಬಯೋಮೆಟ್ರಿಕ್ ದಾಖಲೆಯು UIDAI ಮತ್ತು PM-KISAN ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ದೃಢೀಕರಿಸಲ್ಪಟ್ಟಿದೆ.",
-              mr: "सीएससी बायोमेट्रिक नोंदणी यूआयडीएआय व पीएम-किसान पोर्टलवर पडताळली गेली.",
-              bn: "সিএসসি বায়োমেট্রিক রেকর্ড ইউআইডিএআই এবং পিএম-কিসান পোর্টালে যাচাই সম্পন্ন।",
-              pa: "ਸੀਐਸਸੀ ਬਾਇਓਮੈਟ੍ਰਿਕ ਰਿਕਾਰਡ UIDAI ਅਤੇ PM-KISAN ਪੋਰਟਲ 'ਤੇ ਤਸਦੀਕ ਹੋ ਗਿਆ।",
-            },
-          });
-
-          await new Promise((r) => setTimeout(r, 2200));
-          setTimeLapse(null);
+          if (actionCopy.timeLapse) {
+            setTimeLapse({
+              active: true,
+              daysText: actionCopy.timeLapse.daysText,
+              title: actionCopy.timeLapse.title,
+              description: actionCopy.timeLapse.description,
+            });
+            await new Promise((r) => setTimeout(r, 2200));
+            setTimeLapse(null);
+          }
 
           // Dispatch citizen action WhatsApp notification
           setPushNotification(getWhatsAppAlert({ type: "action_recorded" }));
           await new Promise((r) => setTimeout(r, 1400));
-        }
-
-        // Check if already resolved
-        if (currentCase.stateCategory === "resolved" || currentCase.demo?.complete) {
-          setHighlightSection("resolution");
-          setShowConfetti(true);
-          setCursor((prev) => ({ ...prev, visible: false }));
-          setDemoStatusText({
-            en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
-            hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
-            te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
-            ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
-            kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
-            mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
-            bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ кредит নিশ্চিত হয়েছে।",
-            pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
-          });
-          scrollToCard("resolution-card");
-          setPushNotification(getWhatsAppAlert({ type: "resolved" }));
-          await new Promise((r) => setTimeout(r, 3500));
-          setAuto(false);
-          setHighlightSection(null);
-          setDemoStatusText(null);
-          isPlayingMagicRef.current = false;
-          break;
+          continue;
         }
 
         // Inject next official government signal
@@ -851,109 +813,24 @@ export default function CasePage() {
         setHighlightSection("baton");
         scrollToCard("baton-rail");
         const currentStep = currentCase.demo?.step ?? 1;
-        const totalSteps = currentCase.demo?.totalSteps ?? 4;
         const nextStep = Math.min(totalSteps, currentStep + 1);
+        const stepCopy = MAGIC_DEMO_COPY[journeyId]?.[nextStep] || MAGIC_DEMO_COPY.J1_FARMER_EKYC[nextStep] || MAGIC_DEMO_COPY.J1_FARMER_EKYC[2];
 
-        if (nextStep === 2 || nextStep === 3) {
-          setDemoStatusText({
-            en: `Step ${nextStep}/4: State verification batch review in progress...`,
-            hi: `चरण ${nextStep}/4: राज्य सत्यापन बैच समीक्षा जारी है...`,
-            te: `దశ ${nextStep}/4: రాష్ట్ర ధృవీకరణ బ్యాచ్ పరిశీలన జరుగుతోంది...`,
-            ta: `படி ${nextStep}/4: மாநில சரிபார்ப்பு தொகுதி ஆய்வு நடைபெறுகிறது...`,
-            kn: `ಹಂತ ${nextStep}/4: ರಾಜ್ಯ ಪರಿಶೀಲನಾ ಬ್ಯಾಚ್ ಪರಿಶೀಲನೆ ಪ್ರಗತಿಯಲ್ಲಿದೆ...`,
-            mr: `टप्पा ${nextStep}/4: राज्य पडताळणी तुकडी पुनरावलोकन सुरू आहे...`,
-            bn: `ধাপ ${nextStep}/4: রাজ্য যাচাই ব্যাচ পর্যালোচনা চলছে...`,
-            pa: `ਪੜਾਅ ${nextStep}/4: ਰਾਜ ਤਸਦੀਕ ਬੈਚ ਸਮੀਖਿਆ ਜਾਰੀ ਹੈ...`,
-          });
+        setDemoStatusText(stepCopy.status);
 
-          // ⏳ Time-Lapse Pop-up Card: 2 Days Later (State Nodal Review)
+        if (stepCopy.timeLapse) {
           setTimeLapse({
             active: true,
-            daysText: {
-              en: "⏳ 2 Days Later",
-              hi: "⏳ 2 दिन बाद",
-              te: "⏳ 2 రోజుల తర్వాత",
-              ta: "⏳ 2 நாட்களுக்குப் பிறகு",
-              kn: "⏳ 2 ದಿನಗಳ ನಂತರ",
-              mr: "⏳ 2 दिवसांनंतर",
-              bn: "⏳ ২ দিন পরে",
-              pa: "⏳ 2 ਦਿਨਾਂ ਬਾਅਦ",
-            },
-            title: {
-              en: "State Nodal Land Record Clearance",
-              hi: "राज्य नोडल भूमि रिकॉर्ड स्वीकृति",
-              te: "రాష్ట్ర నోడల్ భూ రికార్డుల ఆమోదం",
-              ta: "மாநில நோடல் நிலப் பதிவு அனுமதி",
-              kn: "ರಾಜ್ಯ ನೋಡಲ್ ಭೂ ದಾಖಲೆ ಅನುಮೋದನೆ",
-              mr: "राज्य नोडल जमीन नोंद मंजुरी",
-              bn: "রাজ্য নোডাল জমি রেকর্ড অনুমোদন",
-              pa: "ਰਾਜ ਨੋਡਲ ਜ਼ਮੀਨੀ ਰਿਕਾਰਡ ਮਨਜ਼ੂਰੀ",
-            },
-            description: {
-              en: "District Agriculture Officer cleared eligibility audit and forwarded batch to PFMS Treasury.",
-              hi: "जिला कृषि अधिकारी ने पात्रता जांच पूरी कर बैच को पीएफएमएस ट्रेजरी को भेजा।",
-              te: "జిల్లా వ్యవసాయ అధికారి అర్హత పరిశీలన పూర్తి చేసి PFMS ట్రెజరీకి పంపారు.",
-              ta: "மாவட்ட வேளாண் அதிகாரி தகுதி தணிக்கையை முடித்து PFMS கருவூலத்திற்கு அனுப்பினார்.",
-              kn: "ಜಿಲ್ಲಾ ಕೃಷಿ ಅಧಿಕಾರಿಯು ಅರ್ಹತಾ ಪರಿಶೀಲನೆ ಪೂರ್ಣಗೊಳಿಸಿ PFMS ಖಜಾನೆಗೆ ಕಳುಹಿಸಿದ್ದಾರೆ.",
-              mr: "जिल्हा कृषी अधिकाऱ्यांनी पात्रता तपासणी पूर्ण करून तुकडी पीएफएमएसकडे पाठवली.",
-              bn: "জেলা कृषि আধিকারিক योग्यता যাচাই সম্পন্ন করে পিএফএমএস ট্রেজারিতে পাঠালেন।",
-              pa: "ਜ਼ਿਲ੍ਹਾ ਖੇਤੀਬਾੜੀ ਅਧਿਕਾਰੀ ਨੇ ਯੋਗਤਾ ਜਾਂਚ ਪੂਰੀ ਕਰਕੇ ਬੈਚ PFMS ਨੂੰ ਭੇਜਿਆ।",
-            },
-          });
-          await new Promise((r) => setTimeout(r, 2200));
-          setTimeLapse(null);
-        } else if (nextStep >= 4) {
-          setDemoStatusText({
-            en: "Step 4/4: PFMS Treasury Mandate issuing ₹2,000 credit...",
-            hi: "चरण 4/4: पीएफएमएस ट्रेजरी द्वारा ₹2,000 बैंक खाते में ट्रांसफर आदेश जारी...",
-            te: "దశ 4/4: PFMS ట్రెజరీ ₹2,000 జమ ఆదేశాలు జారీ చేస్తోంది...",
-            ta: "படி 4/4: PFMS கருவூலம் ₹2,000 வரவு ஆணையை வெளியிடுகிறது...",
-            kn: "ಹಂತ 4/4: PFMS ಖಜಾನೆ ₹2,000 ಜಮಾ ಆದೇಶ ಹೊರಡಿಸುತ್ತಿದೆ...",
-            mr: "टप्पा 4/4: पीएफएमएस ट्रेझरीकडून ₹2,000 जमा आदेश जारी...",
-            bn: "ধাপ 4/4: পিএফএমএস ট্রেজারি ₹২,০০০ জমা নির্দেশ জারি করছে...",
-            pa: "ਪੜਾਅ 4/4: PFMS ਖਜ਼ਾਨਾ ₹2,000 ਕ੍ਰੈਡਿਟ ਆਦੇਸ਼ ਜਾਰੀ ਕਰ ਰਿਹਾ ਹੈ...",
-          });
-
-          // ⏳ Time-Lapse Pop-up Card: 24 Hours Later (DBT Release)
-          setTimeLapse({
-            active: true,
-            daysText: {
-              en: "⏳ 24 Hours Later",
-              hi: "⏳ 24 घंटे बाद",
-              te: "⏳ 24 గంటల తర్వాత",
-              ta: "⏳ 24 மணி நேரத்திற்குப் பிறகு",
-              kn: "⏳ 24 ಗಂಟೆಗಳ ನಂತರ",
-              mr: "⏳ 24 तासांनंतर",
-              bn: "⏳ २४ ঘণ্টা পরে",
-              pa: "⏳ 24 ਘੰਟਿਆਂ ਬਾਅਦ",
-            },
-            title: {
-              en: "PFMS Direct Treasury Transfer",
-              hi: "पीएफएमएस डायरेक्ट ट्रेजरी ट्रांसफर",
-              te: "PFMS ప్రత్యక్ష ట్రెజరీ బదిలీ",
-              ta: "PFMS நேரடி கருவூலப் பரிமாற்றம்",
-              kn: "PFMS ನೇರ ಖಜಾನೆ ವರ್ಗಾವಣೆ",
-              mr: "पीएफएमएस थेट ट्रेझरी ट्रान्सफर",
-              bn: "পিএফএমএস সরাসরি ট্রেজারি হস্তান্তর",
-              pa: "PFMS ਸਿੱਧਾ ਖਜ਼ਾਨਾ ਤਬਾਦਲਾ",
-            },
-            description: {
-              en: "Central PFMS issued DBT payment mandate to State Bank of India gateway.",
-              hi: "केंद्रीय पीएफएमएस ने स्टेट बैंक गेटवे को ₹2,000 डीबीटी भुगतान आदेश जारी किया।",
-              te: "కేంద్ర PFMS స్టేట్ బ్యాంక్ గేట్‌వేకు ₹2,000 DBT బదిలీ ఆదేశాలు జారీ చేసింది.",
-              ta: "மத்திய PFMS ஸ்டேட் வங்கி நுழைவாயிலுக்கு ₹2,000 DBT கட்டண ஆணையை வழங்கியது.",
-              kn: "ಕೇಂದ್ರ PFMS ಸ್ಟೇಟ್ ಬ್ಯಾಂಕ್ ಗೇಟ್‌ವೇಗೆ ₹2,000 DBT ਪಾವತಿ ಆದೇಶ ನೀಡಿದೆ.",
-              mr: "केंद्रीय पीएफएमएसने स्टेट बँक गेटवेला ₹2,000 डीबीटी पेमेंट आदेश जारी केला.",
-              bn: "কেন্দ্রীয় পিএফএমএস স্টেট ব্যাংক গেটওয়েতে ₹২,০০০ ডিবিটি পেমেন্ট নির্দেশ পাঠাল।",
-              pa: "ਕੇਂਦਰੀ PFMS ਨੇ ਸਟੇਟ ਬੈਂਕ ਗੇਟਵੇ ਨੂੰ ₹2,000 DBT ਭੁਗਤਾਨ ਆਦੇਸ਼ ਜਾਰੀ ਕੀਤਾ।",
-            },
+            daysText: stepCopy.timeLapse.daysText,
+            title: stepCopy.timeLapse.title,
+            description: stepCopy.timeLapse.description,
           });
           await new Promise((r) => setTimeout(r, 2200));
           setTimeLapse(null);
         }
 
         const simRes = await fetch(`/api/cases/${id}/simulate-signal`, { method: "POST" });
-        const simJson = (await simRes.json()) as { case?: CaseDTO };
+        const simJson = (await simRes.json()) as { case?: CaseDTO; done?: boolean };
         if (simJson.case) {
           setData(simJson.case);
           currentCase = simJson.case;
@@ -961,20 +838,14 @@ export default function CasePage() {
           if (simJson.case.stateCategory === "resolved" || simJson.case.demo?.complete) {
             setHighlightSection("resolution");
             setShowConfetti(true);
-            setDemoStatusText({
-              en: "🎉 Relief settled! ₹2,000 credit confirmed into bank account.",
-              hi: "🎉 राहत राशि जमा! ₹2,000 बैंक खाते में ट्रांसफर हो गए हैं।",
-              te: "🎉 పరిహారం పూర్తయింది! బ్యాంక్ ఖాతాలో ₹2,000 జమ నిర్ధారించబడింది.",
-              ta: "🎉 நிவாரணம் தீர்க்கப்பட்டது! வங்கிக் கணக்கில் ₹2,000 வரவு உறுதிப்படுத்தப்பட்டது.",
-              kn: "🎉 ಪರಿಹಾರ ಇತ್ಯರ್ಥವಾಯಿತು! ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ₹2,000 ಜಮಾ ದೃಢಪಟ್ಟಿದೆ.",
-              mr: "🎉 निधी जमा! बँक खात्यात ₹2,000 जमा झाल्याची पुष्टी झाली.",
-              bn: "🎉 টাকা জমা হয়েছে! ব্যাঙ্ক অ্যাকাউন্টে ₹২,০০০ кредит নিশ্চিত হয়েছে।",
-              pa: "🎉 ਰਾਹਤ ਜਮ੍ਹਾਂ! ਬੈਂਕ ਖਾਤੇ ਵਿੱਚ ₹2,000 ਕ੍ਰੈਡਿਟ ਹੋਣ ਦੀ ਪੁਸ਼ਟੀ ਹੋਈ।",
-            });
+            const finalCopy = MAGIC_DEMO_COPY[journeyId]?.[totalSteps] || MAGIC_DEMO_COPY.J1_FARMER_EKYC[4];
+            setDemoStatusText(finalCopy.status);
             scrollToCard("resolution-card");
             setPushNotification(getWhatsAppAlert({ type: "resolved" }));
             await new Promise((r) => setTimeout(r, 3500));
             setAuto(false);
+            setHighlightSection(null);
+            setDemoStatusText(null);
             isPlayingMagicRef.current = false;
             break;
           }
@@ -989,7 +860,7 @@ export default function CasePage() {
           );
         }
 
-        await new Promise((r) => setTimeout(r, 1800));
+        await new Promise((r) => setTimeout(r, 1600));
       }
     } finally {
       setAuto(false);
@@ -997,7 +868,7 @@ export default function CasePage() {
       setCursor({ visible: false, x: 0, y: 0, clicking: false, label: null });
       setTimeLapse(null);
     }
-  }, [auto, isSubscribed, id, lang, data?.id, getWhatsAppAlert, t]);
+  }, [auto, isSubscribed, id, data, getWhatsAppAlert, t]);
 
   useEffect(() => {
     if (!changed) return;
